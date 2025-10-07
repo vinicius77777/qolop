@@ -35,5 +35,3 @@ model Ambiente {
   imagemPreview String?
   criado_em     DateTime @default(now())
 }
-
-

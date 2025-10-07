@@ -31,11 +31,7 @@ async function request(endpoint: string, options: RequestInit = {}, auth = false
   return data;
 }
 
-/**
- * =========================================
- * 🔑 AUTH & USUÁRIOS
- * =========================================
- */
+
 export interface Usuario {
   id: number;
   nome: string;

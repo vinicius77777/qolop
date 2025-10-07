@@ -1,17 +1,20 @@
-// src/pages/register.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { createParticles } from "../animations/global";
 import { register } from "../services/api";
-
+import "../styles/global.css";
 
 export default function Register() {
   const navigate = useNavigate();
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const [foto, setFoto] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useEffect(() => {
+    createParticles("particle-container");
+  }, []);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -19,17 +22,11 @@ export default function Register() {
     setError("");
 
     try {
-      const res = await register(nome, email, senha, foto);
-
-      console.log("✅ Cadastro bem-sucedido:", res);
-
-      // salva token + usuario no localStorage
+      const res = await register(nome, email, senha);
       localStorage.setItem("token", res.token);
       localStorage.setItem("usuario", JSON.stringify(res.usuario));
-
-      navigate("/inicio"); // vai pra home/dashboard
+      navigate("/inicio");
     } catch (err: any) {
-      console.error("❌ Erro no cadastro:", err);
       setError(err.message || "Erro ao cadastrar");
     } finally {
       setLoading(false);
@@ -37,19 +34,19 @@ export default function Register() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6">Cadastro</h1>
+    <div className="register-page">
+      <div id="particle-container"></div>
 
-        {error && (
-          <p className="text-red-600 text-center mb-4">{error}</p>
-        )}
+      <div className="register-container animate-fadeIn">
+        <h1 className="register-title">Cadastro</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {error && <p className="register-error">{error}</p>}
+
+        <form onSubmit={handleSubmit} className="register-form">
           <input
             type="text"
             placeholder="Nome"
-            className="w-full border rounded-lg px-3 py-2"
+            className="register-input"
             value={nome}
             onChange={(e) => setNome(e.target.value)}
             required
@@ -57,7 +54,7 @@ export default function Register() {
           <input
             type="email"
             placeholder="Email"
-            className="w-full border rounded-lg px-3 py-2"
+            className="register-input"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -65,30 +62,19 @@ export default function Register() {
           <input
             type="password"
             placeholder="Senha"
-            className="w-full border rounded-lg px-3 py-2"
+            className="register-input"
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
             required
           />
-          <input
-            type="text"
-            placeholder="Foto (URL opcional)"
-            className="w-full border rounded-lg px-3 py-2"
-            value={foto}
-            onChange={(e) => setFoto(e.target.value)}
-          />
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-green-600 text-white py-2 rounded-lg hover:bg-green-700 disabled:opacity-50"
-          >
+          <button type="submit" disabled={loading} className="register-button">
             {loading ? "Cadastrando..." : "Cadastrar"}
           </button>
         </form>
 
-        <p className="text-sm text-center mt-4 text-gray-600">
+        <p className="register-login-text">
           Já tem conta?{" "}
-          <Link to="/login" className="text-blue-600 hover:underline">
+          <Link to="/login" className="register-login-link">
             Faça login
           </Link>
         </p>

@@ -1,7 +1,8 @@
-// src/pages/login.tsx
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { createParticles } from "../animations/global";
 import { login } from "../services/api";
+import "../styles/global.css";
 
 export default function Login() {
   const navigate = useNavigate();
@@ -10,6 +11,10 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    createParticles("particle-container");
+  }, []);
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -17,16 +22,10 @@ export default function Login() {
 
     try {
       const res = await login(email, senha);
-
-      console.log("✅ Login bem-sucedido:", res);
-
-      // salva token + usuario no localStorage
       localStorage.setItem("token", res.token);
       localStorage.setItem("usuario", JSON.stringify(res.usuario));
-
-      navigate("/inicio"); // vai para o dashboard
+      navigate("/inicio");
     } catch (err: any) {
-      console.error("❌ Erro ao logar:", err);
       setError(err.message || "Erro ao logar");
     } finally {
       setLoading(false);
@@ -34,43 +33,45 @@ export default function Login() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-2xl shadow-lg w-full max-w-md">
-        <h1 className="text-2xl font-bold text-center mb-6">Login</h1>
+    <div className="login-page">
+      <div id="particle-container"></div>
 
-        {error && (
-          <p className="text-red-600 text-center mb-4">{error}</p>
-        )}
+      <div className="login-container">
+        <h1 className="login-title">Entrar</h1>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {error && <p className="login-error">{error}</p>}
+
+        <form onSubmit={handleSubmit} className="login-form">
           <input
             type="email"
             placeholder="Email"
-            className="w-full border rounded-lg px-3 py-2"
+            className="login-input"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
           />
+
           <input
             type="password"
             placeholder="Senha"
-            className="w-full border rounded-lg px-3 py-2"
+            className="login-input"
             value={senha}
             onChange={(e) => setSenha(e.target.value)}
             required
           />
+
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            className="login-button"
           >
             {loading ? "Entrando..." : "Entrar"}
           </button>
         </form>
 
-        <p className="text-sm text-center mt-4 text-gray-600">
+        <p className="login-register-text">
           Não tem conta?{" "}
-          <Link to="/register" className="text-green-600 hover:underline">
+          <Link to="/register" className="login-register-link">
             Cadastre-se
           </Link>
         </p>

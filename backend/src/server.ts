@@ -20,7 +20,6 @@ app.use(cors({
   allowedHeaders: ["Content-Type", "Authorization"],
 }));
 
-
 interface AuthRequest extends Request {
   user?: { id: number; email: string; role: string };
 }
@@ -36,19 +35,12 @@ async function auth(req: AuthRequest, res: Response, next: NextFunction) {
   }
 
   try {
-    const payload = jwt.verify(token, JWT_SECRET) as {
-      id: number;
-      email: string;
-    };
-
-    const usuario = await prisma.usuario.findUnique({
-      where: { id: payload.id },
-    });
-
+    const payload = jwt.verify(token, JWT_SECRET) as { id: number; email: string };
+    const usuario = await prisma.usuario.findUnique({ where: { id: payload.id } });
     if (!usuario) return res.status(401).json({ error: "Usuário não existe" });
 
     req.user = { id: usuario.id, email: usuario.email, role: usuario.role };
-    return next();
+    next();
   } catch {
     return res.status(401).json({ error: "Token inválido ou expirado" });
   }
@@ -62,17 +54,14 @@ function requireAdmin(req: AuthRequest, res: Response, next: NextFunction) {
   next();
 }
 
-/**
- * =========================================
+/** =========================================
  * ROTAS DE USUÁRIOS
  * =========================================
  */
 app.post("/usuarios", async (req: Request, res: Response) => {
   const { nome, email, senha, foto, role } = req.body;
   if (!nome || !email || !senha) {
-    return res
-      .status(400)
-      .json({ error: "Campos obrigatórios: nome, email, senha" });
+    return res.status(400).json({ error: "Campos obrigatórios: nome, email, senha" });
   }
 
   try {
@@ -86,18 +75,12 @@ app.post("/usuarios", async (req: Request, res: Response) => {
       data: { nome, email, senha: hashedPassword, foto, role: role || "user" },
     });
 
-    const token = jwt.sign(
-      { id: novo.id, email: novo.email },
-      JWT_SECRET,
-      { expiresIn: "2h" }
-    );
-
+    const token = jwt.sign({ id: novo.id, email: novo.email }, JWT_SECRET, { expiresIn: "2h" });
     const { senha: _, ...usuarioSemSenha } = novo;
+
     return res.status(201).json({ token, usuario: usuarioSemSenha });
   } catch (error) {
-    return res
-      .status(500)
-      .json({ error: "Erro ao criar usuário", details: String(error) });
+    return res.status(500).json({ error: "Erro ao criar usuário", details: String(error) });
   }
 });
 
@@ -109,20 +92,14 @@ app.post("/login", async (req: Request, res: Response) => {
 
   try {
     const usuario = await prisma.usuario.findUnique({ where: { email } });
-    if (!usuario) {
-      return res.status(401).json({ error: "Usuário não encontrado" });
-    }
+    if (!usuario) return res.status(401).json({ error: "Usuário não encontrado" });
 
     const senhaValida = await bcrypt.compare(senha, usuario.senha);
-    if (!senhaValida) {
-      return res.status(401).json({ error: "Senha incorreta" });
-    }
+    if (!senhaValida) return res.status(401).json({ error: "Senha incorreta" });
 
-    const token = jwt.sign({ id: usuario.id, email: usuario.email }, JWT_SECRET, {
-      expiresIn: "2h",
-    });
-
+    const token = jwt.sign({ id: usuario.id, email: usuario.email }, JWT_SECRET, { expiresIn: "2h" });
     const { senha: _, ...usuarioSemSenha } = usuario;
+
     return res.json({ message: "Login bem-sucedido", token, usuario: usuarioSemSenha });
   } catch (error) {
     return res.status(500).json({ error: "Erro no login", details: String(error) });
@@ -152,6 +129,37 @@ app.get("/usuarios", auth, requireAdmin, async (_req: AuthRequest, res: Response
   }
 });
 
+app.put("/usuarios/:id", auth, async (req: AuthRequest, res: Response) => {
+  const id = parseInt(req.params.id);
+  const { nome, email, senha, senhaAntiga } = req.body;
+
+  try {
+    const usuario = await prisma.usuario.findUnique({ where: { id } });
+    if (!usuario) return res.status(404).json({ error: "Usuário não encontrado" });
+
+    if (senha) {
+      if (!senhaAntiga) return res.status(400).json({ error: "Informe a senha atual para trocar a senha" });
+      const valida = await bcrypt.compare(senhaAntiga, usuario.senha);
+      if (!valida) return res.status(401).json({ error: "Senha atual incorreta" });
+    }
+
+    const atualizado = await prisma.usuario.update({
+      where: { id },
+      data: {
+        nome,
+        email,
+        senha: senha ? await bcrypt.hash(senha, 10) : usuario.senha,
+      },
+    });
+
+    const { senha: _, ...usuarioSemSenha } = atualizado;
+    return res.json(usuarioSemSenha);
+
+  } catch (error) {
+    return res.status(500).json({ error: "Erro ao atualizar usuário", details: String(error) });
+  }
+});
+
 app.delete("/usuarios/:id", auth, requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const id = parseInt(req.params.id);
@@ -162,8 +170,7 @@ app.delete("/usuarios/:id", auth, requireAdmin, async (req: AuthRequest, res: Re
   }
 });
 
-/**
- * =========================================
+/** =========================================
  * ROTAS DE AMBIENTES
  * =========================================
  */
@@ -179,9 +186,7 @@ app.get("/ambientes", async (_req: Request, res: Response) => {
 app.post("/ambientes", auth, requireAdmin, async (req: Request, res: Response) => {
   try {
     const { titulo, descricao, linkVR, imagemPreview } = req.body;
-    const novo = await prisma.ambiente.create({
-      data: { titulo, descricao, linkVR, imagemPreview },
-    });
+    const novo = await prisma.ambiente.create({ data: { titulo, descricao, linkVR, imagemPreview } });
     return res.status(201).json(novo);
   } catch (error) {
     return res.status(500).json({ error: "Erro ao criar ambiente", details: String(error) });
@@ -192,10 +197,7 @@ app.put("/ambientes/:id", auth, requireAdmin, async (req: Request, res: Response
   try {
     const id = parseInt(req.params.id);
     const { titulo, descricao, linkVR, imagemPreview } = req.body;
-    const atualizado = await prisma.ambiente.update({
-      where: { id },
-      data: { titulo, descricao, linkVR, imagemPreview },
-    });
+    const atualizado = await prisma.ambiente.update({ where: { id }, data: { titulo, descricao, linkVR, imagemPreview } });
     return res.json(atualizado);
   } catch (error) {
     return res.status(500).json({ error: "Erro ao atualizar ambiente", details: String(error) });
@@ -212,17 +214,14 @@ app.delete("/ambientes/:id", auth, requireAdmin, async (req: Request, res: Respo
   }
 });
 
-/**
- * =========================================
+/** =========================================
  * ROTAS DE PEDIDOS
  * =========================================
  */
 app.post("/pedidos", async (req: Request, res: Response) => {
   try {
     const { empresa, email, telefone, mensagem } = req.body;
-    const novo = await prisma.pedido.create({
-      data: { empresa, email, telefone, mensagem },
-    });
+    const novo = await prisma.pedido.create({ data: { empresa, email, telefone, mensagem } });
     return res.status(201).json(novo);
   } catch (error) {
     return res.status(500).json({ error: "Erro ao criar pedido", details: String(error) });
@@ -242,10 +241,7 @@ app.put("/pedidos/:id", auth, async (req: Request, res: Response) => {
   try {
     const id = parseInt(req.params.id);
     const { status } = req.body;
-    const atualizado = await prisma.pedido.update({
-      where: { id },
-      data: { status },
-    });
+    const atualizado = await prisma.pedido.update({ where: { id }, data: { status } });
     return res.json(atualizado);
   } catch (error) {
     return res.status(500).json({ error: "Erro ao atualizar pedido", details: String(error) });

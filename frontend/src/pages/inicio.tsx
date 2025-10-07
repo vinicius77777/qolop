@@ -1,106 +1,119 @@
 // src/pages/inicio.tsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { FaUsers, FaClipboardList, FaCubes } from "react-icons/fa";
-import { Usuario } from "../services/api";
-
-interface CardProps {
-  title: string;
-  description: string;
-  icon: React.ReactNode;
-  color: string;
-  onClick: () => void;
-}
-
-const Card: React.FC<CardProps> = ({ title, description, icon, color, onClick }) => (
-  <div
-    onClick={onClick}
-    className={`cursor-pointer p-6 rounded-3xl shadow-2xl transform transition-transform hover:scale-105 hover:shadow-indigo-400 bg-gradient-to-br from-white to-gray-100`}
-  >
-    <div className={`text-5xl mb-4 ${color}`}>{icon}</div>
-    <h3 className="text-xl font-bold mb-2">{title}</h3>
-    <p className="text-gray-600">{description}</p>
-    <button className="mt-4 px-4 py-2 bg-gradient-to-r from-green-500 to-blue-500 text-white rounded-xl font-semibold shadow-lg hover:from-blue-500 hover:to-green-500 transition-all">
-      Acessar
-    </button>
-  </div>
-);
+import { getMe, Usuario } from "../services/api";
+import { createParticles } from "../animations/global";
+import "../styles/global.css";
 
 export default function Inicio() {
-  const navigate = useNavigate();
   const [usuario, setUsuario] = useState<Usuario | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  const [menuOpen, setMenuOpen] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    const usuarioSalvo = localStorage.getItem("usuario");
-    if (usuarioSalvo) setUsuario(JSON.parse(usuarioSalvo));
-    else navigate("/login");
+    createParticles("particle-container");
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const data = await getMe();
+        setUsuario(data);
+      } catch (err: any) {
+        setError("Você precisa estar logado.");
+        setTimeout(() => navigate("/login"), 1400);
+      } finally {
+        setLoading(false);
+      }
+    })();
   }, [navigate]);
 
-  function handleLogout() {
-    localStorage.removeItem("token");
-    localStorage.removeItem("usuario");
-    navigate("/login");
-  }
+  if (loading) return <p>Carregando...</p>;
+  if (error) return <p className="error">{error}</p>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-r from-purple-400 via-pink-300 to-yellow-200">
-      <header className="bg-white shadow-md p-4 flex justify-between items-center">
-        <h1 className="text-3xl font-bold text-purple-700">Taotajima</h1>
-        <div className="flex items-center space-x-4">
-          {usuario && (
-            <>
-              <span className="text-gray-700 font-medium flex items-center space-x-2">
-                {usuario.foto && (
-                  <img
-                    src={usuario.foto}
-                    alt="Avatar"
-                    className="w-10 h-10 rounded-full object-cover border-2 border-purple-500"
-                  />
-                )}
-                <span>Olá, {usuario.nome}</span>
-              </span>
-              <button
-                onClick={handleLogout}
-                className="bg-red-500 px-5 py-2 rounded-xl text-white font-semibold hover:bg-red-600 transition-colors shadow-lg"
+    <div className="inicio-page">
+      <div id="particle-container"></div>
+
+      {/* Menu lateral */}
+      <div className={`menu ${menuOpen ? "open" : ""}`}>
+        <div className="menu-inner">
+          <div className="menu-cards">
+            <div
+              className="menu-card inicio"
+              onClick={() => { setMenuOpen(false); navigate("/inicio"); }}
+            >
+              <img src="/images/inicio.png" alt="Início" className="card-img" />
+              <span className="card-label">Início</span>
+            </div>
+
+            <div
+              className="menu-card perfil"
+              onClick={() => { setMenuOpen(false); navigate("/perfil"); }}
+            >
+              <img src="/images/perfil.png" alt="Perfil" className="card-img" />
+              <span className="card-label">Perfil</span>
+            </div>
+
+            <div
+              className="menu-card ambientes"
+              onClick={() => { setMenuOpen(false); navigate("/ambientes"); }}
+            >
+              <img src="/images/ambientes.png" alt="Ambientes" className="card-img" />
+              <span className="card-label">Ambientes</span>
+            </div>
+
+            <div
+              className="menu-card pedidos"
+              onClick={() => { setMenuOpen(false); navigate("/pedidos"); }}
+            >
+              <img src="/images/pedidos.png" alt="Pedidos" className="card-img" />
+              <span className="card-label">Pedidos</span>
+            </div>
+
+            {usuario?.role === "admin" && (
+              <div
+                className="menu-card usuarios"
+                onClick={() => { setMenuOpen(false); navigate("/usuarios"); }}
               >
-                Sair
-              </button>
-            </>
-          )}
-        </div>
-      </header>
+                <img src="/images/usuarios.png" alt="Usuários" className="card-img" />
+                <span className="card-label">Usuários</span>
+              </div>
+            )}
+          </div>
 
-      <main className="p-8 max-w-6xl mx-auto">
-        <h2 className="text-3xl font-bold mb-8 text-gray-800 drop-shadow-lg">
-          Escolha uma opção
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          <Card
-            title="Ambientes"
-            description="Explore os ambientes disponíveis e veja previews em 3D/VR."
-            icon={<FaCubes />}
-            color="text-green-500"
-            onClick={() => navigate("/ambientes")}
-          />
-          <Card
-            title="Pedidos"
-            description="Acompanhe, crie ou atualize pedidos de forma rápida e prática."
-            icon={<FaClipboardList />}
-            color="text-blue-500"
-            onClick={() => navigate("/pedidos")}
-          />
-          {usuario?.role === "admin" && (
-            <Card
-              title="Usuários"
-              description="Gerencie usuários e permissões do sistema."
-              icon={<FaUsers />}
-              color="text-yellow-500"
-              onClick={() => navigate("/usuarios")}
-            />
-          )}
+          <button
+            className="logout-btn"
+            onClick={() => {
+              localStorage.removeItem("token");
+              localStorage.removeItem("usuario");
+              navigate("/login");
+            }}
+          >
+            Logout
+          </button>
         </div>
-      </main>
+      </div>
+
+      {/* Botão menu (hamburger) */}
+      <div
+        className={`menu-icon ${menuOpen ? "open" : ""}`}
+        onClick={() => setMenuOpen((s) => !s)}
+      >
+        <div></div>
+        <div></div>
+        <div></div>
+      </div>
+
+      {/* Conteúdo principal */}
+      <div className="inicio-content">
+        <h1 className="inicio-title">Bem-vindo(a), {usuario?.nome}</h1>
+        <p className="inicio-desc">
+          Gerencie seus ambientes, pedidos e usuários de forma rápida e prática.
+        </p>
+      </div>
     </div>
   );
 }

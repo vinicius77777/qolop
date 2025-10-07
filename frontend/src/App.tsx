@@ -5,13 +5,13 @@ import ProtectedRoute from "./components/protectedroute";
 
 // páginas
 import Inicio from "./pages/inicio";
-import Dashboard from "./pages/dashboard";
 import Perfil from "./pages/perfil";
 import Ambientes from "./pages/ambientes";
 import Pedidos from "./pages/pedidos";
 import Login from "./pages/login";
 import Register from "./pages/register";
 import Welcome from "./pages/welcome";
+import Usuarios from "./pages/usuarios"; // <--- nova página
 
 function App() {
   return (
@@ -29,16 +29,6 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <Inicio />
-              </Layout>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <Layout>
-                <Dashboard />
               </Layout>
             </ProtectedRoute>
           }
@@ -69,6 +59,16 @@ function App() {
             <ProtectedRoute>
               <Layout>
                 <Pedidos />
+              </Layout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/usuarios"
+          element={
+            <ProtectedRoute>
+              <Layout>
+                <Usuarios />
               </Layout>
             </ProtectedRoute>
           }
