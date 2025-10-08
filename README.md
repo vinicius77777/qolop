@@ -4,10 +4,17 @@
 
 Antes de começar, verifique se você tem instalado no seu computador:
 
+<<<<<<< HEAD
 - [Node.js (>=18.x)](https://nodejs.org/en/)
 - [npm](https://www.npmjs.com/) (vem junto com o Node.js) ou [yarn](https://yarnpkg.com/)
 - [MySQL (>=8.x)](https://dev.mysql.com/downloads/mysql/)
 - [Prisma CLI](https://www.prisma.io/docs/concepts/components/prisma-cli) – será instalado junto com `npm install`
+=======
+* [Node.js (>=18.x)](https://nodejs.org/en/)
+* [npm](https://www.npmjs.com/) (vem junto com o Node.js) ou [yarn](https://yarnpkg.com/)
+* [MySQL (>=8.x)](https://dev.mysql.com/downloads/mysql/)
+* [Prisma CLI](https://www.prisma.io/docs/concepts/components/prisma-cli) – será instalado junto com `npm install`
+>>>>>>> 14b35af2b698fc4e9ab6443fc43b7eb5347278fc
 
 ---
 
@@ -122,7 +129,11 @@ POST http://localhost:3000/login
 }
 ```
 
+<<<<<<< HEAD
 🔑 A resposta trará o `token`, que deve ser usado no **Authorization** como _Bearer Token_.
+=======
+🔑 A resposta trará o `token`, que deve ser usado no **Authorization** como *Bearer Token*.
+>>>>>>> 14b35af2b698fc4e9ab6443fc43b7eb5347278fc
 
 ---
 
@@ -170,6 +181,25 @@ qolop/
 5. Rodar `npx prisma migrate dev` no backend
 6. Iniciar o backend (`npm run dev`)
 7. Iniciar o frontend (`npm run dev`)
+<<<<<<< HEAD
+=======
+
+---
+
+## 💡 Sobre o Projeto
+
+O **Qolop** foi desenvolvido com foco em aprendizado e boas práticas, unindo **Node.js, Prisma, React e TypeScript** em uma estrutura completa de front e backend.
+A ideia é oferecer uma base sólida para projetos modernos, com autenticação, painel administrativo e um visual limpo e agradável.
+
+---
+
+## ✨ Autor
+
+**Desenvolvido por [Vinícius Fernandes](https://github.com/vinicius77777)**
+💻 Projeto criado com dedicação e atenção aos detalhes.
+
+---
+>>>>>>> 14b35af2b698fc4e9ab6443fc43b7eb5347278fc
 
 ---
 
