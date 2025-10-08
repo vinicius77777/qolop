@@ -176,7 +176,7 @@ const Ambientes: React.FC = () => {
                   )}
 
                   <h3>{amb.titulo}</h3>
-                  <p className="text-gray-400 italic">{amb.descricao.slice(0, 100)}...</p>
+                  <p className="text-gray-400 italic">{amb.descricao.slice(0, 100)}</p>
                   <p className="text-gray-500 text-sm mt-2">Clique para explorar o ambiente</p>
 
                   {/* Formulário inline para edição */}

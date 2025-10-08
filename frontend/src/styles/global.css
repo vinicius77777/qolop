@@ -877,18 +877,7 @@ p {
 }
 
 /* ÍCONE HAMBÚRGUER */
-.menu-icon {
-  position: fixed;
-  top: 40px;
-  left: 20px;
-  width: 25px;
-  height: 25px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  cursor: pointer;
-  z-index: 10;
-}
+
 
 .menu-icon div {
   width: 100%;
@@ -1079,9 +1068,17 @@ p {
 
 /* Container dos cards */
 .menu-cards {
-  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
   width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
   height: 600px;
+
+transform: translate(220px, 80px); /* X = direita, Y = baixo */  
 }
 
 /* Card do menu */

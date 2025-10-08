@@ -38,10 +38,9 @@ const Perfil: React.FC = () => {
       await updateUsuario(usuario.id, {
         nome,
         email,
-        senhaAtual: senhaAtual || undefined,
-        novaSenha: novaSenha || undefined,
+        senha: novaSenha || undefined,
       });
-      setMsg("Perfil atualizado com sucesso ✅");
+      setMsg("");
       setSenhaAtual("");
       setNovaSenha("");
       const atualizado = await getMe();
