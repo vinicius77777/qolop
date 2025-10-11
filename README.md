@@ -4,7 +4,7 @@
 
 Antes de começar, verifique se você tem instalado no seu computador:
 
-<<<<<<< HEAD
+
 
 - [Node.js (>=18.x)](https://nodejs.org/en/)
 - [npm](https://www.npmjs.com/) (vem junto com o Node.js) ou [yarn](https://yarnpkg.com/)
@@ -196,10 +196,10 @@ A ideia é oferecer uma base sólida para projetos modernos, com autenticação,
 💻 Projeto criado com dedicação e atenção aos detalhes.
 
 ---
-<<<<<<< HEAD
+
 =======
 
-> > > > > > > 14b35af2b698fc4e9ab6443fc43b7eb5347278fc
+
 
 ---
 
@@ -216,4 +216,4 @@ A ideia é oferecer uma base sólida para projetos modernos, com autenticação,
 💻 Projeto criado com dedicação e atenção aos detalhes.
 
 ---
->>>>>>> 17369f2 (finalização do projeto qolop IE)
+

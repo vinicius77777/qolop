@@ -1,4 +1,4 @@
-// src/pages/inicio.tsx
+
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { getMe, Usuario } from "../services/api";
@@ -13,8 +13,11 @@ export default function Inicio() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    createParticles("particle-container");
-  }, []);
+    // Garante que recria as partículas ao entrar nessa rota
+    if (location.pathname === "/inicio") {
+      createParticles("particle-container");
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
     (async () => {
@@ -37,7 +40,7 @@ export default function Inicio() {
     <div className="inicio-page">
       <div id="particle-container"></div>
 
-      {/* Menu lateral */}
+      
       <div className={`menu ${menuOpen ? "open" : ""}`}>
         <div className="menu-inner">
           <div className="menu-cards">

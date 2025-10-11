@@ -1,11 +1,11 @@
-// src/pages/usuarios.tsx
+
 import React, { useEffect, useState } from "react";
 import { getMe, getUsuarios, Usuario } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import { createParticles } from "../animations/global";
 import "../styles/global.css";
 
-const REFRESH_INTERVAL = 10000; // 10 segundos
+const REFRESH_INTERVAL = 10000; 
 
 const Usuarios: React.FC = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
@@ -15,12 +15,12 @@ const Usuarios: React.FC = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Inicializa partículas
+  
   useEffect(() => {
     createParticles("particle-container");
   }, []);
 
-  // Função para carregar usuários e validar admin
+  
   const carregar = async () => {
     try {
       setLoading(true);
@@ -43,7 +43,7 @@ const Usuarios: React.FC = () => {
     }
   };
 
-  // Carrega inicialmente e configura intervalo para atualização
+  
   useEffect(() => {
     carregar();
     const interval = setInterval(carregar, REFRESH_INTERVAL);

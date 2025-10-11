@@ -1,6 +1,4 @@
-/* ===============================
-   RESET BÁSICO
-   =============================== */
+
 * {
   margin: 0;
   padding: 0;
@@ -13,9 +11,7 @@ body, html {
   height: 100%;
 }
 
-/* ===============================
-   FUNDO GRADIENTE GERAL
-   =============================== */
+
 .welcome-page {
   min-height: 100vh;
   background: linear-gradient(135deg, #000000 0%, #0a1a2b 50%, #000000 100%);
@@ -24,9 +20,7 @@ body, html {
   overflow: hidden;
 }
 
-/* ===============================
-   CONTAINER CENTRALIZADO
-   =============================== */
+
 .page-container {
   position: absolute;
   top: 50%;
@@ -40,9 +34,7 @@ body, html {
   z-index: 10;
 }
 
-/* ===============================
-   TIPOGRAFIA
-   =============================== */
+
 h1 {
   font-size: 3rem;
   font-weight: 800;
@@ -55,9 +47,7 @@ p {
   text-shadow: 0 1px 6px rgba(0,0,0,0.4);
 }
 
-/* ===============================
-   PARTÍCULAS
-   =============================== */
+
 #particle-container {
   position: absolute;
   width: 100%;
@@ -67,16 +57,14 @@ p {
   z-index: 0;
 }
 
-/* ===============================
-   BOTÕES COM SETA
-   =============================== */
+
 .button-area {
   display: flex;
   justify-content: center;
   gap: 4rem;
 }
 
-/* Botões */
+
 .custom-button {
   display: flex;
   flex-direction: column;
@@ -86,19 +74,19 @@ p {
   cursor: pointer;
 }
 
-/* Botão esquerdo (Entrar) */
+
 .custom-button.left {
   position: relative;
   left: -10px;
 }
 
-/* Botão direito (Cadastro) */
+
 .custom-button.right {
   position: relative;
   left: 90px;
 }
 
-/* Texto acima da seta (fixo, sem animação) */
+
 .button-text {
   font-size: 9px;
   font-weight: 300;
@@ -107,7 +95,7 @@ p {
   transition: none;
 }
 
-/* Wrapper da linha da seta */
+
 .arrow-wrapper {
   position: relative;
   display: flex;
@@ -126,22 +114,22 @@ p {
   height: 8px;
   background: white;
   clip-path: polygon(0 0, 100% 50%, 0 100%);
-  transition: transform 0.2s ease-in-out; /* animação da seta */
+  transition: transform 0.2s ease-in-out;
 }
 
-/* Ponta da seta esquerda */
+
 .arrow-wrapper.left::after {
   right: auto;
   left: 0;
   transform: translateY(-50%) skewX(-25deg) rotate(180deg);
 }
 
-/* Hover ponta direita (Cadastro) */
+
 .custom-button.right:hover .arrow-wrapper::after {
   transform: translateY(-50%) translateX(3px) skewX(-25deg);
 }
 
-/* Hover ponta esquerda (Entrar) */
+
 .custom-button.left:hover .arrow-wrapper.left::after {
   transform: translateY(-50%) translateX(-3px) skewX(-25deg) rotate(180deg);
 }
@@ -216,7 +204,7 @@ p {
     background-color: #eee;
 }
 
-/* Hero Content */
+
 .content {
     position: absolute;
     top: 50%;
@@ -229,11 +217,11 @@ p {
     max-width: 70%;
 }
 .content h1 {
-    font-size: 2.25rem; /* 4xl */
+    font-size: 2.25rem;
     margin-bottom: 1rem;
 }
 .content p {
-    font-size: 1.125rem; /* lg */
+    font-size: 1.125rem;
 }
 
 @keyframes fadeIn {
@@ -241,7 +229,7 @@ p {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Botão CustomButton */
+
 .custom-button {
     position: absolute;
     top: 75%;
@@ -294,7 +282,7 @@ p {
     to { transform: translateX(20px); }
 }
 
-/* Venom Transition */
+
 .venom-transition {
     position: fixed;
     top: 0;
@@ -311,7 +299,7 @@ p {
     clip-path: circle(150% at 50% 50%);
 }
 
-/* Galeria */
+
 .gallery-item {
     width: 16rem;
     height: 10rem;
@@ -330,7 +318,7 @@ p {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Efeito distorção nas imagens */
+
 .distorted-images {
     animation: waterDistortionImages 1.2s ease-out forwards;
 }
@@ -361,7 +349,7 @@ p {
   z-index: 0;
 }
 
-/* Card translúcido */
+
 .login-container {
   position: relative;
   z-index: 10;
@@ -377,7 +365,7 @@ p {
   box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
 }
 
-/* Título */
+
 .login-title {
   font-size: 2rem;
   font-weight: 700;
@@ -386,7 +374,7 @@ p {
   text-shadow: 0 1px 6px rgba(0,0,0,0.4);
 }
 
-/* Inputs */
+
 .login-input {
   width: 100%;
   padding: 0.75rem 1rem;
@@ -408,7 +396,7 @@ p {
   background: rgba(255, 255, 255, 0.25);
 }
 
-/* Botão */
+
 .login-button {
   width: 100%;
   background: #2b6cb0;
@@ -431,14 +419,14 @@ p {
   cursor: not-allowed;
 }
 
-/* Erro */
+
 .login-error {
   color: #ff6b6b;
   font-size: 0.9rem;
   margin-bottom: 1rem;
 }
 
-/* Texto de registro */
+
 .login-register-text {
   margin-top: 1rem;
   color: rgba(255, 255, 255, 0.8);
@@ -503,7 +491,7 @@ p {
   text-shadow: 0 1px 6px rgba(0,0,0,0.4);
 }
 
-/* Inputs */
+
 .register-input {
   width: 100%;
   padding: 0.75rem 1rem;
@@ -525,7 +513,7 @@ p {
   background: rgba(255, 255, 255, 0.25);
 }
 
-/* Botão */
+
 .register-button {
   width: 100%;
   background: #16a34a;
@@ -548,14 +536,14 @@ p {
   cursor: not-allowed;
 }
 
-/* Erro */
+
 .register-error {
   color: #ff6b6b;
   font-size: 0.9rem;
   margin-bottom: 1rem;
 }
 
-/* Texto login */
+
 .register-login-text {
   margin-top: 1rem;
   color: rgba(255, 255, 255, 0.8);
@@ -583,9 +571,7 @@ p {
   }
 }
 
-/* ===============================
-   UPLOAD DE FOTO (opcional)
-   =============================== */
+
 .upload-area {
   display: flex;
   flex-direction: column;
@@ -609,12 +595,12 @@ p {
   transform: scale(1.03);
 }
 
-/* Oculta o input real */
+
 .upload-input {
   display: none;
 }
 
-/* Pré-visualização da imagem */
+
 .preview-container {
   margin-top: 0.5rem;
   display: flex;
@@ -640,11 +626,11 @@ p {
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  margin-top: 30px; /* Aumenta esse valor para descer mais */
+  margin-top: 30px;
 }
 
 
-/* INICIO PAGE */
+
 .inicio-page {
   min-height: 100vh;
   width: 100%;
@@ -656,7 +642,7 @@ p {
   position: relative;
 }
 
-/* HEADER */
+
 .inicio-header {
   width: 90%;
   max-width: 1200px;
@@ -697,7 +683,7 @@ p {
   background-color: #d9363e;
 }
 
-/* MAIN */
+
 .inicio-main {
   display: flex;
   flex-direction: column;
@@ -714,7 +700,7 @@ p {
   margin-bottom: 40px;
 }
 
-/* CARDS */
+
 .cards-container {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -772,7 +758,7 @@ p {
   background: linear-gradient(to right, #3b82f6, #4ade80);
 }
 
-/* MENU  */
+
 #hamburger {
   position: fixed;
   top: 20px;
@@ -816,7 +802,7 @@ p {
   bottom: 0;
 }
 
-/* abrir/fechar menu */
+
 .hamburglar.is-closed .burger-bun-top {
   transform: rotate(45deg) translateY(10px);
 }
@@ -829,7 +815,7 @@ p {
   opacity: 0;
 }
 
-/* Container geral */
+
 .layout-container {
   display: flex;
   min-height: 100vh;
@@ -838,7 +824,7 @@ p {
   overflow-x: hidden;
 }
 
-/* MENU LATERAL */
+
 
 .menu.open {
   left: 0;
@@ -876,12 +862,12 @@ p {
   background: #ff7875;
 }
 
-/* ÍCONE HAMBÚRGUER */
+
 
 
 .menu-icon div {
   width: 100%;
-  height: 3px;
+  height: 30px;
   background-color: #fff;
   border-radius: 2px;
   transition: all 0.3s ease-in-out;
@@ -897,7 +883,7 @@ p {
   transform: rotate(-45deg) translate(5px, -5px);
 }
 
-/* CONTEÚDO */
+
 .layout-content {
   flex: 1;
   padding: 40px;
@@ -918,7 +904,7 @@ p {
   filter: brightness(0.9);
 }
 
-/* Tela inicial */
+
 .inicio-container h1 {
   font-size: 3rem;
   margin-bottom: 20px;
@@ -929,9 +915,9 @@ p {
   color: #ccc;
 }
 
-/* CSS atualizado para menu full screen */
 
-/* Tela de fundo */
+
+
 .inicio-screen {
   position: relative;
   width: 100%;
@@ -953,13 +939,13 @@ p {
   z-index: 0;
 }
 
-/* ===== MENU LATERAL - TRANSPARENTE ===== */
+
 .menu {
   position: fixed;
   top: 0;
-  left: -2000px; /* começa escondido */
+  left: -2000px;
   width: 2000px;
-  height: 100vh; /* cobre a tela inteira */
+  height: 100vh;
   background-color: rgba(101, 101, 101, 0.645);
   display: flex;
   flex-direction: column;
@@ -975,7 +961,7 @@ p {
   left: 0;
 }
 
-/* ===== ITENS DO MENU ===== */
+
 .menu h2 {
   color: #fff;
   font-size: 1.6rem;
@@ -1006,7 +992,7 @@ p {
   border: 2px solid #09334e;
 }
 
-/* ===== BOTÃO LOGOUT ===== */
+
 .logout-btn {
   margin-top: 20px;
   padding: 10px 18px;
@@ -1024,7 +1010,7 @@ p {
 
 .menu-icon {
   position: fixed;
-  top: 330px; /* abaixei um pouco */
+  top: 500px;
   left: 18px;
   width: 30px;
   height: 22px;
@@ -1062,11 +1048,11 @@ p {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  padding-left: 1200px; /* ajuste conforme necessário */
+  padding-left: 1200px;
   padding-top: 320px;
 }
 
-/* Container dos cards */
+
 .menu-cards {
   display: flex;
   flex-wrap: wrap;
@@ -1078,16 +1064,16 @@ p {
   margin: 0 auto;
   height: 600px;
 
-transform: translate(220px, 80px); /* X = direita, Y = baixo */  
+transform: translate(220px, 80px);  
 }
 
-/* Card do menu */
+
 .menu-card {
   position: absolute;
   width: 300px;
   height: 160px;
   display: flex;
-  flex-direction: column; /* imagem em cima, texto embaixo */
+  flex-direction: column;
   align-items: center;
   justify-content: center;
   cursor: pointer;
@@ -1102,7 +1088,7 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   box-shadow: 0 8px 20px rgba(10, 110, 149, 0.5);
 }
 
-/* Texto do card */
+
 .card-label {
   color: #fff;
   font-size: 1rem;
@@ -1121,7 +1107,7 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   box-shadow: 0  8px 20px rgba(10, 110, 149, 0.5);;
 }
 
-/* Posições manuais para cada card */
+
 .menu-card.inicio {
   top: 110px;
   left: -300px;
@@ -1146,18 +1132,18 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   left: -650px;
 }
 
-/* Imagens dos cards */
+
 .card-img {
-  width: 101%;       /* 90% da largura do card */
-  height: auto;     /* altura proporcional */
-  margin-top: 28px; /* ajusta pra empurrar pra baixo */ 
+  width: 101%;      
+  height: auto;    
+  margin-top: 28px; 
   object-fit: contain;
-  border-radius: 16px; /* deixa circular */
+  border-radius: 16px;
 
 }
 
 .pedidos-form-container {
-  background: rgba(255, 255, 255, 0.02); /* quase transparente */
+  background: rgba(255, 255, 255, 0.02);
   border-radius: 20px;
   padding: 40px 30px;
   margin-top: 60px;
@@ -1174,21 +1160,21 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
 }
 
-/* Título */
+
 .pedidos-title {
   color: #fff;
   font-size: 2rem;
   margin-bottom: 1.5rem;
 }
 
-/* Formulário */
+
 .pedidos-form {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
-/* Inputs */
+
 .input-field {
   width: 100%;
   padding: 12px 15px;
@@ -1206,7 +1192,7 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   box-shadow: 0 0 8px #4facfe;
 }
 
-/* Textarea grande */
+
 .input-field.mensagem-grande {
   min-height: 180px;
   resize: none;
@@ -1214,7 +1200,7 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   font-size: 1rem;
 }
 
-/* Botão enviar */
+
 .submit-btn {
   background: linear-gradient(135deg, #6b8cff, #88b3ff);
   border: none;
@@ -1243,7 +1229,7 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   100% { transform: scale(1); opacity: 1; }
 }
 
-/* Lista de Pedidos */
+
 .pedidos-list {
   margin-top: 30px;
 }
@@ -1286,7 +1272,7 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
 .btn.yellow { background: #eab308; color: white; }
 .btn.red { background: #dc2626; color: white; }
 
-/* Caixa de texto grande */
+
 .input-field.mensagem-grande {
   min-height: 180px;
   width: 100%;
@@ -1306,38 +1292,38 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   border-color: rgba(255, 255, 255, 0.25);
 }
 
-/* Pedido Card */
+
 .pedido-card {
   position: relative;
-  background: rgba(255, 255, 255, 0.05); /* fundo bem leve */
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 16px;
-  padding: 20px 20px 20px 25px; /* mais espaço à esquerda */
+  padding: 20px 20px 20px 25px;
   margin-bottom: 18px;
   transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.1); /* sutil borda */
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .pedido-card:hover {
   transform: translateY(-3px);
-  background: rgba(255, 255, 255, 0.08); /* leve destaque no hover */
+  background: rgba(255, 255, 255, 0.08);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
-/* Título do pedido */
+
 .pedido-card h3 {
   margin: 0 0 6px 0;
   font-size: 1.25rem;
   color: #fff;
 }
 
-/* Texto interno */
+
 .pedido-card p {
   margin: 4px 0;
   font-size: 0.95rem;
   color: rgba(255, 255, 255, 0.85);
 }
 
-/* Badge de status */
+
 .status-badge {
   padding: 4px 10px;
   border-radius: 12px;
@@ -1350,7 +1336,7 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
 .status-badge.progress { background: #eab308; }
 .status-badge.pending { background: #6b7280; }
 
-/* Botão X - minimalista */
+
 .delete-top-btn {
   position: absolute;
   top: 10px;
@@ -1375,7 +1361,7 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   color: #ff4a4a;
 }
 
-/* Botões de admin */
+
 .admin-actions {
   margin-top: 12px;
   display: flex;
@@ -1409,7 +1395,7 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   background: #f87171;
 }
 
-/* Animação fade-in dos pedidos */
+
 .fade-in {
   animation: fadeIn 0.4s ease forwards;
 }
@@ -1443,7 +1429,7 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   transform: scale(1.1);
 }
 
-/* Aviso rápido de telefone */
+
 .aviso-telefone {
   position: absolute;
   top: 100%;
@@ -1459,7 +1445,7 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   opacity: 1;
 }
 
-/* Animação suave: sobe e desaparece */
+
 @keyframes fadeUp {
   0% {
     opacity: 1;
@@ -1475,7 +1461,7 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   }
 }
 
-/* Botão branco do editar/pronto */
+
 .btn.white-btn {
   background: transparent;
   color: white;
@@ -1559,7 +1545,7 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   100% { opacity: 0; transform: translateY(-8px); }
 }
 
-/* Card e background */
+
 .pedido-card {
   position: relative;
   background: rgba(255, 255, 255, 0.08);
@@ -1576,7 +1562,7 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
 }
 
-/* Inputs e botões */
+
 .input-field {
   width: 100%;
   padding: 12px;
@@ -1610,7 +1596,7 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   box-shadow: 0 0 15px rgba(120,170,255,0.6);
 }
 
-/* Botões branco/Pronto */
+
 .btn.white-btn {
   background: transparent;
   color: white;
@@ -1627,7 +1613,7 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   transform: scale(1.1);
 }
 
-/* Botão vermelho */
+
 .btn.red {
   background: rgba(220, 38, 38, 0.85);
   color: white;
@@ -1643,7 +1629,7 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   transform: scale(1.05);
 }
 
-/* Aviso animado */
+
 .aviso-telefone {
   position: relative;
   color: #ff4d4f;
@@ -1663,7 +1649,7 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
 }
 
 
-/* estilo do novo dropdown */
+
 .custom-select {
   position: relative;
   display: inline-block;
@@ -1696,7 +1682,7 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   font-size: 12px;
 }
 
-/* cores do menu dropdown */
+
 .custom-select select option {
   background-color: #121212;
   color: white;
@@ -1704,12 +1690,12 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   padding: 8px;
 }
 
-/* status visuais */
+
 .status-badge.pendente { color: #ffca28; }
 .status-badge.em_andamento { color: #42a5f5; }
 .status-badge.concluído { color: #66bb6a; }
 
-/* botão editar */
+
 .editar-btn {
   position: absolute;
   top: 10px;
@@ -1758,8 +1744,8 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
 }
 
 .ambiente-iframe {
-  width: 180vh;        /* Agora ocupa toda a largura */
-  height: 90vh;       /* Mantemos a altura que você gosta */
+  width: 180vh;       
+  height: 90vh;      
   border: none;
   border-radius: 10px;
   box-shadow: 0 0 10px #000;
@@ -1781,7 +1767,7 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   background-color: #222;
 }
 
-/* Card do ambiente */
+
 .pedido-card {
   background: rgba(255, 255, 255, 0.1);
   border: 1px solid rgba(255,255,255,0.3);
@@ -1789,33 +1775,33 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   padding: 1rem;
   margin-bottom: 1.5rem;
   max-width: 800px;
-  min-height: 22rem; /* aumenta altura do card */
+  min-height: 22rem;
   position: relative;
   display: flex;
   flex-direction: column;
 }
 
-/* Imagem do card permanece igual */
+
 .ambiente-img {
   border-radius: 0.75rem;
   box-shadow: 0 4px 6px rgba(0,0,0,0.3);
   margin-bottom: 0.75rem;
   width: 100%;
-  max-height: 18rem; /* mantém a imagem proporcional */
+  max-height: 18rem;
   object-fit: cover;
 }
 
-/* Botões de admin */
+
 .admin-buttons {
   display: flex;
-  justify-content: space-between; /* X e Editar em lados opostos */
+  justify-content: space-between;
   position: absolute;
   top: 10px;
-  width: calc(100% - 2rem); /* um pouco de margem lateral */
+  width: calc(100% - 2rem);
   padding: 0 1rem;
 }
 
-/* Botão X */
+
 .delete-btn {
   background: none;
   border: none;
@@ -1825,7 +1811,7 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
   line-height: 1;
 }
 
-/* Botão Editar transparente tipo vidro */
+
 .edit-btn {
   background: rgba(255, 255, 255, 0.1);
   backdrop-filter: blur(5px);
@@ -1839,18 +1825,18 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
 
 .edit-buttons {
   display: flex;
-  justify-content: center; /* centraliza horizontalmente */
-  gap: 1rem; /* aumenta a distância entre os botões */
-  margin-top: 1rem; /* afasta um pouco do formulário acima */
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 1rem;
 }
 .edit-buttons button {
-  background: rgba(255, 255, 255, 0.15); /* efeito vidro */
+  background: rgba(255, 255, 255, 0.15);
   border: 1px solid rgba(255, 255, 255, 0.3);
   color: white;
-  padding: 0.5rem 1rem; /* aumenta o tamanho */
+  padding: 0.5rem 1rem;
   border-radius: 0.5rem;
   cursor: pointer;
-  font-size: 1rem; /* aumenta a fonte */
+  font-size: 1rem;
 }
 
 
@@ -1860,17 +1846,17 @@ transform: translate(220px, 80px); /* X = direita, Y = baixo */
 }
 
 
-/* Cards de usuários mais compactos */
+
 .usuarios-list .pedido-card {
   max-width: 800px;
-  min-height: 80px; /* altura mínima para caber conteúdo */
-  padding: 10px 15px; /* menos padding interno */
+  min-height: 80px;
+  padding: 10px 15px;
   position: relative;
   display: flex;
   flex-direction: column;
-  justify-content: flex-start; /* empurra conteúdo pro topo */
-  gap: 4px; /* espaçamento entre elementos */
-  background: rgba(255, 255, 255, 0.05); /* leve fundo para contraste */
+  justify-content: flex-start;
+  gap: 4px;
+  background: rgba(255, 255, 255, 0.05);
   border-radius: 0.5rem;
   transition: all 0.2s;
 }

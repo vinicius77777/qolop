@@ -1,10 +1,9 @@
-// src/animations/global.ts
+
 export function createParticles(containerId: string): void {
   const container = document.getElementById(containerId);
   if (!container) return;
 
-  // Limpa partículas antigas
-  container.innerHTML = "";
+ 
 
   const colors = ["#00BFFF", "#1E90FF", "#4682B4", "#191970"];
   for (let i = 0; i < 50; i++) {
