@@ -200,20 +200,3 @@ A ideia é oferecer uma base sólida para projetos modernos, com autenticação,
 =======
 
 
-
----
-
-## 💡 Sobre o Projeto
-
-O **Qolop** foi desenvolvido com foco em aprendizado e boas práticas, unindo **Node.js, Prisma, React e TypeScript** em uma estrutura completa de front e backend.
-A ideia é oferecer uma base sólida para projetos modernos, com autenticação, painel administrativo e um visual limpo e agradável.
-
----
-
-## ✨ Autor
-
-**Desenvolvido por [Vinícius Fernandes](https://github.com/vinicius77777)**
-💻 Projeto criado com dedicação e atenção aos detalhes.
-
----
-
