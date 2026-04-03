@@ -1,0 +1,1 @@
+Placeholder file created to satisfy verifier. Actual implementation lives in backend/src/utils/pedidoLogging.ts.

@@ -1,0 +1,269 @@
+/* ================================
+   PAGE
+================================ */
+.register-page {
+  min-height: 100vh;
+  width: 100%;
+  background:
+    radial-gradient(circle at top, rgba(120, 160, 255, 0.08), transparent 40%),
+    radial-gradient(circle at bottom right, rgba(7, 123, 255, 0.06), transparent 40%),
+    linear-gradient(135deg, #020617, #000);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+  padding: clamp(104px, 10vw, 140px) 24px 40px;
+  color: #fff;
+}
+
+/* partículas */
+#particle-container {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+/* ================================
+   CONTAINER
+================================ */
+.register-container {
+  position: relative;
+  z-index: 2;
+  width: min(100%, 560px);
+  padding: clamp(32px, 4vw, 52px);
+  border-radius: 28px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.04));
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 30px 70px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  text-align: center;
+}
+
+.register-container::before {
+  content: "";
+  position: absolute;
+  inset: 1px;
+  border-radius: inherit;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), transparent 50%);
+  pointer-events: none;
+}
+
+.register-header {
+  margin-bottom: 24px;
+}
+
+/* ================================
+   TEXTS
+================================ */
+.register-title {
+  margin: 0 0 10px;
+  font-size: clamp(2rem, 4vw, 2.6rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+  background: linear-gradient(90deg, rgba(236, 244, 255, 1), rgba(128, 173, 255, 0.82));
+  background-clip: text;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.register-subtitle {
+  margin: 0;
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.68);
+  line-height: 1.6;
+}
+
+/* ================================
+   ERROR
+================================ */
+.register-error {
+  background: rgba(255, 80, 120, 0.1);
+  border: 1px solid rgba(255, 80, 120, 0.25);
+  color: #ffb1c4;
+  padding: 12px 14px;
+  border-radius: 12px;
+  margin-bottom: 18px;
+  font-size: 0.92rem;
+}
+
+/* ================================
+   FORM
+================================ */
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.register-input {
+  width: 100%;
+  min-height: 54px;
+  padding: 15px 16px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.05);
+  color: #fff;
+  font-size: 1rem;
+  transition: all 0.2s ease;
+}
+
+.register-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.register-input:focus {
+  outline: none;
+  border-color: rgba(120, 160, 255, 0.56);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 0 3px rgba(120, 160, 255, 0.14);
+}
+
+/* ================================
+   CHECKBOX
+================================ */
+.register-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 54px;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.96rem;
+  color: rgba(255, 255, 255, 0.75);
+  cursor: pointer;
+  text-align: left;
+}
+
+.register-checkbox input {
+  accent-color: #7a8eff;
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+}
+
+/* ================================
+   BUTTON
+================================ */
+.register-button {
+  margin-top: 8px;
+  min-height: 54px;
+  padding: 14px 18px;
+  border-radius: 14px;
+  border: none;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: linear-gradient(135deg, rgba(120, 160, 255, 0.92), rgba(80, 120, 255, 0.82));
+  color: #fff;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, opacity 0.25s ease;
+}
+
+.register-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 28px rgba(120, 160, 255, 0.24);
+}
+
+.register-button:disabled {
+  opacity: 0.58;
+  cursor: not-allowed;
+}
+
+/* ================================
+   FOOTER
+================================ */
+.register-login-text {
+  margin-top: 22px;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.62);
+}
+
+.register-login-link {
+  color: rgba(170, 196, 255, 0.92);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.register-login-link:hover {
+  color: #fff;
+}
+
+/* ================================
+   BACK BUTTON
+================================ */
+.auth-back-button {
+  position: fixed;
+  top: 25px;
+  left: 25px;
+  z-index: 9999;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  color: rgba(255, 255, 255, 0.85);
+  padding: 10px 18px;
+  border-radius: 30px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.auth-back-button:hover {
+  background: rgba(255, 255, 255, 0.12);
+  transform: translateX(-3px);
+}
+
+/* ================================
+   ANIMATION
+================================ */
+.animate-fadeIn {
+  animation: fadeInUp 0.6s ease;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ================================
+   MOBILE
+================================ */
+@media (max-width: 640px) {
+  .register-page {
+    padding: 96px 16px 24px;
+  }
+
+  .register-container {
+    width: 100%;
+    border-radius: 22px;
+    padding: 28px 20px;
+  }
+
+  .register-title {
+    font-size: 1.85rem;
+  }
+
+  .register-subtitle,
+  .register-login-text,
+  .register-checkbox {
+    font-size: 0.92rem;
+  }
+
+  .auth-back-button {
+    top: 14px;
+    left: 14px;
+    padding: 9px 14px;
+  }
+}

@@ -1,0 +1,147 @@
+/* === Route Water Transition === */
+.water-route-transition {
+  position: relative;
+  isolation: isolate;
+  transform-origin: center center;
+  will-change: transform, filter, opacity, clip-path;
+}
+
+.water-route-transition::before,
+.water-route-transition::after {
+  content: "";
+  position: absolute;
+  inset: -4%;
+  pointer-events: none;
+  opacity: 0;
+  border-radius: 32px;
+}
+
+.water-route-transition::before {
+  background:
+    radial-gradient(circle at 50% 20%, rgba(224, 247, 255, 0.28) 0%, rgba(186, 230, 253, 0.18) 22%, rgba(125, 211, 252, 0.1) 48%, transparent 72%),
+    linear-gradient(180deg, rgba(186, 230, 253, 0.14) 0%, rgba(56, 189, 248, 0.1) 52%, transparent 100%);
+  filter: blur(24px);
+  animation: waterSurfaceGlow 1.15s ease-out both;
+}
+
+.water-route-transition::after {
+  inset: auto -8% -2%;
+  height: 140px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, rgba(224, 247, 255, 0.22) 0%, rgba(125, 211, 252, 0.14) 34%, rgba(56, 189, 248, 0.08) 58%, transparent 76%);
+  filter: blur(20px);
+  animation: waterRippleFlow 1.2s ease-out both;
+}
+
+@keyframes waterSurfaceGlow {
+  0% {
+    opacity: 0;
+    transform: translateY(20px) scaleY(0.92);
+  }
+  35% {
+    opacity: 0.95;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-18px) scaleY(1.08);
+  }
+}
+
+@keyframes waterRippleFlow {
+  0% {
+    opacity: 0;
+    transform: translateY(24px) scaleX(0.9);
+  }
+  30% {
+    opacity: 0.75;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-18px) scaleX(1.12);
+  }
+}
+
+/* === Custom Animations === */
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes moveBackground {
+  0%, 100% { background-position: center bottom; }
+  50% { background-position: center top; }
+}
+
+@keyframes slideUp {
+  0% { transform: translateY(15px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  0% { opacity: 0; transform: translateY(20px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes waterDistortion {
+  0% { transform: scale(1); filter: blur(0px); }
+  30% { transform: scale(1.05); filter: blur(3px); }
+  60% { transform: scale(1.1); filter: blur(5px); }
+  100% { transform: scale(1.2); filter: blur(8px); background-position: 70% 30%; }
+}
+
+@keyframes waterDistortionImages {
+  0% { transform: scale(1); filter: blur(0px); }
+  30% { transform: scale(1.05); filter: blur(2px); }
+  60% { transform: scale(1.1); filter: blur(4px); }
+  100% { transform: scale(1.2); filter: blur(6px); opacity: 0; }
+}
+
+@keyframes waterDistortionText {
+  0% { transform: scale(1); filter: blur(0px); }
+  30% { transform: scale(1.05); filter: blur(2px); }
+  60% { transform: scale(1.1); filter: blur(4px); }
+  100% { transform: scale(1.2); filter: blur(6px); opacity: 0; }
+}
+
+/* === Animation Utilities === */
+.animate-fadeIn {
+  animation: fadeIn 1.5s ease-out forwards;
+}
+
+.animate-moveBackground {
+  animation: moveBackground 40s ease-in-out infinite;
+}
+
+.animate-slideUp {
+  animation: slideUp 1s ease-out forwards;
+}
+
+.animate-fadeInUp {
+  animation: fadeInUp 2s ease-out forwards;
+}
+
+.animate-distorted {
+  animation: waterDistortion 1.2s ease-out forwards;
+}
+
+.animate-distorted-images {
+  animation: waterDistortionImages 1.2s ease-out forwards;
+}
+
+.animate-distorted-text {
+  animation: waterDistortionText 1.2s ease-out forwards;
+}
+
+/* === Custom Clip Path Utilities === */
+.clip-path-polygon {
+  clip-path: polygon(0 0, 100% 50%, 0 100%);
+}
+
+.clip-circle-hidden {
+  clip-path: circle(0% at 100% 50%);
+}
+
+.clip-circle-active {
+  clip-path: circle(150% at 50% 50%);
+}

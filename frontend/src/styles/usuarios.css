@@ -1,0 +1,162 @@
+body {
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  font-family: "Poppins", sans-serif;
+
+  background:
+    radial-gradient(circle at top, rgba(94, 53, 255, 0.18), transparent 28%),
+    radial-gradient(circle at 88% 10%, rgba(41, 182, 246, 0.12), transparent 24%),
+    linear-gradient(180deg, rgba(6, 10, 22, 0.98), rgba(3, 5, 12, 1));
+
+  color: #fff;
+}
+
+/* PAGE */
+
+.usuarios-page {
+  width: 100%;
+  min-height: 100vh;
+  padding: 100px 16px 48px;
+}
+
+/* CONTAINER */
+
+.usuarios-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 28px;
+  border-radius: 28px;
+
+  background: rgba(11, 16, 28, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+}
+
+/* TITLE */
+
+.usuarios-title {
+  font-size: 28px;
+  font-weight: 700;
+  margin-bottom: 24px;
+  color: #f7f9ff;
+}
+
+/* STATES */
+
+.usuarios-error {
+  margin-bottom: 18px;
+  padding: 12px 14px;
+  border-radius: 12px;
+
+  background: rgba(229, 57, 53, 0.12);
+  border: 1px solid rgba(229, 57, 53, 0.25);
+
+  color: #ffb1ac;
+  font-weight: 600;
+}
+
+.usuarios-loading {
+  text-align: center;
+  padding-top: 140px;
+  font-size: 18px;
+  color: rgba(232, 238, 255, 0.75);
+}
+
+/* GRID */
+
+.usuarios-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+/* CARD */
+
+.usuario-card {
+  position: relative;
+  padding: 18px;
+  border-radius: 22px;
+
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.035));
+  border: 1px solid rgba(255,255,255,0.08);
+
+  box-shadow: 0 14px 34px rgba(0,0,0,0.18);
+
+  transition: 0.25s;
+}
+
+.usuario-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 22px 44px rgba(0,0,0,0.26);
+  border-color: rgba(120, 139, 255, 0.18);
+  background: linear-gradient(180deg, rgba(255,255,255,0.075), rgba(255,255,255,0.045));
+}
+
+/* ROLE BADGE */
+
+.usuario-role {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  border: 1px solid;
+}
+
+/* ADMIN */
+
+.usuario-role.admin {
+  background: rgba(41, 182, 246, 0.16);
+  color: #8ee6ff;
+  border-color: rgba(41, 182, 246, 0.26);
+}
+
+/* USER */
+
+.usuario-role.user {
+  background: rgba(255,255,255,0.08);
+  color: rgba(226,233,248,0.85);
+  border-color: rgba(255,255,255,0.12);
+}
+
+/* TEXT */
+
+.usuario-nome {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 10px;
+  color: #f7f9ff;
+}
+
+.usuario-info {
+  font-size: 13.5px;
+  margin-bottom: 4px;
+  color: rgba(226, 233, 248, 0.75);
+}
+
+.usuario-info strong {
+  color: #c7bfff;
+}
+
+/* RESPONSIVO */
+
+@media (max-width: 768px) {
+  .usuarios-page {
+    padding: 80px 12px 32px;
+  }
+
+  .usuarios-wrapper {
+    padding: 20px;
+    border-radius: 22px;
+  }
+
+  .usuarios-title {
+    font-size: 24px;
+  }
+}

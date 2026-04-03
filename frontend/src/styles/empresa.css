@@ -1,0 +1,134 @@
+.empresa-page {
+  min-height: 100vh;
+  width: 100%;
+  padding: 32px 16px 48px;
+  color: #fff;
+}
+
+.empresa-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 24px;
+  border-radius: 24px;
+  background: rgba(11, 16, 28, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+}
+
+.empresa-loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: #fff;
+  background:
+    radial-gradient(circle at top, rgba(94, 53, 255, 0.18), transparent 28%),
+    linear-gradient(180deg, rgba(6, 10, 22, 0.98), rgba(3, 5, 12, 1));
+}
+
+.empresa-header {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.empresa-title {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.1;
+}
+
+.empresa-description {
+  margin: 0;
+  color: rgba(226, 233, 248, 0.78);
+  line-height: 1.7;
+  word-break: break-word;
+}
+
+.empresa-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.empresa-meta-item {
+  padding: 12px 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: rgba(240, 244, 255, 0.92);
+  word-break: break-word;
+}
+
+.empresa-section-title {
+  margin: 0 0 16px;
+  font-size: clamp(1.3rem, 3vw, 1.8rem);
+}
+
+.empresa-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 18px;
+}
+
+.empresa-card {
+  padding: 18px;
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.035));
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 14px 34px rgba(0,0,0,0.18);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.empresa-card h3 {
+  margin: 0;
+  font-size: 1.05rem;
+}
+
+.empresa-card img {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  border-radius: 16px;
+}
+
+.empresa-card-link {
+  margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  text-decoration: none;
+  background: linear-gradient(135deg, #5e35ff, #4a7aff);
+  color: #fff;
+  font-weight: 700;
+}
+
+@media (max-width: 768px) {
+  .empresa-page {
+    padding: 16px 12px 32px;
+  }
+
+  .empresa-wrapper {
+    padding: 18px;
+    border-radius: 18px;
+  }
+
+  .empresa-meta {
+    flex-direction: column;
+  }
+
+  .empresa-card {
+    padding: 16px;
+  }
+
+  .empresa-card img {
+    height: 160px;
+  }
+}

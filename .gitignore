@@ -1,0 +1,7 @@
+node_modules/
+dist/
+dist-test/
+frontend/dist/
+backend/dist/
+backend/dist-test/
+.env

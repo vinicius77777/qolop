@@ -1,0 +1,142 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model ambiente {
+  id            Int        @id @default(autoincrement())
+  titulo        String
+  descricao     String
+  linkVR        String
+  siteUrl       String?
+  imagemPreview String?
+  categoria     String?
+  publico       Boolean    @default(true)
+  latitude      Float?
+  longitude     Float?
+  cidade        String?
+  pais          String?
+  endereco      String?
+  cep           String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime
+  visualizacoes Int        @default(0)
+  usuarioId     Int?
+  empresaId     Int?
+  pedidoId      Int?
+  empresa       empresa?   @relation(fields: [empresaId], references: [id], map: "Ambiente_empresaId_fkey")
+  usuario       usuario?   @relation(fields: [usuarioId], references: [id], map: "Ambiente_usuarioId_fkey")
+  pedido        pedido?    @relation(fields: [pedidoId], references: [id], map: "Ambiente_pedidoId_fkey")
+  tourview      tourview[]
+
+  @@index([categoria], map: "Ambiente_categoria_idx")
+  @@index([cidade], map: "Ambiente_cidade_idx")
+  @@index([empresaId], map: "Ambiente_empresaId_idx")
+  @@index([pedidoId], map: "Ambiente_pedidoId_idx")
+  @@index([publico], map: "Ambiente_publico_idx")
+  @@index([usuarioId], map: "Ambiente_usuarioId_fkey")
+}
+
+model empresa {
+  id                   Int        @id @default(autoincrement())
+  nome                 String
+  slug                 String     @unique(map: "Empresa_slug_key")
+  email                String?
+  telefone             String?
+  whatsapp             String?
+  descricao            String?
+  logo                 String?
+  publico              Boolean    @default(false)
+  createdAt            DateTime   @default(now())
+  visualizacoes        Int        @default(0)
+  toursPublicos        Int        @default(0)
+  leadsGerados         Int        @default(0)
+  plano                String     @default("free")
+  limiteTours          Int        @default(3)
+  dominioPersonalizado String?
+  ambiente             ambiente[]
+  lead                 lead[]
+  pedido               pedido[]
+  usuario              usuario[]
+
+  @@index([publico], map: "Empresa_publico_idx")
+}
+
+model lead {
+  id        Int      @id @default(autoincrement())
+  nome      String?
+  email     String?
+  telefone  String?
+  mensagem  String?
+  empresaId Int
+  createdAt DateTime @default(now())
+  empresa   empresa  @relation(fields: [empresaId], references: [id], map: "Lead_empresaId_fkey")
+
+  @@index([empresaId], map: "Lead_empresaId_idx")
+}
+
+model notificacao {
+  id        Int      @id @default(autoincrement())
+  empresaId Int
+  mensagem  String
+  lida      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model pedido {
+  id                 Int        @id @default(autoincrement())
+  nomeCliente        String?
+  email              String
+  telefone           String?
+  empresaId          Int?
+  tipoServico        String?    @default("não especificado")
+  area               Int?
+  local              String?
+  cep                String?
+  mensagem           String
+  valorSimulado      Float?
+  status             String     @default("novo")
+  pago               Boolean    @default(false)
+  pagamentoStatus    String     @default("nao_pago")
+  pagamentoHistorico Json?
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @default(now())
+  ambiente           ambiente[]
+  empresa            empresa?   @relation(fields: [empresaId], references: [id], map: "Pedido_empresaId_fkey")
+
+  @@index([empresaId], map: "Pedido_empresaId_idx")
+  @@index([pagamentoStatus], map: "Pedido_pagamentoStatus_idx")
+  @@index([status], map: "Pedido_status_idx")
+}
+
+model tourview {
+  id         Int      @id @default(autoincrement())
+  ambienteId Int
+  ip         String?
+  pais       String?
+  cidade     String?
+  userAgent  String?
+  createdAt  DateTime @default(now())
+  ambiente   ambiente @relation(fields: [ambienteId], references: [id], map: "TourView_ambienteId_fkey")
+
+  @@index([ambienteId], map: "TourView_ambienteId_idx")
+}
+
+model usuario {
+  id        Int        @id @default(autoincrement())
+  nome      String
+  email     String     @unique(map: "Usuario_email_key")
+  senha     String
+  foto      String?
+  role      String     @default("user")
+  criado_em DateTime   @default(now())
+  empresaId Int?
+  ambiente  ambiente[]
+  empresa   empresa?   @relation(fields: [empresaId], references: [id], map: "Usuario_empresaId_fkey")
+
+  @@index([empresaId], map: "Usuario_empresaId_idx")
+}

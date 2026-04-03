@@ -1,0 +1,49 @@
+@baseUrl = http://localhost:3000
+@token = {{login.response.body.$.token}}
+
+### Criar usuário
+POST {{baseUrl}}/usuarios
+Content-Type: application/json
+
+{
+  "nome": "Outro Usuario",
+  "email": "outro@email.com",
+  "senha": "123456",
+  "foto": null
+}
+
+### Login (gera token e salva em @token)
+# @name login
+POST {{baseUrl}}/login
+Content-Type: application/json
+
+{
+  "email": "outro@email.com",
+  "senha": "123456"
+}
+
+### Rota protegida - perfil do usuário logado
+GET {{baseUrl}}/me
+Authorization: Bearer {{token}}
+
+### Listar todos usuários (protegida)
+GET {{baseUrl}}/usuarios
+Authorization: Bearer {{token}}
+
+### Buscar usuário por ID
+GET {{baseUrl}}/usuarios/33
+Authorization: Bearer {{token}}
+
+### Atualizar usuário (exemplo)
+PUT {{baseUrl}}/usuarios/33
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "nome": "Usuario Atualizado",
+  "senha": "novaSenha123"
+}
+
+### Deletar usuário (exemplo)
+DELETE {{baseUrl}}/usuarios/33
+Authorization: Bearer {{token}}
