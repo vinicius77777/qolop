@@ -26,11 +26,41 @@ export const app = express();
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 1000,
-  skip: (req) =>
-    req.method === "OPTIONS" ||
-    req.path === "/auth/login" ||
-    req.path === "/auth/register" ||
-    req.path === "/me",
+  skip: (req) => req.method === "OPTIONS",
+});
+
+const authRateLimitHandler: Parameters<typeof rateLimit>[0]["handler"] = (
+  req,
+  res,
+  _next,
+  options
+) => {
+  console.warn("[SECURITY] auth_rate_limit_exceeded", {
+    path: req.path,
+    ip: req.ip,
+    email:
+      typeof req.body?.email === "string" ? req.body.email.toLowerCase() : null,
+  });
+
+  res.status(options.statusCode).json({
+    error: "Muitas tentativas. Tente novamente em alguns minutos.",
+  });
+};
+
+const loginLimiter = rateLimit({
+  windowMs: 10 * 60 * 1000,
+  max: 5,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: authRateLimitHandler,
+});
+
+const registerLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: authRateLimitHandler,
 });
 
 app.use(helmet({ crossOriginResourcePolicy: { policy: "cross-origin" } }));
@@ -69,6 +99,8 @@ app.use((req, _res, next) => {
   next();
 });
 
+app.use("/auth/login", loginLimiter);
+app.use("/auth/register", registerLimiter);
 app.use("/auth", authRoutes);
 app.use("/", pedidoRoutes);
 app.use("/", empresaRoutes);

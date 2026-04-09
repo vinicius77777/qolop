@@ -32,8 +32,8 @@ export default function Register() {
     const emailNormalizado = email.trim();
     const empresaNomeNormalizado = empresaNome.trim();
 
-    if (nomeNormalizado.length < 2) {
-      setError("Nome deve ter no mínimo 2 caracteres");
+    if (nomeNormalizado.length < 3) {
+      setError("Nome deve ter no mínimo 3 caracteres");
       setLoading(false);
       return;
     }
@@ -134,7 +134,7 @@ export default function Register() {
                 <input
                   id="register-nome"
                   type="text"
-                  placeholder="Seu nome completo"
+                  placeholder="Nome"
                   className="login-input"
                   value={nome}
                   onChange={(e) => setNome(e.target.value)}
@@ -206,7 +206,7 @@ export default function Register() {
                   checked={orgaoPublico}
                   onChange={(e) => setOrgaoPublico(e.target.checked)}
                 />
-                <span>É órgão público</span>
+                <span>órgão público</span>
               </label>
 
               <button type="submit" disabled={loading} className="login-button">

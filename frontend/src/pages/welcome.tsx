@@ -41,7 +41,7 @@ export default function Welcome() {
             transition={{ duration: 0.7 }}
           >
             <span className="welcome-eyebrow">
-              Qolop · plataforma para explorar e apresentar lugares
+              Qolop · plataforma que digitaliza e transorma ambientes 
             </span>
 
             <h1 className="welcome-title">Entre e comece a explorar lugares.</h1>
@@ -69,7 +69,7 @@ export default function Welcome() {
             </div>
 
             <div className="welcome-scroll-indicator">
-              Acesse sua conta ou cadastre-se em minutos.
+              Acesse sua conta ou cadastre-se.
             </div>
 
             <div className="welcome-marquee" aria-label="mensagem contínua da plataforma">

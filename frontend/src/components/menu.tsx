@@ -1,23 +1,11 @@
 // src/components/menu.tsx
 
-import { NavLink } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { NavLink, useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { FiMail } from "react-icons/fi";
+import { useAuth } from "../context/AuthContext";
 import "../styles/menu.css";
-
-interface Empresa {
-  id: number;
-  nome: string;
-}
-
-interface Usuario {
-  id: number;
-  role: string;
-  email?: string;
-  nome?: string;
-  empresa?: Empresa | null;
-}
 
 const itemMotion = {
   whileHover: { y: -2, scale: 1.01 },
@@ -36,45 +24,21 @@ const CONTACT_URL = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURICo
 )}`;
 
 export default function Menu() {
-  const [usuario, setUsuario] = useState<Usuario | null>(null);
+  const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [menuAberto, setMenuAberto] = useState(false);
 
   useEffect(() => {
-    const carregarUsuario = () => {
-      try {
-        const usuarioString = localStorage.getItem("usuario");
-
-        if (!usuarioString || usuarioString === "undefined") {
-          setUsuario(null);
-          return;
-        }
-
-        const parsed = JSON.parse(usuarioString);
-        setUsuario(parsed);
-      } catch (err) {
-        console.warn("Erro ao ler usuário do localStorage:", err);
-        setUsuario(null);
-      }
-    };
-
-    carregarUsuario();
-    window.addEventListener("storage", carregarUsuario);
-    return () => window.removeEventListener("storage", carregarUsuario);
-  }, []);
-
-  useEffect(() => {
     setMenuAberto(false);
-  }, [usuario]);
+  }, [user]);
 
   const sair = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("usuario");
-    setUsuario(null);
-    window.location.href = "/login";
+    logout();
+    navigate("/login");
   };
 
-  const isAdmin = usuario?.role === "admin";
-  const isEmpresa = usuario?.role === "empresa";
+  const isAdmin = user?.role === "admin";
+  const isEmpresa = user?.role === "empresa";
   const canAccessPedidos = isAdmin || isEmpresa;
   const canAccessAnalytics = isAdmin || isEmpresa;
   const fecharMenu = () => setMenuAberto(false);
@@ -107,7 +71,7 @@ export default function Menu() {
               </NavLink>
             </motion.div>
 
-            {usuario && (
+            {user && (
               <motion.div {...itemMotion}>
                 <NavLink to="/explorer" className="menu-link" onClick={fecharMenu}>
                   Explorar
@@ -126,20 +90,20 @@ export default function Menu() {
             {isAdmin && (
               <motion.div {...itemMotion}>
                 <NavLink to="/criar-tour" className="menu-link" onClick={fecharMenu}>
-                  Criar Tour
+                  Gerar Ambiente
                 </NavLink>
               </motion.div>
             )}
 
-            {canAccessPedidos && usuario && (
+            {canAccessPedidos && user && (
               <motion.div {...itemMotion}>
-                <NavLink to={`/historico/${usuario.id}`} className="menu-link" onClick={fecharMenu}>
+                <NavLink to={`/historico/${user.id}`} className="menu-link" onClick={fecharMenu}>
                   Histórico
                 </NavLink>
               </motion.div>
             )}
 
-            {canAccessAnalytics &&(
+            {canAccessAnalytics && (
               <motion.div {...itemMotion}>
                 <NavLink to="/analytics" className="menu-link" onClick={fecharMenu}>
                   Analytics
@@ -147,7 +111,7 @@ export default function Menu() {
               </motion.div>
             )}
 
-            {usuario && (
+            {user && (
               <motion.div {...itemMotion}>
                 <NavLink to="/perfil" className="menu-link" onClick={fecharMenu}>
                   Perfil
@@ -167,7 +131,7 @@ export default function Menu() {
 
         <div className="menu-side menu-side-right">
           <div className="menu-right">
-            {usuario && (
+            {user && (
               <>
                 <motion.a
                   href={CONTACT_URL}

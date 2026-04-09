@@ -450,11 +450,6 @@ const Analytics: React.FC = () => {
           >
             <span className="an-eyebrow">Analytics · visão estratégica</span>
             <h1 className="an-title">Transforme números em leitura rápida, contexto e decisão.</h1>
-            <p className="an-lead">
-              O painel agora mostra sinais mais úteis sobre desempenho, origem dos acessos
-              e impacto dos ambientes de {empresaNome}, sem depender de um backend novo.
-            </p>
-
             <div className="an-toolbar">
               <label className="an-filter">
                 <span>Recorte</span>
@@ -533,7 +528,7 @@ const Analytics: React.FC = () => {
           <section className="an-empty-state-box">
             <h2>Sua empresa ainda não é parceira</h2>
             <p>
-              A empresa se torna parceira quando possui pelo menos um ambiente cadastrado.
+              A empresa se torna parceira quando possui pelo menos um ambiente cadastrado e efetuou o pagamento.
               Assim que o primeiro ambiente for criado, os indicadores e acessos aparecerão aqui.
             </p>
           </section>

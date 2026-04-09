@@ -33,7 +33,25 @@ function parseNodeEnv(value?: string): 'development' | 'test' | 'production' {
 }
 
 export const NODE_ENV = parseNodeEnv(process.env.NODE_ENV);
-export const JWT_SECRET = process.env.JWT_SECRET || 'seu_jwt_secret_super_seguro';
+
+function resolveJwtSecret(value?: string): string {
+  const secret = value?.trim();
+
+  if (secret) {
+    return secret;
+  }
+
+  if (NODE_ENV === 'development' || NODE_ENV === 'test') {
+    console.warn(
+      '[ENV] JWT_SECRET ausente; usando fallback temporário apenas em ambiente não produtivo'
+    );
+    return 'dev-only-jwt-secret-change-me';
+  }
+
+  throw new Error('JWT_SECRET environment variable is required');
+}
+
+export const JWT_SECRET = resolveJwtSecret(process.env.JWT_SECRET);
 export const allowedOrigins = parseAllowedOrigins(process.env.ALLOWED_ORIGINS);
 
 export function isOriginAllowed(origin?: string): boolean {

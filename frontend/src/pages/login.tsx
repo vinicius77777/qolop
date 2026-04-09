@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useNavigate, Link } from "react-router-dom";
-import { login } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 import "../styles/login.css";
 
 const loginPoints = [
@@ -13,6 +13,7 @@ const loginPoints = [
 
 export default function Login() {
   const navigate = useNavigate();
+  const { login } = useAuth();
 
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
@@ -26,16 +27,7 @@ export default function Login() {
     setError("");
 
     try {
-      const res = await login(email, senha);
-
-      if (res.token) {
-        localStorage.setItem("token", res.token);
-      }
-
-      if (res.usuario) {
-        localStorage.setItem("usuario", JSON.stringify(res.usuario));
-      }
-
+      await login(email, senha);
       navigate("/inicio");
     } catch (err) {
       if (err instanceof Error) {
