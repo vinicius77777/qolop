@@ -1,105 +1,106 @@
-# 📘 README - Projeto Qolop
+# Qolop
 
-## 📌 Requisitos
+Projeto full stack com:
 
-Antes de começar, verifique se você tem instalado no seu computador:
+- `backend/`: API Node.js + Express + Prisma
+- `frontend/`: React + Vite + TypeScript
 
+## Requisitos
 
+- Node.js 18+
+- npm
+- MySQL 8+
 
-- [Node.js (>=18.x)](https://nodejs.org/en/)
-- [npm](https://www.npmjs.com/) (vem junto com o Node.js) ou [yarn](https://yarnpkg.com/)
-- [MySQL (>=8.x)](https://dev.mysql.com/downloads/mysql/)
-- # [Prisma CLI](https://www.prisma.io/docs/concepts/components/prisma-cli) – será instalado junto com `npm install`
+## Estrutura do projeto
 
-* [Node.js (>=18.x)](https://nodejs.org/en/)
-* [npm](https://www.npmjs.com/) (vem junto com o Node.js) ou [yarn](https://yarnpkg.com/)
-* [MySQL (>=8.x)](https://dev.mysql.com/downloads/mysql/)
-* [Prisma CLI](https://www.prisma.io/docs/concepts/components/prisma-cli) – será instalado junto com `npm install`
-  14b35af2b698fc4e9ab6443fc43b7eb5347278fc
+```text
+qolop/
+├── backend/
+│   ├── src/
+│   ├── prisma/
+│   └── package.json
+├── frontend/
+│   ├── src/
+│   └── package.json
+└── package.json
+```
 
----
+## Scripts na raiz
 
-## ⚙️ 1. Configuração do Banco de Dados
+A raiz agora funciona como ponto de entrada do workspace.
 
-1. Crie o banco no MySQL:
+```bash
+npm run dev:backend
+npm run dev:frontend
+npm run build:backend
+npm run build:frontend
+npm run test:backend
+npm run prisma -- migrate dev
+```
+
+## Configuração do banco
+
+Crie um banco MySQL:
 
 ```sql
 CREATE DATABASE qolop;
 ```
 
-2. Depois, configure a conexão no arquivo **`.env`** dentro da pasta `backend/`:
+Depois configure `backend/.env`:
 
 ```env
 DATABASE_URL="mysql://usuario:senha@localhost:3306/qolop"
 JWT_SECRET="sua_chave_secreta_super_segura"
 ```
 
-> Substitua `usuario` e `senha` pelos dados do seu MySQL.
+## Instalação
 
----
-
-## ⚙️ 2. Backend (API)
-
-1. Acesse a pasta:
+Instale dependências do backend e frontend separadamente:
 
 ```bash
 cd backend
-```
-
-2. Instale as dependências:
-
-```bash
+npm install
+cd ../frontend
 npm install
 ```
 
-3. Gere o Prisma Client e rode as migrations:
+## Rodando em desenvolvimento
+
+Terminal 1:
 
 ```bash
-npx prisma migrate dev --name init_schema
+npm run dev:backend
 ```
 
-4. Inicie o servidor:
+Terminal 2:
 
 ```bash
-npm run dev
+npm run dev:frontend
 ```
 
-✅ O backend rodará em:
-👉 `http://localhost:3000`
+Backend:
 
----
+- `http://localhost:3000`
 
-## ⚙️ 3. Frontend (React)
+Frontend:
 
-1. Vá para a pasta:
+- `http://localhost:5173`
+
+## Prisma
+
+Exemplo para criar/aplicar migrations:
 
 ```bash
-cd frontend
+npm run prisma -- migrate dev --name init_schema
 ```
 
-2. Instale as dependências:
+## Fluxo básico
 
-```bash
-npm install
-```
+### Criar usuário
 
-3. Inicie o projeto:
-
-```bash
-npm run dev
-```
-
-✅ O frontend estará disponível em:
-👉 `http://localhost:5173` (ou na porta que o Vite indicar)
-
----
-
-## 🚀 Fluxo de Uso (via Postman ou pelo Frontend)
-
-### 1. Criar usuário comum
+`POST /usuarios`
 
 ```json
-POST http://localhost:3000/usuarios
 {
   "nome": "João",
   "email": "joao@email.com",
@@ -108,10 +109,11 @@ POST http://localhost:3000/usuarios
 }
 ```
 
-### 2. Criar usuário admin
+### Criar admin
+
+`POST /usuarios`
 
 ```json
-POST http://localhost:3000/usuarios
 {
   "nome": "Admin",
   "email": "admin@email.com",
@@ -120,83 +122,42 @@ POST http://localhost:3000/usuarios
 }
 ```
 
-### 3. Fazer login
+### Login
+
+`POST /login`
 
 ```json
-POST http://localhost:3000/login
 {
   "email": "admin@email.com",
   "senha": "123456"
 }
 ```
 
-🔑 A resposta trará o `token`, que deve ser usado no **Authorization** como _Bearer Token_.
+A resposta retorna um token para uso em `Authorization: Bearer <token>`.
 
-🔑 A resposta trará o `token`, que deve ser usado no **Authorization** como _Bearer Token_.
+## Rotas principais
 
----
+### Pedidos
 
-### 4. Rotas de Pedidos
+- `POST /pedidos`
+- `GET /pedidos`
+- `PUT /pedidos/:id`
+- `DELETE /pedidos/:id`
 
-- Criar pedido: `POST /pedidos`
-- Listar pedidos: `GET /pedidos` (auth)
-- Atualizar pedido (admin): `PUT /pedidos/:id`
-- Deletar pedido (admin): `DELETE /pedidos/:id`
+### Ambientes
 
-### 5. Rotas de Ambientes
+- `POST /ambientes`
+- `GET /ambientes`
+- `PUT /ambientes/:id`
+- `DELETE /ambientes/:id`
 
-- Criar ambiente (admin): `POST /ambientes`
-- Listar ambientes: `GET /ambientes`
-- Atualizar ambiente (admin): `PUT /ambientes/:id`
-- Deletar ambiente (admin): `DELETE /ambientes/:id`
+## Observações
 
----
+- O backend e o frontend têm dependências próprias.
+- A raiz serve para organizar o workspace e expor scripts de conveniência.
+- Para produção, valide variáveis de ambiente, acesso ao banco e URLs da API.
 
-## 📂 Estrutura de Pastas
+## Autor
 
-```
-qolop/
-│── backend/          # API Node.js + Express + Prisma
-│   ├── src/server.ts
-│   ├── prisma/schema.prisma
-│   ├── package.json
-│   └── .env
-│
-│── frontend/         # React + Vite + TypeScript
-│   ├── src/pages/
-│   ├── src/services/api.ts
-│   ├── src/App.tsx
-│   └── package.json
-```
-
----
-
-## ✅ Passo a passo para rodar em outro computador
-
-1. Instalar Node.js e MySQL
-2. Clonar o projeto
-3. Configurar o `.env` no backend
-4. Rodar `npm install` no backend e frontend
-5. Rodar `npx prisma migrate dev` no backend
-6. Iniciar o backend (`npm run dev`)
-7. Iniciar o frontend (`npm run dev`)
-
----
-
-## 💡 Sobre o Projeto
-
-O **Qolop** foi desenvolvido com foco em aprendizado e boas práticas, unindo **Node.js, Prisma, React e TypeScript** em uma estrutura completa de front e backend.
-A ideia é oferecer uma base sólida para projetos modernos, com autenticação, painel administrativo e um visual limpo e agradável.
-
----
-
-## ✨ Autor
-
-**Desenvolvido por [Vinícius Fernandes](https://github.com/vinicius77777)**
-💻 Projeto criado com dedicação e atenção aos detalhes.
-
----
-
-=======
-
-
+Vinícius Fernandes  
+GitHub: https://github.com/vinicius77777

@@ -1,7 +1,9 @@
 import { Response } from "express";
+import slugify from "slugify";
 import prisma from "../lib/prisma";
 import { AuthRequest } from "../types";
 import {
+  validateCreateEmpresaPayload,
   validateEmpresaAmbientesQuery,
   validateEmpresaAnalyticsQuery,
   validateEmpresaSlugParams,
@@ -223,6 +225,74 @@ export async function getEmpresaAnalytics(
       userAgent: acesso.userAgent ?? undefined,
       createdAt: acesso.createdAt,
     })),
+  });
+}
+
+export async function createEmpresa(req: AuthRequest, res: Response) {
+  const validation = validateCreateEmpresaPayload(req.body);
+
+  if (!validation.success) {
+    return sendValidationError(res, validation.errors);
+  }
+
+  const currentUser = await prisma.usuario.findUnique({
+    where: { id: req.user!.id },
+    select: {
+      id: true,
+      empresaId: true,
+      role: true,
+    },
+  });
+
+  if (!currentUser) {
+    return res.status(401).json({ error: "Usuário inválido" });
+  }
+
+  if (currentUser.empresaId) {
+    return res.status(409).json({ error: "Usuário já possui empresa vinculada" });
+  }
+
+  const baseSlug = slugify(validation.data.nome, { lower: true, strict: true, trim: true });
+  let slug = baseSlug || `empresa-${currentUser.id}`;
+  let suffix = 1;
+
+  while (await prisma.empresa.findUnique({ where: { slug } })) {
+    slug = `${baseSlug}-${suffix++}`;
+  }
+
+    const empresa = await prisma.$transaction(async (tx) => {
+      const createdEmpresa = await tx.empresa.create({
+        data: {
+          nome: validation.data.nome,
+          email: validation.data.email ?? null,
+          descricao: validation.data.descricao ?? null,
+          telefone: validation.data.telefone ?? null,
+          whatsapp: validation.data.whatsapp ?? null,
+          logo: req.file ? `/uploads/${req.file.filename}` : validation.data.logo ?? null,
+          publico: validation.data.publico ?? false,
+          slug,
+        },
+      });
+
+    await tx.usuario.update({
+      where: { id: currentUser.id },
+      data: {
+        empresaId: createdEmpresa.id,
+        role: "empresa",
+      },
+    });
+
+    return createdEmpresa;
+  });
+
+  const usuarioAtualizado = await prisma.usuario.findUnique({
+    where: { id: currentUser.id },
+    include: { empresa: true },
+  });
+
+  return res.status(201).json({
+    empresa,
+    usuario: usuarioAtualizado,
   });
 }
 

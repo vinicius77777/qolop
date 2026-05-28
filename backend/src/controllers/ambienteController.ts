@@ -65,8 +65,13 @@ async function resolveGeoFromIp(ip?: string) {
 }
 
 function mapAmbienteWithEmpresaPedido(ambiente: any) {
+  const pagamentoStatus = ambiente.pedido?.pagamentoStatus ?? "nao_pago";
+  const pagamentoDestacado = pagamentoStatus === "pago_a_mais";
+
   return {
     ...ambiente,
+    pagamentoDestacado,
+    explorerBadge: pagamentoDestacado ? "Destaque" : null,
     empresaPedido: ambiente.usuario?.empresa ?? null,
   };
 }
@@ -450,16 +455,44 @@ export async function listExplorerAmbientes(_req: AuthRequest, res: Response) {
       pais: true,
       endereco: true,
       cep: true,
+      createdAt: true,
+      pedido: {
+        select: {
+          id: true,
+          pagamentoStatus: true,
+          pago: true,
+        },
+      },
+      usuario: {
+        include: {
+          empresa: true,
+        },
+      },
     },
   });
 
-  const ambientesComCoordenadasValidas = ambientes.filter(
-    (ambiente) =>
-      typeof ambiente.latitude === "number" &&
-      Number.isFinite(ambiente.latitude) &&
-      typeof ambiente.longitude === "number" &&
-      Number.isFinite(ambiente.longitude)
-  );
+  const ambientesComCoordenadasValidas = ambientes
+    .filter(
+      (ambiente) =>
+        typeof ambiente.latitude === "number" &&
+        Number.isFinite(ambiente.latitude) &&
+        typeof ambiente.longitude === "number" &&
+        Number.isFinite(ambiente.longitude)
+    )
+    .map(mapAmbienteWithEmpresaPedido)
+    .sort((a, b) => {
+      const aDestacado = a.pagamentoDestacado ? 1 : 0;
+      const bDestacado = b.pagamentoDestacado ? 1 : 0;
+
+      if (aDestacado !== bDestacado) {
+        return bDestacado - aDestacado;
+      }
+
+      const aCreatedAt = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+      const bCreatedAt = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+
+      return bCreatedAt - aCreatedAt;
+    });
 
   return res.json(ambientesComCoordenadasValidas);
 }

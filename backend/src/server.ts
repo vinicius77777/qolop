@@ -1,5 +1,5 @@
 import "dotenv/config";
-import express from "express";
+import express, { type NextFunction, type Request, type Response } from "express";
 import cors from "cors";
 import path from "path";
 import { initializeEmailTransport } from "./email";
@@ -29,11 +29,11 @@ const limiter = rateLimit({
   skip: (req) => req.method === "OPTIONS",
 });
 
-const authRateLimitHandler: Parameters<typeof rateLimit>[0]["handler"] = (
-  req,
-  res,
-  _next,
-  options
+const authRateLimitHandler = (
+  req: Request,
+  res: Response,
+  _next: NextFunction,
+  options: { statusCode: number }
 ) => {
   console.warn("[SECURITY] auth_rate_limit_exceeded", {
     path: req.path,

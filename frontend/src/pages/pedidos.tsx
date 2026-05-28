@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
@@ -133,6 +133,19 @@ function getPagamentoLabel(pagamentoStatus?: PagamentoStatus, pago?: boolean) {
     PAGAMENTO_OPTIONS.find((option) => option.value === normalized)?.label ||
     "Não pago"
   );
+}
+
+function getPagamentoDisplayLabel(
+  pagamentoStatus?: PagamentoStatus,
+  pago?: boolean
+) {
+  const normalized = normalizePagamentoStatus(pagamentoStatus, pago);
+
+  if (normalized === "pago_a_mais") {
+    return "Destaque";
+  }
+
+  return getPagamentoLabel(pagamentoStatus, pago);
 }
 
 function getPagamentoBadgeClass(
@@ -309,6 +322,7 @@ export default function Pedidos() {
   const [createFieldErrors, setCreateFieldErrors] = useState<PedidoFieldErrors>({});
 
   const [usuario, setUsuario] = useState<Usuario | null>(null);
+  const allPedidosRef = useRef<Array<Pedido & { criado_em?: string }>>([]);
   const [locationMode, setLocationMode] = useState<"manual" | "cep">("cep");
 
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -349,7 +363,18 @@ export default function Pedidos() {
       try {
         const user = await getMe();
         setUsuario(user);
-        await atualizarLista(user);
+
+        const data = await getPedidos({
+          empresaId: user?.role === "admin" ? undefined : user?.empresa?.id,
+        });
+        const pedidosConvertidos = formatarPedidos(data);
+        const pedidosFiltradosPorUsuario = filtrarPorUsuario(pedidosConvertidos, user);
+
+        allPedidosRef.current = pedidosFiltradosPorUsuario;
+        setAllPedidos(pedidosFiltradosPorUsuario);
+        setPedidos(pedidosFiltradosPorUsuario);
+        setLastSyncMode("server");
+        setError("");
       } catch {
         navigate("/login");
       } finally {
@@ -358,16 +383,6 @@ export default function Pedidos() {
       }
     })();
   }, [navigate]);
-
-  useEffect(() => {
-    if (!filtersInitialized || !usuario) return;
-
-    const timeout = window.setTimeout(() => {
-      atualizarLista(usuario, true, "filter").catch(() => undefined);
-    }, 350);
-
-    return () => window.clearTimeout(timeout);
-  }, [searchTerm, statusFiltro, pagamentoFiltro, filtersInitialized, usuario]);
 
   function formatarPedidos(data: Pedido[]) {
     return data.map((p) => ({
@@ -409,7 +424,7 @@ export default function Pedidos() {
     });
   }
 
-  function filtrarLocalmente(data: Array<Pedido & { criado_em?: string }>) {
+  const filtrarLocalmente = useCallback((data: Array<Pedido & { criado_em?: string }>) => {
     const termoBusca = searchTerm.toLowerCase();
 
     return data.filter((pedido) => {
@@ -424,7 +439,7 @@ export default function Pedidos() {
 
       return statusOk && pagamentoOk && buscaOk;
     });
-  }
+  }, [pagamentoFiltro, searchTerm, statusFiltro]);
 
   function definirFeedback(tone: FeedbackTone, message: string) {
     setFeedback({ tone, message });
@@ -523,11 +538,11 @@ export default function Pedidos() {
     };
   }
 
-  async function atualizarLista(
+  const atualizarLista = useCallback(async (
     currentUser = usuario,
     silent = false,
     action: PendingAction = "refresh"
-  ) {
+  ) => {
     if (!silent) {
       setIsRefreshing(true);
     }
@@ -561,6 +576,7 @@ export default function Pedidos() {
       const pedidosConvertidos = formatarPedidos(data);
       const pedidosFiltradosPorUsuario = filtrarPorUsuario(pedidosConvertidos, currentUser);
 
+      allPedidosRef.current = pedidosFiltradosPorUsuario;
       setAllPedidos(pedidosFiltradosPorUsuario);
       setPedidos(pedidosFiltradosPorUsuario);
       setLastSyncMode("server");
@@ -570,7 +586,7 @@ export default function Pedidos() {
       const message = err?.message || "Erro ao carregar pedidos.";
 
       if (action === "filter") {
-        const fallbackBase = filtrarPorUsuario(allPedidos, currentUser);
+        const fallbackBase = filtrarPorUsuario(allPedidosRef.current, currentUser);
         const fallbackData = filtrarLocalmente(fallbackBase);
         setPedidos(fallbackData);
         setLastSyncMode("fallback");
@@ -594,7 +610,17 @@ export default function Pedidos() {
       setPendingAction(null);
       setLoadingState(null);
     }
-  }
+  }, [filtrarLocalmente, pagamentoFiltro, searchTerm, statusFiltro, usuario]);
+
+  useEffect(() => {
+    if (!filtersInitialized || !usuario) return;
+
+    const timeout = window.setTimeout(() => {
+      atualizarLista(usuario, true, "filter").catch(() => undefined);
+    }, 350);
+
+    return () => window.clearTimeout(timeout);
+  }, [filtersInitialized, usuario, atualizarLista]);
 
   async function handleCriar(e: React.FormEvent) {
     e.preventDefault();
@@ -725,9 +751,11 @@ export default function Pedidos() {
       setPedidos((prev) =>
         prev.map((p) => (p.id === id ? { ...p, status: normalizedStatus } : p))
       );
-      setAllPedidos((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, status: normalizedStatus } : p))
-      );
+      setAllPedidos((prev) => {
+        const next = prev.map((p) => (p.id === id ? { ...p, status: normalizedStatus } : p));
+        allPedidosRef.current = next;
+        return next;
+      });
       setError("");
       definirFeedback("success", "Status do pedido atualizado.");
     } catch (err: any) {
@@ -815,7 +843,7 @@ export default function Pedidos() {
 
   const pedidosFiltrados = useMemo(() => {
     return filtrarLocalmente(pedidosOrdenados);
-  }, [pedidosOrdenados, searchTerm, statusFiltro, pagamentoFiltro]);
+  }, [pedidosOrdenados, filtrarLocalmente]);
 
   const totalPedidos = pedidosFiltrados.length;
   const pendentes = pedidosFiltrados.filter(
@@ -1346,9 +1374,9 @@ export default function Pedidos() {
                           <h3>{p.empresa?.nome || p.nomeCliente || "Pedido sem empresa"}</h3>
                         </div>
 
-                        <span className={getPagamentoBadgeClass(p.pagamentoStatus, p.pago)}>
-                          {getPagamentoLabel(p.pagamentoStatus, p.pago)}
-                        </span>
+                          <span className={getPagamentoBadgeClass(p.pagamentoStatus, p.pago)}>
+                            {getPagamentoDisplayLabel(p.pagamentoStatus, p.pago)}
+                          </span>
                       </div>
 
                       <div className="ped-card-summary">
@@ -1562,7 +1590,7 @@ export default function Pedidos() {
                                 .map((item, historyIndex) => (
                                   <div key={`${p.id}-${historyIndex}`} className="ped-history-item">
                                     <span className={getPagamentoBadgeClass(item.status)}>
-                                      {getPagamentoLabel(item.status)}
+                                      {getPagamentoDisplayLabel(item.status)}
                                     </span>
                                     <span>
                                       <FiClock /> Atualizado em {formatarData(item.updatedAt)}

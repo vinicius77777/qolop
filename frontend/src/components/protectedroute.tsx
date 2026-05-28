@@ -2,6 +2,7 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import type { Usuario } from "../services/types";
+import { canAccessEmpresaFeatures, isAdminUser } from "../utils/permissions";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -14,14 +15,12 @@ function hasRequiredAccess(
   onlyAdmin?: boolean,
   onlyEmpresa?: boolean
 ) {
-  const role = usuario?.role;
-
   if (onlyAdmin) {
-    return role === "admin";
+    return isAdminUser(usuario);
   }
 
   if (onlyEmpresa) {
-    return role === "admin" || role === "empresa";
+    return canAccessEmpresaFeatures(usuario);
   }
 
   return true;

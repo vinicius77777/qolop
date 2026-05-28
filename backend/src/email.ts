@@ -109,6 +109,66 @@ function buildPedidoCompletoEmail(params: {
   };
 }
 
+function buildPasswordResetEmail(params: {
+  email: string;
+  nome?: string | null;
+  resetUrl: string;
+  expiresInMinutes: number;
+}) {
+  const nomeCliente = deriveNomeCliente(params.email, params.nome);
+
+  return {
+    subject: "Redefinição de senha",
+    html: `
+      <div style="margin:0;padding:32px 16px;background-color:#f4f7fb;font-family:Arial,Helvetica,sans-serif;color:#1f2937;">
+        <div style="max-width:640px;margin:0 auto;background:#ffffff;border:1px solid #e5e7eb;border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(15,23,42,0.08);">
+          <div style="background:linear-gradient(135deg,#0f172a,#1e3a8a);padding:28px 32px;">
+            <h1 style="margin:0;font-size:24px;line-height:1.3;color:#ffffff;">Qolop</h1>
+            <p style="margin:8px 0 0;font-size:14px;color:rgba(255,255,255,0.82);">
+              Solicitação de redefinição de senha
+            </p>
+          </div>
+
+          <div style="padding:32px;">
+            <p style="margin:0 0 16px;font-size:16px;line-height:1.7;">
+              Olá, <strong>${nomeCliente}</strong>.
+            </p>
+
+            <p style="margin:0 0 16px;font-size:16px;line-height:1.7;">
+              Recebemos uma solicitação para redefinir sua senha. Se foi você, clique no botão abaixo
+              para criar uma nova senha.
+            </p>
+
+            <div style="margin:24px 0;">
+              <a
+                href="${params.resetUrl}"
+                style="display:inline-block;padding:14px 22px;border-radius:12px;background:#1e3a8a;color:#ffffff;text-decoration:none;font-weight:700;"
+              >
+                Redefinir senha
+              </a>
+            </div>
+
+            <div style="padding:18px 20px;background:#f8fafc;border:1px solid #e5e7eb;border-radius:12px;margin:0 0 20px;">
+              <p style="margin:0;font-size:14px;line-height:1.7;color:#475569;">
+                Este link expira em ${params.expiresInMinutes} minutos.
+              </p>
+            </div>
+
+            <p style="margin:0 0 16px;font-size:14px;line-height:1.7;color:#64748b;">
+              Se você não solicitou essa alteração, pode ignorar este email com segurança.
+            </p>
+
+            <p style="margin:24px 0 0;font-size:16px;line-height:1.7;">
+              Atenciosamente,<br />
+              <strong>Equipe QOLOP</strong>
+            </p>
+          </div>
+        </div>
+      </div>
+    `,
+  };
+}
+
 export async function initializeEmailTransport() {
   ensureEmailConfig();
   await transporter.verify();
@@ -124,6 +184,24 @@ export async function sendPedidoCompleto(params: {
   ensureEmailConfig();
 
   const content = buildPedidoCompletoEmail(params);
+
+  await transporter.sendMail({
+    from: `"Qolop" <${emailUser}>`,
+    to: params.email,
+    subject: content.subject,
+    html: content.html,
+  });
+}
+
+export async function sendPasswordResetEmail(params: {
+  email: string;
+  nome?: string | null;
+  resetUrl: string;
+  expiresInMinutes: number;
+}) {
+  ensureEmailConfig();
+
+  const content = buildPasswordResetEmail(params);
 
   await transporter.sendMail({
     from: `"Qolop" <${emailUser}>`,

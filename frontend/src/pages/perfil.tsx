@@ -2,6 +2,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { getMe, logout, updateUsuario, type Usuario } from "../services/api";
 import { useNavigate } from "react-router-dom";
+import { markNewUserOnboarding, resetOnboardingState } from "../utils/onboarding";
 import "../styles/perfil.css";
 
 const Perfil: React.FC = () => {
@@ -142,6 +143,18 @@ const Perfil: React.FC = () => {
     setMsg("Alterações descartadas.");
   };
 
+  const podeTrocarTipoConta = usuario?.role !== "admin";
+
+  const handleTrocarTipoConta = () => {
+    if (!usuario?.id) return;
+
+    resetOnboardingState(usuario.id);
+    markNewUserOnboarding(usuario.id);
+    setTipoMsg("info");
+    setMsg("Escolha seu tipo de conta novamente.");
+    navigate("/inicio");
+  };
+
   const handleLogout = () => {
     logout();
     navigate("/login");
@@ -210,6 +223,19 @@ const Perfil: React.FC = () => {
                 protegida.
               </p>
             </div>
+
+            {podeTrocarTipoConta && (
+              <div className="perfil-tip-box perfil-account-switch-box">
+                <h3>Trocar tipo de conta</h3>
+                <p>
+                  Refaça a escolha do tipo de conta para abrir novamente a tela de onboarding.
+                  Essa opção não aparece para administradores.
+                </p>
+                <button type="button" className="perfil-secondary-btn perfil-account-switch-btn" onClick={handleTrocarTipoConta}>
+                  Trocar tipo de conta
+                </button>
+              </div>
+            )}
           </aside>
 
           <section className="perfil-card">

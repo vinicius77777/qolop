@@ -630,7 +630,7 @@ const Ambientes: React.FC = () => {
                       <span className="amb-card-badge">
                         {formatCategoriaLabel(amb.categoria)}
                       </span>
-                      {pagoAMais && <span className="amb-overpaid-badge">Pago a mais</span>}
+                      {pagoAMais && <span className="amb-overpaid-badge">Destaque</span>}
                     </div>
                   </div>
 

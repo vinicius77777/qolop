@@ -1,7 +1,21 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
-import { getMe, login as authLogin, logout as authLogout, register as authRegister } from "../services/authService";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
+import {
+  getMe,
+  login as authLogin,
+  logout as authLogout,
+  register as authRegister,
+} from "../services/authService";
 import { clearStoredSession } from "../services/httpClient";
 import type { Usuario } from "../services/types";
+import { sanitizeUsuario } from "../utils/permissions";
 
 interface AuthContextValue {
   user: Usuario | null;
@@ -9,13 +23,7 @@ interface AuthContextValue {
   isAuthenticated: boolean;
   isLoading: boolean;
   login: (email: string, senha: string) => Promise<void>;
-  register: (
-    nome: string,
-    email: string,
-    senha: string,
-    empresaNome?: string,
-    orgaoPublico?: boolean
-  ) => Promise<void>;
+  register: (nome: string, email: string, senha: string) => Promise<Usuario>;
   logout: () => void;
   refreshSession: () => Promise<void>;
 }
@@ -30,7 +38,7 @@ function getStoredUser(): Usuario | null {
   }
 
   try {
-    return JSON.parse(storedUser) as Usuario;
+    return sanitizeUsuario(JSON.parse(storedUser) as Usuario);
   } catch {
     localStorage.removeItem("usuario");
     return null;
@@ -45,7 +53,7 @@ function persistSession(nextToken: string | null, nextUser: Usuario | null) {
   }
 
   if (nextUser) {
-    localStorage.setItem("usuario", JSON.stringify(nextUser));
+    localStorage.setItem("usuario", JSON.stringify(sanitizeUsuario(nextUser)));
   } else {
     localStorage.removeItem("usuario");
   }
@@ -63,9 +71,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const applySession = useCallback((nextToken: string | null, nextUser: Usuario) => {
-    persistSession(nextToken, nextUser);
+    const sanitizedUser = sanitizeUsuario(nextUser);
+
+    persistSession(nextToken, sanitizedUser);
     setToken(nextToken);
-    setUser(nextUser);
+    setUser(sanitizedUser);
   }, []);
 
   const refreshSession = useCallback(async () => {
@@ -121,21 +131,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [applySession, clearSession]);
 
-  const login = useCallback(async (email: string, senha: string) => {
-    const response = await authLogin(email, senha);
-    applySession(response.token ?? null, response.usuario);
-  }, [applySession]);
+  const login = useCallback(
+    async (email: string, senha: string) => {
+      const response = await authLogin(email, senha);
+      applySession(response.token ?? null, response.usuario);
+    },
+    [applySession]
+  );
 
   const register = useCallback(
-    async (
-      nome: string,
-      email: string,
-      senha: string,
-      empresaNome?: string,
-      orgaoPublico?: boolean
-    ) => {
-      const response = await authRegister(nome, email, senha, empresaNome, orgaoPublico ?? false);
+    async (nome: string, email: string, senha: string) => {
+      const response = await authRegister(nome, email, senha);
       applySession(response.token ?? null, response.usuario);
+      return response.usuario;
     },
     [applySession]
   );

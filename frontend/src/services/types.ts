@@ -78,6 +78,7 @@ export interface Ambiente {
   cep?: string | null;
   latitude?: number | null;
   longitude?: number | null;
+  createdAt?: string;
   pedidoId?: number | null;
   pedido?: {
     id: number;
@@ -86,6 +87,8 @@ export interface Ambiente {
     telefone?: string | null;
     email?: string | null;
   } | null;
+  pagamentoDestacado?: boolean;
+  explorerBadge?: string | null;
   usuario?: { id: number; nome: string; email?: string; empresa?: Empresa | null };
   empresa?: { id: number; nome: string; whatsapp?: string; email?: string; telefone?: string };
   empresaPedido?: { id: number; nome: string; email?: string; telefone?: string; whatsapp?: string } | null;

@@ -3,8 +3,9 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { FiMail } from "react-icons/fi";
+import { FiMail, FiMenu, FiX } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
+import { canAccessEmpresaFeatures, isAdminUser } from "../utils/permissions";
 import "../styles/menu.css";
 
 const itemMotion = {
@@ -37,15 +38,16 @@ export default function Menu() {
     navigate("/login");
   };
 
-  const isAdmin = user?.role === "admin";
-  const isEmpresa = user?.role === "empresa";
-  const canAccessPedidos = isAdmin || isEmpresa;
-  const canAccessAnalytics = isAdmin || isEmpresa;
+  const isAdmin = isAdminUser(user);
+  const canAccessEmpresa = canAccessEmpresaFeatures(user);
+  const canAccessPedidos = canAccessEmpresa;
+  const canAccessAnalytics = canAccessEmpresa;
   const fecharMenu = () => setMenuAberto(false);
+  const alternarMenu = () => setMenuAberto((valorAtual) => !valorAtual);
 
   return (
     <motion.header
-      className="menu"
+      className={`menu ${menuAberto ? "menu-open" : ""}`}
       initial={{ opacity: 0, y: -16, scale: 0.985 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
@@ -58,7 +60,23 @@ export default function Menu() {
         </div>
 
         <div className="menu-center-wrap">
-          <nav className={`menu-center ${menuAberto ? "open" : ""}`} aria-label="Navegação principal">
+          <button
+            type="button"
+            className="menu-toggle"
+            aria-label={menuAberto ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={menuAberto}
+            aria-controls="menu-principal"
+            onClick={alternarMenu}
+          >
+            {menuAberto ? <FiX /> : <FiMenu />}
+            <span>{menuAberto ? "Fechar" : "Menu"}</span>
+          </button>
+
+          <nav
+            id="menu-principal"
+            className={`menu-center ${menuAberto ? "open" : ""}`}
+            aria-label="Navegação principal"
+          >
             <motion.div {...itemMotion}>
               <NavLink to="/inicio" className="menu-link" onClick={fecharMenu}>
                 Início
@@ -171,6 +189,94 @@ export default function Menu() {
           </div>
         </div>
       </div>
+
+      <aside className={`menu-mobile-drawer ${menuAberto ? "open" : ""}`} aria-hidden={!menuAberto}>
+        <div className="menu-mobile-drawer-panel">
+          <div className="menu-mobile-drawer-header">
+            <span className="menu-mobile-drawer-title">Menu</span>
+            <button
+              type="button"
+              className="menu-mobile-close"
+              onClick={fecharMenu}
+              aria-label="Fechar menu"
+            >
+              <FiX />
+            </button>
+          </div>
+
+          <nav className="menu-mobile-nav" aria-label="Navegação mobile">
+            <NavLink to="/inicio" className="menu-mobile-link" onClick={fecharMenu}>
+              Início
+            </NavLink>
+            <NavLink to="/ambientes" className="menu-mobile-link" onClick={fecharMenu}>
+              Ambientes
+            </NavLink>
+            {user && (
+              <NavLink to="/explorer" className="menu-mobile-link" onClick={fecharMenu}>
+                Explorar
+              </NavLink>
+            )}
+            {canAccessPedidos && (
+              <NavLink to="/pedidos" className="menu-mobile-link" onClick={fecharMenu}>
+                Pedidos
+              </NavLink>
+            )}
+            {isAdmin && (
+              <NavLink to="/criar-tour" className="menu-mobile-link" onClick={fecharMenu}>
+                Gerar Ambiente
+              </NavLink>
+            )}
+            {canAccessPedidos && user && (
+              <NavLink
+                to={`/historico/${user.id}`}
+                className="menu-mobile-link"
+                onClick={fecharMenu}
+              >
+                Histórico
+              </NavLink>
+            )}
+            {canAccessAnalytics && (
+              <NavLink to="/analytics" className="menu-mobile-link" onClick={fecharMenu}>
+                Analytics
+              </NavLink>
+            )}
+            {user && (
+              <NavLink to="/perfil" className="menu-mobile-link" onClick={fecharMenu}>
+                Perfil
+              </NavLink>
+            )}
+            {isAdmin && (
+              <NavLink to="/usuarios" className="menu-mobile-link" onClick={fecharMenu}>
+                Usuários
+              </NavLink>
+            )}
+          </nav>
+
+          <div className="menu-mobile-actions">
+            <motion.a
+              href={CONTACT_URL}
+              className="menu-mobile-action menu-mobile-action-contact"
+              aria-label={`Entrar em contato por email: ${CONTACT_EMAIL}`}
+              target="_blank"
+              rel="noreferrer"
+              whileTap={{ scale: 0.97 }}
+            >
+              <FiMail />
+              <span>Contato</span>
+            </motion.a>
+
+            {user && (
+              <motion.button
+                className="menu-mobile-action menu-mobile-action-logout"
+                onClick={sair}
+                whileTap={{ scale: 0.97 }}
+              >
+                Sair
+              </motion.button>
+            )}
+          </div>
+        </div>
+      </aside>
     </motion.header>
   );
 }

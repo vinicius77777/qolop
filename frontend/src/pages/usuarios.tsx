@@ -1,5 +1,5 @@
 // src/pages/usuarios.tsx
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { getMe, getUsuarios, Usuario } from "../services/api";
 import { useNavigate } from "react-router-dom";
 import "../styles/usuarios.css";
@@ -10,17 +10,15 @@ const Usuarios: React.FC = () => {
   const [usuarios, setUsuarios] = useState<Usuario[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [usuario, setUsuario] = useState<Usuario | null>(null);
 
   const navigate = useNavigate();
 
-  const carregar = async () => {
+  const carregar = useCallback(async () => {
     try {
       setLoading(true);
 
       // pega o usuário logado
       const user = await getMe();
-      setUsuario(user);
 
       // bloqueia qualquer usuário que não seja admin
       if (user.role !== "admin") {
@@ -39,13 +37,13 @@ const Usuarios: React.FC = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [navigate]);
 
   useEffect(() => {
     carregar();
     const interval = setInterval(carregar, REFRESH_INTERVAL);
     return () => clearInterval(interval);
-  }, []);
+  }, [carregar]);
 
   if (loading) return <p className="usuarios-loading">Carregando usuários...</p>;
   if (error) return <p className="usuarios-error">{error}</p>;

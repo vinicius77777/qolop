@@ -3,7 +3,6 @@ import { motion } from "framer-motion";
 import {
   FiActivity,
   FiArrowUpRight,
-  FiClock,
   FiEye,
   FiGlobe,
   FiLayers,
@@ -198,11 +197,6 @@ const Analytics: React.FC = () => {
 
     carregarAnalytics();
   }, []);
-
-  const empresaNome = useMemo(() => {
-    if (!analytics?.empresa?.nome) return "sua empresa";
-    return analytics.empresa.nome;
-  }, [analytics]);
 
   const filteredAcessos = useMemo(() => {
     if (!analytics) return [];

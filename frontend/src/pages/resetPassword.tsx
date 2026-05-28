@@ -1,64 +1,76 @@
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { FiEye, FiEyeOff } from "react-icons/fi";
-import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../context/AuthContext";
-import { markNewUserOnboarding } from "../utils/onboarding";
-import "../styles/register.css";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { confirmPasswordReset } from "../services/authService";
+import "../styles/login.css";
 
-const registerPoints = [
-  "Comece com nome, e-mail e senha",
-  "Depois escolha como quer usar a plataforma",
-  "Ative opções profissionais só quando fizer sentido",
+const resetPoints = [
+  "Use a nova senha para voltar ao sistema",
+  "O link expira por segurança",
+  "Você pode salvar a nova senha no gerenciador que preferir",
 ];
 
-export default function Register() {
+export default function ResetPassword() {
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const [searchParams] = useSearchParams();
 
-  const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
+  const emailFromQuery = searchParams.get("email") ?? "";
+  const tokenFromQuery = searchParams.get("token") ?? "";
+
   const [senha, setSenha] = useState("");
+  const [confirmacao, setConfirmacao] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
+
+  const email = useMemo(() => emailFromQuery.trim().toLowerCase(), [emailFromQuery]);
+  const token = useMemo(() => tokenFromQuery.trim(), [tokenFromQuery]);
+
+  const formIsReady = email.length > 0 && token.length > 0;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    setLoading(true);
     setError("");
+    setSuccess("");
 
-    const nomeNormalizado = nome.trim();
-    const emailNormalizado = email.trim().toLowerCase();
-    const senhaNormalizada = senha.trim();
-
-    if (nomeNormalizado.length < 2) {
-      setError("Informe seu nome");
-      setLoading(false);
+    if (!formIsReady) {
+      setError("Link de redefinição inválido. Solicite um novo email.");
       return;
     }
 
-    if (!emailNormalizado) {
-      setError("Informe seu e-mail");
-      setLoading(false);
+    if (senha.trim().length < 6) {
+      setError("A nova senha deve ter no mínimo 6 caracteres");
       return;
     }
 
-    if (senhaNormalizada.length < 6) {
-      setError("Senha deve ter no mínimo 6 caracteres");
-      setLoading(false);
+    if (senha !== confirmacao) {
+      setError("As senhas não coincidem");
       return;
     }
+
+    setLoading(true);
 
     try {
-      const usuario = await register(nomeNormalizado, emailNormalizado, senhaNormalizada);
-      markNewUserOnboarding(usuario.id);
-      navigate("/inicio");
+      const response = await confirmPasswordReset({
+        email,
+        token,
+        senha: senha.trim(),
+      });
+
+      setSuccess(response.message);
+      setSenha("");
+      setConfirmacao("");
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 1800);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("Erro ao cadastrar");
+        setError("Erro ao redefinir a senha");
       }
     } finally {
       setLoading(false);
@@ -72,11 +84,7 @@ export default function Register() {
       <div className="login-ambient login-ambient--two" />
       <div className="login-ambient login-ambient--three" />
 
-      <button
-        type="button"
-        className="auth-back-button"
-        onClick={() => navigate("/")}
-      >
+      <button type="button" className="auth-back-button" onClick={() => navigate("/login")}>
         ← Voltar
       </button>
 
@@ -88,15 +96,15 @@ export default function Register() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
-            <span className="login-eyebrow">Qolop · crie sua conta</span>
-            <h1 className="login-display-title">Cadastro simples para começar rápido.</h1>
+            <span className="login-eyebrow">Qolop · redefinição segura</span>
+            <h1 className="login-display-title">Crie uma nova senha e volte a entrar.</h1>
             <p className="login-display-lead">
-              Crie sua conta com apenas nome, e-mail e senha. Depois do primeiro acesso,
-              você escolhe como quer usar a plataforma.
+              Este acesso vale só por tempo limitado. Depois de definir a nova senha, você já
+              pode usar sua conta novamente.
             </p>
 
             <div className="login-point-list">
-              {registerPoints.map((item, index) => (
+              {resetPoints.map((item, index) => (
                 <div key={item} className="login-point">
                   <span className="login-point-index">
                     {String(index + 1).padStart(2, "0")}
@@ -114,57 +122,26 @@ export default function Register() {
             transition={{ duration: 0.75, delay: 0.08 }}
           >
             <div className="login-header">
-              <span className="login-badge">Criar cadastro</span>
-              <h2 className="login-title">Abra sua conta</h2>
+              <span className="login-badge">Redefinir senha</span>
+              <h2 className="login-title">Nova senha</h2>
               <p className="login-subtitle">
-                Informe seus dados básicos para entrar no QOLOP.
+                {email ? `Conta: ${email}` : "Use o link enviado ao seu email para continuar."}
               </p>
             </div>
 
             {error && <p className="login-error">{error}</p>}
+            {success && <p className="login-success">{success}</p>}
 
             <form onSubmit={handleSubmit} className="login-form">
               <div className="input-group">
-                <label className="login-label" htmlFor="register-nome">
-                  Nome
-                </label>
-                <input
-                  id="register-nome"
-                  type="text"
-                  placeholder="Seu nome"
-                  className="login-input"
-                  value={nome}
-                  onChange={(e) => setNome(e.target.value)}
-                  autoComplete="name"
-                  required
-                />
-              </div>
-
-              <div className="input-group">
-                <label className="login-label" htmlFor="register-email">
-                  E-mail
-                </label>
-                <input
-                  id="register-email"
-                  type="email"
-                  placeholder="seuemail@exemplo.com"
-                  className="login-input"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  autoComplete="email"
-                  required
-                />
-              </div>
-
-              <div className="input-group">
-                <label className="login-label" htmlFor="register-senha">
-                  Senha
+                <label className="login-label" htmlFor="reset-senha">
+                  Nova senha
                 </label>
                 <div className="login-password-field">
                   <input
-                    id="register-senha"
+                    id="reset-senha"
                     type={mostrarSenha ? "text" : "password"}
-                    placeholder="Crie uma senha"
+                    placeholder="Digite a nova senha"
                     className="login-input login-input--password"
                     value={senha}
                     onChange={(e) => setSenha(e.target.value)}
@@ -184,16 +161,33 @@ export default function Register() {
                 </div>
               </div>
 
-              <button type="submit" disabled={loading} className="login-button">
-                {loading ? "Cadastrando..." : "Criar conta"}
+              <div className="input-group">
+                <label className="login-label" htmlFor="reset-confirmacao">
+                  Confirmar senha
+                </label>
+                <input
+                  id="reset-confirmacao"
+                  type={mostrarSenha ? "text" : "password"}
+                  placeholder="Repita a nova senha"
+                  className="login-input"
+                  value={confirmacao}
+                  onChange={(e) => setConfirmacao(e.target.value)}
+                  autoComplete="new-password"
+                  minLength={6}
+                  required
+                />
+              </div>
+
+              <button type="submit" disabled={loading || !formIsReady} className="login-button">
+                {loading ? "Redefinindo..." : "Salvar nova senha"}
               </button>
             </form>
 
             <div className="login-footer">
               <p className="login-register-text">
-                Já tem conta?{" "}
+                Já definiu sua senha?{" "}
                 <Link to="/login" className="login-register-link">
-                  Fazer login
+                  Voltar para login
                 </Link>
               </p>
 

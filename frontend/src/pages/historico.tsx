@@ -91,19 +91,26 @@ function formatarData(data?: string) {
   });
 }
 
-function formatarDataCurta(data?: string) {
-  if (!data) return "Sem data";
-  const parsedDate = new Date(data);
-
-  if (Number.isNaN(parsedDate.getTime())) {
-    return "Sem data";
+function getPedidoDoAmbiente(
+  ambiente: Ambiente,
+  pedidos: Pedido[]
+) {
+  if (ambiente.pedidoId) {
+    return pedidos.find((pedido) => pedido.id === ambiente.pedidoId) || null;
   }
 
-  return parsedDate.toLocaleDateString("pt-BR", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric",
-  });
+  if (ambiente.usuario?.email) {
+    const pedidosDoMesmoUsuario = pedidos
+      .filter((pedido) => pedido.email === ambiente.usuario?.email)
+      .sort(
+        (a, b) =>
+          new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
+      );
+
+    return pedidosDoMesmoUsuario[0] || null;
+  }
+
+  return null;
 }
 
 function getHistoricoTimeline(
@@ -158,25 +165,6 @@ function getHistoricoTimeline(
 
 const Historico: React.FC = () => {
   const { usuarioId } = useParams<{ usuarioId: string }>();
-
-  const getPedidoDoAmbiente = (ambiente: Ambiente) => {
-    if (ambiente.pedidoId) {
-      return pedidos.find((pedido) => pedido.id === ambiente.pedidoId) || null;
-    }
-
-    if (ambiente.usuario?.email) {
-      const pedidosDoMesmoUsuario = pedidos
-        .filter((pedido) => pedido.email === ambiente.usuario?.email)
-        .sort(
-          (a, b) =>
-            new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime()
-        );
-
-      return pedidosDoMesmoUsuario[0] || null;
-    }
-
-    return null;
-  };
 
   const [pedidos, setPedidos] = useState<Pedido[]>([]);
   const [ambientes, setAmbientes] = useState<Ambiente[]>([]);
@@ -304,7 +292,7 @@ const Historico: React.FC = () => {
     const term = search.trim().toLowerCase();
 
     return ambientesOrdenados.filter((ambiente) => {
-      const pedidoRelacionado = getPedidoDoAmbiente(ambiente);
+      const pedidoRelacionado = getPedidoDoAmbiente(ambiente, pedidos);
       const pagamentoAtual = getPagamentoAtualFromPedido(pedidoRelacionado);
 
       const matchesStatus =
@@ -509,38 +497,52 @@ const Historico: React.FC = () => {
                       </span>
                     </div>
 
-                    <div className="historico-meta-grid">
-                      <p>
-                        <strong>Email:</strong> {p.email}
-                      </p>
+                    <div className="historico-meta-grid historico-meta-grid--pedido">
+                      <div className="historico-meta-item historico-meta-item--wide">
+                        <span className="historico-meta-label">Email</span>
+                        <span className="historico-meta-value">{p.email}</span>
+                      </div>
+
                       {p.telefone && (
-                        <p>
-                          <strong>Telefone:</strong> {p.telefone}
-                        </p>
+                        <div className="historico-meta-item">
+                          <span className="historico-meta-label">Telefone</span>
+                          <span className="historico-meta-value">{p.telefone}</span>
+                        </div>
                       )}
-                      <p>
-                        <strong>Criado em:</strong> {formatarData(p.createdAt)}
-                      </p>
-                      <p>
-                        <strong>Status:</strong> {p.status || "Sem status"}
-                      </p>
+
+                      <div className="historico-meta-item">
+                        <span className="historico-meta-label">Criado em</span>
+                        <span className="historico-meta-value">{formatarData(p.createdAt)}</span>
+                      </div>
+
+                      <div className="historico-meta-item">
+                        <span className="historico-meta-label">Status</span>
+                        <span className="historico-meta-value">
+                          {p.status || "Sem status"}
+                        </span>
+                      </div>
                     </div>
 
                     {(p.local || p.cep) && (
-                      <p>
-                        <strong>Local:</strong> {p.local || `CEP ${p.cep}`}
-                      </p>
+                      <div className="historico-meta-item historico-meta-item--wide">
+                        <span className="historico-meta-label">Local</span>
+                        <span className="historico-meta-value">
+                          {p.local || `CEP ${p.cep}`}
+                        </span>
+                      </div>
                     )}
 
                     {p.local && p.cep && (
-                      <p>
-                        <strong>CEP:</strong> {p.cep}
-                      </p>
+                      <div className="historico-meta-item">
+                        <span className="historico-meta-label">CEP</span>
+                        <span className="historico-meta-value">{p.cep}</span>
+                      </div>
                     )}
 
-                    <p>
-                      <strong>Mensagem:</strong> {p.mensagem}
-                    </p>
+                    <div className="historico-meta-item historico-meta-item--wide">
+                      <span className="historico-meta-label">Mensagem</span>
+                      <span className="historico-meta-value">{p.mensagem}</span>
+                    </div>
 
                     <div className="historico-inline-info">
                       <span>
@@ -595,7 +597,7 @@ const Historico: React.FC = () => {
               )}
 
               {filteredAmbientes.map((a) => {
-                const pedidoRelacionado = getPedidoDoAmbiente(a);
+                const pedidoRelacionado = getPedidoDoAmbiente(a, pedidos);
                 const pagamentoAtual = getPagamentoAtualFromPedido(pedidoRelacionado);
 
                 return (

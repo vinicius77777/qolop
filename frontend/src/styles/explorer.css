@@ -331,6 +331,239 @@
   color: rgba(255, 255, 255, 0.74);
 }
 
+.explorer-marker-tooltip__badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 20px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: rgba(159, 231, 255, 0.16);
+  border: 1px solid rgba(159, 231, 255, 0.3);
+  color: #bff3ff;
+  font-size: 0.62rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.explorer-popup__header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.explorer-tour-badge--highlighted {
+  background: linear-gradient(135deg, #9fe7ff, #f6f0a5);
+  border-color: rgba(255, 255, 255, 0.38);
+  color: #07111d;
+  box-shadow: 0 10px 20px rgba(159, 231, 255, 0.18);
+}
+
+.explorer-premium-marker {
+  background: transparent;
+  border: none;
+}
+
+.explorer-premium-marker__halo {
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(159, 231, 255, 0.22) 0%, rgba(159, 231, 255, 0) 68%);
+  box-shadow:
+    0 0 0 10px rgba(159, 231, 255, 0.1),
+    0 0 24px rgba(159, 231, 255, 0.28);
+}
+
+.explorer-premium-marker__body {
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.96);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05)),
+    linear-gradient(135deg, #090c12, #1a2430);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 10px 20px rgba(3, 7, 14, 0.28);
+  display: grid;
+  place-items: center;
+}
+
+.explorer-premium-marker__star {
+  color: #f6f0a5;
+  font-size: 0.96rem;
+  line-height: 1;
+  text-shadow: 0 0 8px rgba(246, 240, 165, 0.7);
+}
+
+.explorer-search-marker {
+  background: transparent;
+  border: none;
+}
+
+.explorer-search-marker__ring {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid rgba(159, 231, 255, 0.92);
+  background: rgba(159, 231, 255, 0.12);
+  box-shadow: 0 0 0 10px rgba(159, 231, 255, 0.09);
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+
+.explorer-search-marker__pulse {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid rgba(159, 231, 255, 0.55);
+  animation: explorerPulse 1.8s ease-in-out infinite;
+}
+
+.explorer-search-marker__star {
+  position: absolute;
+  color: #f6f0a5;
+  font-size: 0.82rem;
+  font-weight: 900;
+  line-height: 1;
+  transform: translateY(-9px);
+  text-shadow: 0 0 8px rgba(246, 240, 165, 0.75);
+}
+
+.explorer-search-marker__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #9fe7ff;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 0 0 0 5px rgba(159, 231, 255, 0.12);
+}
+.explorer-popup__header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.explorer-tour-badge--highlighted {
+  background: linear-gradient(135deg, #9fe7ff, #f6f0a5);
+  border-color: rgba(255, 255, 255, 0.38);
+  color: #07111d;
+  box-shadow: 0 10px 20px rgba(159, 231, 255, 0.18);
+}
+
+.explorer-premium-marker {
+  background: transparent;
+  border: none;
+}
+
+.explorer-premium-marker__halo {
+  position: absolute;
+  inset: 2px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(159, 231, 255, 0.22) 0%, rgba(159, 231, 255, 0) 68%);
+  box-shadow:
+    0 0 0 10px rgba(159, 231, 255, 0.1),
+    0 0 24px rgba(159, 231, 255, 0.28);
+}
+
+.explorer-premium-marker__body {
+  position: absolute;
+  inset: 7px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.96);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0.05)),
+    linear-gradient(135deg, #090c12, #1a2430);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 10px 20px rgba(3, 7, 14, 0.28);
+  display: grid;
+  place-items: center;
+}
+
+.explorer-premium-marker__star {
+  color: #f6f0a5;
+  font-size: 0.96rem;
+  line-height: 1;
+  text-shadow: 0 0 8px rgba(246, 240, 165, 0.7);
+}
+
+.explorer-search-marker {
+  background: transparent;
+  border: none;
+}
+
+.explorer-search-marker__ring {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 2px solid rgba(159, 231, 255, 0.92);
+  background: rgba(159, 231, 255, 0.12);
+  box-shadow: 0 0 0 10px rgba(159, 231, 255, 0.09);
+  display: grid;
+  place-items: center;
+  position: relative;
+}
+
+.explorer-search-marker__pulse {
+  position: absolute;
+  inset: -3px;
+  border-radius: 50%;
+  border: 1px solid rgba(159, 231, 255, 0.55);
+  animation: explorerPulse 1.8s ease-in-out infinite;
+}
+
+.explorer-search-marker__star {
+  position: absolute;
+  color: #f6f0a5;
+  font-size: 0.82rem;
+  font-weight: 900;
+  line-height: 1;
+  transform: translateY(-9px);
+  text-shadow: 0 0 8px rgba(246, 240, 165, 0.75);
+}
+
+.explorer-search-marker__dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: #9fe7ff;
+  border: 2px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 0 0 0 5px rgba(159, 231, 255, 0.12);
+}
+
+.explorer-tour-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(159, 231, 255, 0.14);
+  border: 1px solid rgba(159, 231, 255, 0.32);
+  color: #9fe7ff;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.explorer-popup__highlight {
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(159, 231, 255, 0.08);
+  border: 1px solid rgba(159, 231, 255, 0.16);
+  color: #d8fbff;
+}
+
 .explorer-popup h3 {
   margin: 0 0 8px;
   font-size: 0.96rem;
@@ -390,18 +623,20 @@
   transform: translateY(0);
 }
 
-.explorer-user-marker {
+.explorer-search-marker {
   background: transparent;
   border: none;
 }
 
-.explorer-user-marker__dot {
-  width: 22px;
-  height: 22px;
+.explorer-search-marker__ring {
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  background: rgba(97, 218, 251, 0.95);
-  border: 4px solid rgba(255, 255, 255, 0.95);
-  box-shadow: 0 0 0 10px rgba(97, 218, 251, 0.18);
+  border: 2px solid rgba(159, 231, 255, 0.92);
+  background: rgba(159, 231, 255, 0.12);
+  box-shadow: 0 0 0 10px rgba(159, 231, 255, 0.12);
+  display: grid;
+  place-items: center;
 }
 
 .explorer-page .leaflet-container {
@@ -416,6 +651,7 @@
   box-shadow: 0 14px 30px rgba(0, 0, 0, 0.24);
 }
 
+
 .explorer-page .leaflet-popup-content {
   margin: 12px 14px;
 }
@@ -428,6 +664,21 @@
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes explorerPulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.95;
+  }
+  70% {
+    transform: scale(1.12);
+    opacity: 0.2;
+  }
+  100% {
+    transform: scale(1.12);
+    opacity: 0;
   }
 }
 

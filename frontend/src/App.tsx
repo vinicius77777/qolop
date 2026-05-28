@@ -1,6 +1,6 @@
 // src/App.tsx
 
-import React, { Suspense, lazy } from "react";
+import React, { Suspense, lazy, useEffect, useState } from "react";
 import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
 import { AnimatePresence, motion, type Variants, useReducedMotion } from "framer-motion";
 import "./animations.css";
@@ -10,6 +10,7 @@ import "leaflet/dist/leaflet.css";
 // páginas
 import Login from "./pages/login";
 import Register from "./pages/register";
+import ResetPassword from "./pages/resetPassword";
 import Welcome from "./pages/welcome";
 import Tour from "./pages/tour";
 import Empresa from "./pages/empresa";
@@ -22,12 +23,43 @@ const Usuarios = lazy(() => import("./pages/usuarios"));
 const Historico = lazy(() => import("./pages/historico"));
 const HistoricoPublico = lazy(() => import("./pages/HistoricoPublico"));
 const Explorer = lazy(() => import("./pages/explorer"));
+const DivulgarEspaco = lazy(() => import("./pages/divulgarEspaco"));
 const CriarTour = lazy(() => import("./pages/criarTour"));
 const Analytics = lazy(() => import("./pages/analytics"));
+
+function RouteLoadingScreen() {
+  return (
+    <motion.div
+      className="route-loading-overlay"
+      aria-hidden="true"
+      initial={{ opacity: 0, clipPath: "inset(0 0 0 100%)" }}
+      animate={{ opacity: 1, clipPath: "inset(0 0 0 0%)" }}
+      exit={{ opacity: 0, clipPath: "inset(0 100% 0 0%)" }}
+      transition={{
+        duration: 0.38,
+        ease: [0.22, 1, 0.36, 1] as const,
+      }}
+    >
+      <div className="route-loading-sweep" />
+      <div className="route-loading-orbit route-loading-orbit--one" />
+      <div className="route-loading-orbit route-loading-orbit--two" />
+      <div className="route-loading-card">
+        <span className="route-loading-badge">Qolop</span>
+        <div className="route-loading-wave">
+          <span />
+          <span />
+          <span />
+        </div>
+      </div>
+    </motion.div>
+  );
+}
 
 function AppContent() {
   const location = useLocation();
   const shouldReduceMotion = useReducedMotion();
+  const [isRouteTransitioning, setIsRouteTransitioning] = useState(false);
+  const [transitionKey, setTransitionKey] = useState(location.pathname);
 
   const routeTransition: Variants = shouldReduceMotion
     ? {
@@ -77,6 +109,22 @@ function AppContent() {
         },
       };
 
+  useEffect(() => {
+    if (location.pathname === transitionKey) {
+      setIsRouteTransitioning(false);
+      return;
+    }
+
+    setIsRouteTransitioning(true);
+    setTransitionKey(location.pathname);
+
+    const timer = window.setTimeout(() => {
+      setIsRouteTransitioning(false);
+    }, shouldReduceMotion ? 260 : 1120);
+
+    return () => window.clearTimeout(timer);
+  }, [location.pathname, shouldReduceMotion, transitionKey]);
+
   // rotas onde NÃO deve aparecer o menu
   const rotasSemMenu = ["/", "/login", "/register"];
 
@@ -97,7 +145,7 @@ function AppContent() {
 
       {mostrarMenu && <Menu />}
 
-      <AnimatePresence mode="wait" initial={false}>
+      <AnimatePresence mode="sync" initial={false}>
         <motion.main
           key={location.pathname}
           className="route-transition-layer route-transition-shell water-route-transition"
@@ -106,7 +154,8 @@ function AppContent() {
           animate="animate"
           exit="exit"
         >
-          <Suspense fallback={<div className="pedidos-loading">Carregando página...</div>}>
+          {isRouteTransitioning && <RouteLoadingScreen />}
+          <Suspense fallback={<RouteLoadingScreen />}>
             <Routes location={location}>
               {/* =====================
                   ROTAS PÚBLICAS
@@ -114,6 +163,7 @@ function AppContent() {
               <Route path="/" element={<Welcome />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
+              <Route path="/reset-password" element={<ResetPassword />} />
 
               {/* tour público */}
               <Route path="/tour/:id" element={<Tour />} />
@@ -144,7 +194,23 @@ function AppContent() {
                 }
               />
 
-              <Route path="/explorer" element={<Explorer />} />
+              <Route
+                path="/explorer"
+                element={
+                  <ProtectedRoute>
+                    <Explorer />
+                  </ProtectedRoute>
+                }
+              />
+              
+              <Route
+                path="/divulgar-espaco"
+                element={
+                  <ProtectedRoute>
+                    <DivulgarEspaco />
+                  </ProtectedRoute>
+                }
+              />
 
               <Route
                 path="/ambientes"

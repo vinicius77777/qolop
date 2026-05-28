@@ -366,7 +366,10 @@ function MapViewportController({
 
 export default function CriarTour() {
   const location = useLocation();
-  const navState = (location.state || {}) as CriarTourNavigationState;
+  const navState = useMemo(
+    () => (location.state || {}) as CriarTourNavigationState,
+    [location.state]
+  );
   const prefillAppliedRef = useRef(false);
 
   const clienteEmail = navState.clienteEmail;
@@ -423,7 +426,7 @@ export default function CriarTour() {
         Boolean(navState.clienteNome) ||
         Boolean(navState.pedidoEmpresaNome),
     };
-  }, [clienteEmail, navState]);
+  }, [navState]);
 
   useEffect(() => {
     if (prefillAppliedRef.current) {

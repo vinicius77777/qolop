@@ -367,6 +367,40 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.historico-meta-grid--pedido {
+  align-items: stretch;
+}
+
+.historico-meta-item {
+  min-width: 0;
+  display: grid;
+  gap: 6px;
+  padding: 14px 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+}
+
+.historico-meta-item--wide {
+  grid-column: 1 / -1;
+}
+
+.historico-meta-label {
+  color: #aebcff;
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.historico-meta-value {
+  min-width: 0;
+  color: #f7f9ff;
+  line-height: 1.65;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
 .historico-meta-grid strong,
 .historico-inline-info strong,
 .payment-history strong,
@@ -613,6 +647,10 @@
   .historico-overview-grid,
   .historico-meta-grid {
     grid-template-columns: 1fr;
+  }
+
+  .historico-meta-item--wide {
+    grid-column: auto;
   }
 
   .historico-hero,

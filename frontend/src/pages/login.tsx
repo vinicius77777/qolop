@@ -3,6 +3,8 @@ import { motion } from "framer-motion";
 import { FiEye, FiEyeOff } from "react-icons/fi";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+import { requestPasswordReset } from "../services/authService";
+import { clearNewUserOnboarding } from "../utils/onboarding";
 import "../styles/login.css";
 
 const loginPoints = [
@@ -10,6 +12,10 @@ const loginPoints = [
   "Continue de onde parou",
   "Entre com rapidez e clareza",
 ];
+
+function isInvalidPasswordError(message: string) {
+  return message.toLowerCase().includes("senha inválida");
+}
 
 export default function Login() {
   const navigate = useNavigate();
@@ -20,14 +26,20 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [mostrarSenha, setMostrarSenha] = useState(false);
+  const [resetLoading, setResetLoading] = useState(false);
+  const [resetMessage, setResetMessage] = useState("");
+
+  const canRequestReset = email.trim().length > 0;
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setLoading(true);
     setError("");
+    setResetMessage("");
 
     try {
       await login(email, senha);
+      clearNewUserOnboarding();
       navigate("/inicio");
     } catch (err) {
       if (err instanceof Error) {
@@ -40,6 +52,32 @@ export default function Login() {
     }
   }
 
+  async function handlePasswordResetRequest() {
+    const emailNormalizado = email.trim().toLowerCase();
+
+    if (!emailNormalizado) {
+      setError("Informe seu email para receber o link de redefinição");
+      return;
+    }
+
+    setResetLoading(true);
+    setError("");
+    setResetMessage("");
+
+    try {
+      const response = await requestPasswordReset(emailNormalizado);
+      setResetMessage(response.message);
+    } catch (err) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Erro ao solicitar redefinição");
+      }
+    } finally {
+      setResetLoading(false);
+    }
+  }
+
   return (
     <div className="login-page">
       <div className="login-noise" />
@@ -47,7 +85,7 @@ export default function Login() {
       <div className="login-ambient login-ambient--two" />
       <div className="login-ambient login-ambient--three" />
 
-      <button className="auth-back-button" onClick={() => navigate("/")}>
+      <button type="button" className="auth-back-button" onClick={() => navigate("/")}>
         ← Voltar
       </button>
 
@@ -92,6 +130,7 @@ export default function Login() {
             </div>
 
             {error && <p className="login-error">{error}</p>}
+            {resetMessage && <p className="login-success">{resetMessage}</p>}
 
             <form onSubmit={handleSubmit} className="login-form">
               <div className="input-group">
@@ -105,6 +144,7 @@ export default function Login() {
                   className="login-input"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
+                  autoComplete="email"
                   required
                 />
               </div>
@@ -121,6 +161,7 @@ export default function Login() {
                     className="login-input login-input--password"
                     value={senha}
                     onChange={(e) => setSenha(e.target.value)}
+                    autoComplete="current-password"
                     required
                   />
                   <button
@@ -139,6 +180,27 @@ export default function Login() {
                 {loading ? "Entrando..." : "Entrar"}
               </button>
             </form>
+
+            {isInvalidPasswordError(error) && (
+              <div className="login-reset-box">
+                <div>
+                  <h3 className="login-reset-title">Esqueceu a senha?</h3>
+                  <p className="login-reset-text">
+                    Enviamos um link seguro para o email informado. Você pode usar o mesmo email
+                    para trocar a senha sem expor sua conta.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  className="login-reset-button"
+                  onClick={handlePasswordResetRequest}
+                  disabled={resetLoading || !canRequestReset}
+                >
+                  {resetLoading ? "Enviando..." : "Quero trocar a senha"}
+                </button>
+              </div>
+            )}
 
             <div className="login-footer">
               <p className="login-register-text">

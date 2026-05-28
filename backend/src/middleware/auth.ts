@@ -3,6 +3,7 @@ import jwt from "jsonwebtoken";
 import prisma from "../lib/prisma";
 import { JWT_SECRET } from "../config/env";
 import { AuthRequest, AuthUser } from "../types";
+import { normalizeRole, sanitizeAuthUser } from "../utils/permissions";
 
 type JwtPayload = {
   id: number;
@@ -35,13 +36,13 @@ function buildAuthUser(usuario: {
   role: AuthUser["role"];
   empresaId: number | null;
 }): AuthUser {
-  return {
+  return sanitizeAuthUser({
     id: usuario.id,
     email: usuario.email,
-    nome: usuario.nome ?? undefined,
+    nome: usuario.nome,
     role: usuario.role,
     empresaId: usuario.empresaId,
-  };
+  });
 }
 
 export async function auth(
@@ -77,7 +78,7 @@ export async function auth(
 
     req.user = buildAuthUser({
       ...usuario,
-      role: usuario.role as AuthUser["role"],
+      role: normalizeRole(usuario.role) ?? "user",
     });
     next();
   } catch {
@@ -90,7 +91,7 @@ export function requireAdmin(
   res: Response,
   next: NextFunction
 ): void {
-  if (req.user?.role !== "admin") {
+  if (normalizeRole(req.user?.role) !== "admin") {
     res.status(403).json({ error: "Acesso negado" });
     return;
   }
@@ -103,7 +104,7 @@ export function requireAuth(
   res: Response,
   next: NextFunction
 ): void {
-  if (req.user?.role === "admin" || !!req.user?.empresaId) {
+  if (normalizeRole(req.user?.role) === "admin" || !!req.user?.empresaId) {
     next();
     return;
   }

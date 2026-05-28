@@ -1,7 +1,25 @@
 import React from "react";
+import { FiArrowRight } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import "../styles/welcome.css";
+
+function ButtonMarquee({ label }: { label: string }) {
+  return (
+    <span className="button-marquee" aria-hidden="true">
+      <span className="button-marquee__viewport">
+        <span className="button-marquee__copy">{label}</span>
+        <span className="button-marquee__copy">{label}</span>
+      </span>
+      <span className="button-marquee__icon">
+        <span className="button-marquee__icon-track">
+          <FiArrowRight />
+          <FiArrowRight />
+        </span>
+      </span>
+    </span>
+  );
+}
 
 const quickPoints = [
   {
@@ -53,18 +71,20 @@ export default function Welcome() {
             <div className="welcome-actions">
               <button
                 type="button"
-                className="welcome-action welcome-action--primary"
+                className="welcome-action welcome-action--primary button-fill button-fill--dark"
+                aria-label="Fazer login"
                 onClick={() => navigate("/login")}
               >
-                Fazer login
+                <ButtonMarquee label="Fazer login" />
               </button>
 
               <button
                 type="button"
-                className="welcome-action welcome-action--secondary"
+                className="welcome-action welcome-action--secondary button-fill button-fill--light"
+                aria-label="Criar cadastro"
                 onClick={() => navigate("/register")}
               >
-                Criar cadastro
+                <ButtonMarquee label="Criar cadastro" />
               </button>
             </div>
 

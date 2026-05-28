@@ -22,11 +22,22 @@ export type EmpresaSlugParams = {
   slug: string;
 };
 
+export type CreateEmpresaPayload = {
+  nome: string;
+  email?: string | null;
+  descricao?: string | null;
+  telefone?: string | null;
+  whatsapp?: string | null;
+  logo?: string | null;
+  publico?: boolean;
+};
+
 export type UpdateEmpresaPayload = {
   empresaId?: number;
   descricao?: string | null;
   telefone?: string | null;
   whatsapp?: string | null;
+  logo?: string | null;
   publico?: boolean;
 };
 
@@ -96,8 +107,8 @@ function normalizeOptionalNumber(
     typeof value === "number"
       ? value
       : typeof value === "string"
-      ? Number(value.trim())
-      : Number.NaN;
+        ? Number(value.trim())
+        : Number.NaN;
 
   if (!Number.isFinite(parsed)) {
     errors.push(`${fieldName} deve ser numérico`);
@@ -141,6 +152,10 @@ function normalizeOptionalBoolean(
   return undefined;
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === "object" && value !== null && !Array.isArray(value);
+}
+
 export function validateEmpresaAnalyticsQuery(
   input: unknown
 ): ValidationResult<EmpresaAnalyticsQuery> {
@@ -148,11 +163,7 @@ export function validateEmpresaAnalyticsQuery(
   const source =
     input && typeof input === "object" ? (input as Record<string, unknown>) : {};
 
-  const empresaId = normalizeOptionalNumber(
-    source.empresaId,
-    "empresaId",
-    errors
-  );
+  const empresaId = normalizeOptionalNumber(source.empresaId, "empresaId", errors);
 
   if (errors.length > 0) {
     return { success: false, errors };
@@ -173,11 +184,7 @@ export function validateEmpresaAmbientesQuery(
   const source =
     input && typeof input === "object" ? (input as Record<string, unknown>) : {};
 
-  const empresaId = normalizeOptionalNumber(
-    source.empresaId,
-    "empresaId",
-    errors
-  );
+  const empresaId = normalizeOptionalNumber(source.empresaId, "empresaId", errors);
 
   if (errors.length > 0) {
     return { success: false, errors };
@@ -219,6 +226,84 @@ export function validateEmpresaSlugParams(
   };
 }
 
+export function validateCreateEmpresaPayload(
+  input: unknown
+): ValidationResult<CreateEmpresaPayload> {
+  if (!isRecord(input)) {
+    return {
+      success: false,
+      errors: ["Dados inválidos"],
+    };
+  }
+
+  const errors: string[] = [];
+
+  const nome = normalizeTrimmedString(input.nome, "nome", errors, {
+    required: true,
+  });
+  const email = normalizeTrimmedString(input.email, "email", errors, {
+    allowNull: true,
+    emptyAsNull: true,
+  });
+  const descricao = normalizeTrimmedString(input.descricao, "descrição", errors, {
+    allowNull: true,
+    emptyAsNull: true,
+  });
+  const telefone = normalizeTrimmedString(input.telefone, "telefone", errors, {
+    allowNull: true,
+    emptyAsNull: true,
+  });
+  const whatsapp = normalizeTrimmedString(input.whatsapp, "whatsapp", errors, {
+    allowNull: true,
+    emptyAsNull: true,
+  });
+  const logo = normalizeTrimmedString(input.logo, "logo", errors, {
+    allowNull: true,
+    emptyAsNull: true,
+  });
+  const publico = normalizeOptionalBoolean(input.publico, "publico", errors);
+
+  if (errors.length > 0 || !nome) {
+    return {
+      success: false,
+      errors,
+    };
+  }
+
+  const data: CreateEmpresaPayload = {
+    nome,
+  };
+
+  if (email !== undefined) {
+    data.email = email;
+  }
+
+  if (descricao !== undefined) {
+    data.descricao = descricao;
+  }
+
+  if (telefone !== undefined) {
+    data.telefone = telefone;
+  }
+
+  if (whatsapp !== undefined) {
+    data.whatsapp = whatsapp;
+  }
+
+  if (logo !== undefined) {
+    data.logo = logo;
+  }
+
+  if (publico !== undefined) {
+    data.publico = publico;
+  }
+
+  return {
+    success: true,
+    data,
+  };
+}
+
 export function validateUpdateEmpresaPayload(
   input: unknown
 ): ValidationResult<UpdateEmpresaPayload> {
@@ -226,11 +311,7 @@ export function validateUpdateEmpresaPayload(
   const source =
     input && typeof input === "object" ? (input as Record<string, unknown>) : {};
 
-  const empresaId = normalizeOptionalNumber(
-    source.empresaId,
-    "empresaId",
-    errors
-  );
+  const empresaId = normalizeOptionalNumber(source.empresaId, "empresaId", errors);
   const descricao = normalizeTrimmedString(source.descricao, "descrição", errors, {
     allowNull: true,
     emptyAsNull: true,
@@ -240,6 +321,10 @@ export function validateUpdateEmpresaPayload(
     emptyAsNull: true,
   });
   const whatsapp = normalizeTrimmedString(source.whatsapp, "whatsapp", errors, {
+    allowNull: true,
+    emptyAsNull: true,
+  });
+  const logo = normalizeTrimmedString(source.logo, "logo", errors, {
     allowNull: true,
     emptyAsNull: true,
   });
@@ -265,6 +350,10 @@ export function validateUpdateEmpresaPayload(
 
   if (whatsapp !== undefined) {
     data.whatsapp = whatsapp;
+  }
+
+  if (logo !== undefined) {
+    data.logo = logo;
   }
 
   if (publico !== undefined) {

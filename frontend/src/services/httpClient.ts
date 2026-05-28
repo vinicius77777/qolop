@@ -38,7 +38,7 @@ export async function request<TResponse>(
       headers,
     });
 
-    let data: unknown = {};
+    let data: unknown;
     try {
       data = await res.json();
     } catch {

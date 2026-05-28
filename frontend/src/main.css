@@ -93,6 +93,142 @@ button {
   color: inherit;
 }
 
+button,
+a,
+.menu-link,
+.menu-contact-link,
+.menu-btn,
+.menu-toggle,
+.welcome-action,
+.inicio-button,
+.login-button,
+.login-secondary-button,
+.login-password-toggle,
+.auth-back-button {
+  position: relative;
+  overflow: hidden;
+}
+
+button::before,
+a::before,
+.menu-link::before,
+.menu-contact-link::before,
+.menu-btn::before,
+.menu-toggle::before,
+.welcome-action::before,
+.inicio-button::before,
+.login-button::before,
+.login-secondary-button::before,
+.login-password-toggle::before,
+.auth-back-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.08) 50%, transparent 100%);
+  transform: translateX(-120%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+button:hover::before,
+a:hover::before,
+.menu-link:hover::before,
+.menu-contact-link:hover::before,
+.menu-btn:hover::before,
+.menu-toggle:hover::before,
+.welcome-action:hover::before,
+.inicio-button:hover::before,
+.login-button:hover::before,
+.login-secondary-button:hover::before,
+.login-password-toggle:hover::before,
+.auth-back-button:hover::before {
+  animation: liquidSweep 680ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+button,
+a,
+.menu-link,
+.menu-contact-link,
+.menu-btn,
+.menu-toggle,
+.welcome-action,
+.inicio-button,
+.login-button,
+.login-secondary-button,
+.login-password-toggle,
+.auth-back-button {
+  transition:
+    transform var(--transition-base),
+    background-color var(--transition-base),
+    border-color var(--transition-base),
+    box-shadow var(--transition-base),
+    color var(--transition-base),
+    opacity var(--transition-base),
+    filter var(--transition-base);
+  transform: translateZ(0);
+  will-change: transform, filter, box-shadow;
+}
+
+button:hover,
+a:hover,
+.menu-link:hover,
+.menu-contact-link:hover,
+.menu-btn:hover,
+.menu-toggle:hover,
+.welcome-action:hover,
+.inicio-button:hover,
+.login-button:hover,
+.login-secondary-button:hover,
+.login-password-toggle:hover,
+.auth-back-button:hover {
+  transform: translateY(-2px);
+  filter: saturate(1.02) brightness(1.01);
+}
+
+button:active,
+a:active,
+.menu-link:active,
+.menu-contact-link:active,
+.menu-btn:active,
+.menu-toggle:active,
+.welcome-action:active,
+.inicio-button:active,
+.login-button:active,
+.login-secondary-button:active,
+.login-password-toggle:active,
+.auth-back-button:active {
+  transform: translateY(0) scale(0.99);
+}
+
+@keyframes buttonBorderPulse {
+  0% {
+    box-shadow:
+      0 0 0 rgba(125, 211, 252, 0),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+  100% {
+    box-shadow:
+      0 0 0 4px rgba(125, 211, 252, 0.06),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+}
+
+@keyframes liquidSweep {
+  0% {
+    opacity: 0;
+    transform: translateX(-120%);
+  }
+  15% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateX(120%);
+  }
+}
+
 img,
 svg,
 video,
@@ -318,6 +454,74 @@ iframe {
   border-color: var(--surface-border-strong);
   background: rgba(14, 24, 50, 0.88);
   box-shadow: var(--shadow-md);
+}
+
+.button-marquee {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  min-width: 0;
+}
+
+.button-marquee__viewport {
+  display: inline-flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 1.2em;
+  line-height: 1.2;
+}
+
+.button-marquee__copy {
+  display: block;
+  white-space: nowrap;
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+button:hover .button-marquee__copy,
+a:hover .button-marquee__copy,
+.menu-btn:hover .button-marquee__copy,
+.menu-contact-link:hover .button-marquee__copy,
+.menu-toggle:hover .button-marquee__copy,
+.welcome-action:hover .button-marquee__copy,
+.inicio-button:hover .button-marquee__copy,
+.login-button:hover .button-marquee__copy,
+.login-secondary-button:hover .button-marquee__copy,
+.login-password-toggle:hover .button-marquee__copy,
+.auth-back-button:hover .button-marquee__copy {
+  transform: translateY(-50%);
+}
+
+.button-marquee__icon {
+  display: inline-grid;
+  overflow: hidden;
+  width: 1.05em;
+  height: 1.05em;
+  flex: 0 0 auto;
+}
+
+.button-marquee__icon-track {
+  display: inline-grid;
+  grid-template-rows: 1fr 1fr;
+  transition: transform 320ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+button:hover .button-marquee__icon-track,
+a:hover .button-marquee__icon-track,
+.menu-btn:hover .button-marquee__icon-track,
+.menu-contact-link:hover .button-marquee__icon-track,
+.menu-toggle:hover .button-marquee__icon-track,
+.welcome-action:hover .button-marquee__icon-track,
+.inicio-button:hover .button-marquee__icon-track,
+.login-button:hover .button-marquee__icon-track,
+.login-secondary-button:hover .button-marquee__icon-track,
+.login-password-toggle:hover .button-marquee__icon-track,
+.auth-back-button:hover .button-marquee__icon-track {
+  transform: translateY(-50%);
+}
+
+.button-marquee__icon svg {
+  width: 1.05em;
+  height: 1.05em;
 }
 
 .animate-fadeIn {

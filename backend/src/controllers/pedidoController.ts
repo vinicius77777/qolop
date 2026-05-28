@@ -8,6 +8,7 @@ import {
   sanitizePedidoFiltersForLog,
   withPedidoLogDuration,
 } from "../utils/pedidoLogging";
+import { comparePedidosPorDestaque } from "../utils/pedidos";
 import {
   normalizeCep,
   normalizeNomeCliente,
@@ -440,7 +441,7 @@ export const getPedidos = async (req: Request, res: Response) => {
       },
     });
 
-    const serialized = pedidos.map(serializePedido);
+    const serialized = pedidos.map(serializePedido).sort(comparePedidosPorDestaque);
 
     logPedidoEvent({
       event: "pedido.list.success",
@@ -530,7 +531,7 @@ export const getHistoricoPedidos = async (req: Request, res: Response) => {
       },
     });
 
-    const serialized = pedidos.map(serializePedido);
+    const serialized = pedidos.map(serializePedido).sort(comparePedidosPorDestaque);
 
     logPedidoEvent({
       event: "pedido.history.success",

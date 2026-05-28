@@ -127,16 +127,19 @@ model tourview {
 }
 
 model usuario {
-  id        Int        @id @default(autoincrement())
-  nome      String
-  email     String     @unique(map: "Usuario_email_key")
-  senha     String
-  foto      String?
-  role      String     @default("user")
-  criado_em DateTime   @default(now())
-  empresaId Int?
-  ambiente  ambiente[]
-  empresa   empresa?   @relation(fields: [empresaId], references: [id], map: "Usuario_empresaId_fkey")
+  id                     Int        @id @default(autoincrement())
+  nome                   String
+  email                  String     @unique(map: "Usuario_email_key")
+  senha                  String
+  foto                   String?
+  role                   String     @default("user")
+  criado_em              DateTime   @default(now())
+  empresaId              Int?
+  resetPasswordTokenHash String?
+  resetPasswordExpiresAt DateTime?
+  ambiente               ambiente[]
+  empresa                empresa?   @relation(fields: [empresaId], references: [id], map: "Usuario_empresaId_fkey")
 
   @@index([empresaId], map: "Usuario_empresaId_idx")
+  @@index([resetPasswordExpiresAt], map: "Usuario_resetPasswordExpiresAt_idx")
 }
