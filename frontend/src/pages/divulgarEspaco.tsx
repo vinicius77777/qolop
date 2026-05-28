@@ -132,7 +132,7 @@ export default function DivulgarEspaco() {
                 <input
                   id="empresa-email"
                   type="email"
-                  placeholder="contato@empresa.com"
+                  placeholder="Caso o email seja o mesmo ja cadastro, não é necessário preenhcer esse campo"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                 />
@@ -154,7 +154,7 @@ export default function DivulgarEspaco() {
               <label htmlFor="empresa-descricao">Descrição <span className="divulgar-optional">(opcional)</span></label>
               <textarea
                 id="empresa-descricao"
-                placeholder="Descreva sua empresa e o tipo de espaço que deseja divulgar."
+                placeholder="Faça uma breve descrição da sua empresa."
                 value={descricao}
                 onChange={(event) => setDescricao(event.target.value)}
                 rows={4}

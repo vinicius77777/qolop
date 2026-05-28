@@ -7,7 +7,7 @@ import "../styles/login.css";
 
 const resetPoints = [
   "Use a nova senha para voltar ao sistema",
-  "O link expira por segurança",
+  "O link expira por motivos de segurança",
   "Você pode salvar a nova senha no gerenciador que preferir",
 ];
 

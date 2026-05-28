@@ -91,8 +91,7 @@ export default function Register() {
             <span className="login-eyebrow">Qolop · crie sua conta</span>
             <h1 className="login-display-title">Cadastro simples para começar rápido.</h1>
             <p className="login-display-lead">
-              Crie sua conta com apenas nome, e-mail e senha. Depois do primeiro acesso,
-              você escolhe como quer usar a plataforma.
+              Crie sua conta com apenas nome, e-mail e senha. 
             </p>
 
             <div className="login-point-list">
@@ -114,7 +113,7 @@ export default function Register() {
             transition={{ duration: 0.75, delay: 0.08 }}
           >
             <div className="login-header">
-              <span className="login-badge">Criar cadastro</span>
+              <span className="login-badge">Cadastre-se</span>
               <h2 className="login-title">Abra sua conta</h2>
               <p className="login-subtitle">
                 Informe seus dados básicos para entrar no QOLOP.
@@ -191,7 +190,7 @@ export default function Register() {
 
             <div className="login-footer">
               <p className="login-register-text">
-                Já tem conta?{" "}
+                Já possui conta?{" "}
                 <Link to="/login" className="login-register-link">
                   Fazer login
                 </Link>
@@ -203,7 +202,7 @@ export default function Register() {
                   className="login-secondary-button"
                   onClick={() => navigate("/login")}
                 >
-                  Ir para login
+                  Fazer login
                 </button>
               </div>
             </div>

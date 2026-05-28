@@ -405,40 +405,40 @@
 .login-reset-box {
   display: grid;
   gap: 14px;
-  margin-top: 18px;
-  padding: 18px;
-  border-radius: 18px;
-  border: 1px solid rgba(125, 211, 252, 0.22);
+  margin-top: 14px;
+  padding: 14px;
+  border-radius: 14px;
+  border: 0.5px solid rgba(125, 211, 252, 0.22);
   background:
-    linear-gradient(180deg, rgba(29, 127, 255, 0.12), rgba(12, 20, 42, 0.88)),
+    linear-gradient(180deg, rgba(12, 20, 42, 0.88)),
     rgba(8, 12, 19, 0.82);
   box-shadow: 0 16px 36px rgba(2, 6, 23, 0.28);
 }
 
 .login-reset-title {
-  margin: 0 0 6px;
-  font-size: 1rem;
-  font-weight: 800;
+  margin: 0 0 4px;
+  font-size: 0.8rem;
+  font-weight: 750;
   letter-spacing: -0.02em;
   color: #eef6ff;
 }
 
 .login-reset-text {
   margin: 0;
-  font-size: 0.9rem;
+  font-size: 0.7rem;
   line-height: 1.6;
   color: rgba(226, 232, 240, 0.82);
 }
 
 .login-reset-button {
-  min-height: 48px;
-  padding: 0 16px;
+  min-height: 44px;
+  padding: 0 14px;
   border: 1px solid rgba(125, 211, 252, 0.28);
   border-radius: 14px;
   background:
-    linear-gradient(135deg, #8fe7ff 0%, #7cc9ff 100%);
+    linear-gradient(135deg, #262929 0%, #070923 100%);
   color: #05111f;
-  font-weight: 800;
+  font-weight: 740;
   cursor: pointer;
   box-shadow:
     0 14px 30px rgba(110, 167, 255, 0.22),
@@ -453,7 +453,7 @@
 .login-reset-button:hover {
   transform: translateY(-2px);
   box-shadow:
-    0 18px 36px rgba(110, 167, 255, 0.3),
+    0 18px 36px rgba(16, 10, 86, 0.3),
     0 0 0 4px rgba(125, 211, 252, 0.08);
   filter: saturate(1.05);
 }

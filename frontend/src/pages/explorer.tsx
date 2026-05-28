@@ -78,7 +78,7 @@ function getTourMarkerIcon(tour: Tour) {
 
 function getExplorerBadgeLabel(tour: Tour) {
   if (tour.pagamentoDestacado) {
-    return "★ Destaque premium";
+    return "★";
   }
 
   return tour.explorerBadge ?? null;

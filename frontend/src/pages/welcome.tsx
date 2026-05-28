@@ -81,10 +81,10 @@ export default function Welcome() {
               <button
                 type="button"
                 className="welcome-action welcome-action--secondary button-fill button-fill--light"
-                aria-label="Criar cadastro"
+                aria-label="Cadastre-se"
                 onClick={() => navigate("/register")}
               >
-                <ButtonMarquee label="Criar cadastro" />
+                <ButtonMarquee label="Cadastre-se" />
               </button>
             </div>
 
