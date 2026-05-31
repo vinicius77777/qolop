@@ -3,7 +3,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { FiMail, FiMenu, FiX } from "react-icons/fi";
+import { FiArrowLeft, FiArrowRight, FiMail, FiX } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import { canAccessEmpresaFeatures, isAdminUser } from "../utils/permissions";
 import "../styles/menu.css";
@@ -62,13 +62,13 @@ export default function Menu() {
         <div className="menu-center-wrap">
           <button
             type="button"
-            className="menu-toggle"
+            className="menu-toggle menu-arrow-button"
             aria-label={menuAberto ? "Fechar menu" : "Abrir menu"}
             aria-expanded={menuAberto}
             aria-controls="menu-principal"
             onClick={alternarMenu}
           >
-            {menuAberto ? <FiX /> : <FiMenu />}
+            {menuAberto ? <FiArrowLeft /> : <FiArrowRight />}
             <span>{menuAberto ? "Fechar" : "Menu"}</span>
           </button>
 
@@ -153,7 +153,7 @@ export default function Menu() {
               <>
                 <motion.a
                   href={CONTACT_URL}
-                  className="menu-contact-link"
+                  className="menu-contact-link menu-arrow-button"
                   aria-label={`Entrar em contato por email: ${CONTACT_EMAIL}`}
                   target="_blank"
                   rel="noreferrer"
@@ -171,7 +171,7 @@ export default function Menu() {
                 </motion.a>
 
                 <motion.button
-                  className="menu-btn"
+                  className="menu-btn menu-arrow-button"
                   onClick={sair}
                   whileHover={{ y: -2, scale: 1.01 }}
                   whileTap={{ scale: 0.97 }}
@@ -255,7 +255,7 @@ export default function Menu() {
           <div className="menu-mobile-actions">
             <motion.a
               href={CONTACT_URL}
-              className="menu-mobile-action menu-mobile-action-contact"
+              className="menu-mobile-action menu-mobile-action-contact menu-arrow-button"
               aria-label={`Entrar em contato por email: ${CONTACT_EMAIL}`}
               target="_blank"
               rel="noreferrer"
@@ -267,7 +267,7 @@ export default function Menu() {
 
             {user && (
               <motion.button
-                className="menu-mobile-action menu-mobile-action-logout"
+                className="menu-mobile-action menu-mobile-action-logout menu-arrow-button"
                 onClick={sair}
                 whileTap={{ scale: 0.97 }}
               >

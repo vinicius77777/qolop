@@ -201,13 +201,6 @@
   box-shadow:
     0 16px 30px rgba(4, 10, 18, 0.2),
     inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  transition:
-    transform 260ms var(--welcome-ease),
-    background-color 260ms var(--welcome-ease),
-    border-color 260ms var(--welcome-ease),
-    box-shadow 260ms var(--welcome-ease),
-    color 260ms var(--welcome-ease),
-    filter 260ms var(--welcome-ease);
   cursor: pointer;
   backdrop-filter: blur(10px);
   transform: translateZ(0);
@@ -215,52 +208,49 @@
 }
 
 .welcome-action:hover {
-  transform: translateY(-2px);
   border-color: rgba(125, 211, 252, 0.18);
   box-shadow:
     0 20px 34px rgba(4, 10, 18, 0.24),
     0 0 0 1px rgba(255, 255, 255, 0.04);
-  filter: saturate(1.02) brightness(1.01);
+}
+
+.welcome-action,
+.welcome-action--primary,
+.welcome-action--secondary {
+  width: fit-content;
+  min-width: 0;
+  min-height: 0;
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+}
+
+.welcome-action > .button-marquee {
+  width: auto;
+  justify-content: flex-start;
+  padding: 0;
 }
 
 .welcome-action::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: 0;
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform 320ms var(--welcome-ease);
-  background:
-    linear-gradient(90deg, rgba(245, 248, 252, 0.18), rgba(245, 248, 252, 0.22)),
-    rgba(255, 255, 255, 0.08);
+  content: none;
 }
 
-.welcome-action:hover::after {
-  transform: scaleX(1);
+.welcome-action--primary,
+.welcome-action--secondary {
+  color: var(--welcome-text);
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
 }
 
 .welcome-action--primary {
   color: #08111a;
-  background:
-    linear-gradient(180deg, rgba(236, 242, 248, 0.96), rgba(198, 213, 225, 0.98)),
-    rgba(255, 255, 255, 0.04);
-  box-shadow:
-    0 18px 32px rgba(108, 144, 173, 0.2),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
-}
-
-.welcome-action--primary::after {
-  background:
-    linear-gradient(90deg, rgba(8, 17, 26, 0.08), rgba(8, 17, 26, 0.14)),
-    rgba(255, 255, 255, 0.08);
 }
 
 .welcome-action--secondary {
-  border-color: rgba(255, 255, 255, 0.1);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
-    rgba(255, 255, 255, 0.03);
   color: var(--welcome-text);
 }
 
@@ -339,7 +329,6 @@
 .button-marquee__copy {
   display: block;
   white-space: nowrap;
-  transition: transform 320ms var(--welcome-ease);
 }
 
 .button-marquee__icon {
@@ -353,7 +342,6 @@
 .button-marquee__icon-track {
   display: inline-grid;
   grid-template-rows: 1fr 1fr;
-  transition: transform 320ms var(--welcome-ease);
 }
 
 .button-marquee__icon svg {
@@ -363,7 +351,7 @@
 
 .welcome-action:hover .button-marquee__copy,
 .welcome-action:hover .button-marquee__icon-track {
-  transform: translateY(-50%);
+  transform: none;
 }
 
 .welcome-panel {

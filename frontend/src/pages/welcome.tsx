@@ -3,6 +3,7 @@ import { FiArrowRight } from "react-icons/fi";
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import "../styles/welcome.css";
+import "../styles/editorial-buttons.css";
 
 function ButtonMarquee({ label }: { label: string }) {
   return (

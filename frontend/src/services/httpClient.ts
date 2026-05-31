@@ -9,6 +9,31 @@ export function clearStoredSession() {
   localStorage.removeItem("usuario");
 }
 
+function formatApiErrorMessage(payload: unknown): string {
+  if (!payload || typeof payload !== "object") {
+    return "Erro na requisição";
+  }
+
+  const record = payload as Record<string, unknown>;
+
+  if (Array.isArray(record.details)) {
+    const details = record.details.filter((detail): detail is string => typeof detail === "string");
+    if (details.length > 0) {
+      return details.join(", ");
+    }
+  }
+
+  if (typeof record.error === "string" && record.error.trim()) {
+    return record.error;
+  }
+
+  if (typeof record.message === "string" && record.message.trim()) {
+    return record.message;
+  }
+
+  return "Erro na requisição";
+}
+
 export async function request<TResponse>(
   endpoint: string,
   options: RequestInit = {},
@@ -60,9 +85,14 @@ export async function request<TResponse>(
       const unauthorizedMessage =
         typeof data === "object" && data !== null && "error" in data && typeof data.error === "string"
           ? data.error
-          : auth
-            ? "Sessão expirada"
-            : "Acesso não autorizado";
+          : typeof data === "object" &&
+              data !== null &&
+              "message" in data &&
+              typeof data.message === "string"
+            ? data.message
+            : auth
+              ? "Sessão expirada"
+              : "Acesso não autorizado";
 
       throw new Error(unauthorizedMessage);
     }
@@ -75,25 +105,16 @@ export async function request<TResponse>(
     break;
   }
 
-  console.error("API ERROR:", lastData);
+  console.error("API ERROR:", {
+    endpoint,
+    status: lastStatus,
+    response: lastData,
+    message: formatApiErrorMessage(lastData),
+  });
 
   if (lastStatus === 429) {
     throw new Error("Muitas requisições em sequência. Tente novamente em alguns segundos.");
   }
 
-  const errorPayload =
-    typeof lastData === "object" && lastData !== null ? (lastData as Record<string, unknown>) : {};
-
-  const errorDetails = Array.isArray(errorPayload.details)
-    ? errorPayload.details.filter((detail): detail is string => typeof detail === "string")
-    : [];
-
-  const message =
-    errorDetails.length > 0
-      ? errorDetails.join(", ")
-      : typeof errorPayload.error === "string"
-        ? errorPayload.error
-        : "Erro na requisição";
-
-  throw new Error(message);
+  throw new Error(formatApiErrorMessage(lastData));
 }

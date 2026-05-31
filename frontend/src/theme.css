@@ -1,0 +1,780 @@
+:root {
+  color-scheme: light;
+  --theme-page: #f4f8fd;
+  --theme-page-2: #eaf2fa;
+  --theme-surface: rgba(255, 255, 255, 0.9);
+  --theme-surface-strong: rgba(250, 253, 255, 0.98);
+  --theme-surface-soft: rgba(235, 243, 250, 0.82);
+  --theme-border: rgba(133, 164, 189, 0.2);
+  --theme-border-strong: rgba(74, 144, 226, 0.26);
+  --theme-text: #17324a;
+  --theme-text-soft: rgba(47, 75, 100, 0.84);
+  --theme-text-muted: rgba(93, 117, 139, 0.76);
+  --theme-primary: #4a90e2;
+  --theme-primary-strong: #2f74c0;
+  --theme-primary-soft: rgba(74, 144, 226, 0.12);
+  --theme-shadow: 0 18px 44px rgba(79, 118, 154, 0.12);
+  --theme-shadow-strong: 0 24px 60px rgba(79, 118, 154, 0.18);
+}
+
+html,
+body {
+  background:
+    radial-gradient(circle at top left, rgba(141, 200, 255, 0.22), transparent 28%),
+    radial-gradient(circle at 84% 10%, rgba(214, 233, 248, 0.9), transparent 24%),
+    linear-gradient(180deg, #f7fbff 0%, #eef5fb 36%, #e8f1f9 68%, #f5f9fc 100%) !important;
+  color: var(--theme-text) !important;
+}
+
+body {
+  color: var(--theme-text) !important;
+}
+
+::selection {
+  background: rgba(74, 144, 226, 0.18);
+  color: #0f2440;
+}
+
+::placeholder {
+  color: rgba(93, 117, 139, 0.58) !important;
+  opacity: 1;
+}
+
+input,
+textarea,
+select {
+  color: var(--theme-text) !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: var(--theme-border) !important;
+}
+
+input::placeholder,
+textarea::placeholder {
+  color: rgba(93, 117, 139, 0.58) !important;
+}
+
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--theme-border-strong) !important;
+  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.12) !important;
+  background: rgba(255, 255, 255, 0.98) !important;
+  outline: none !important;
+}
+
+button,
+a,
+[role="button"] {
+  color: inherit;
+}
+
+button,
+button[type="button"],
+button[type="submit"],
+button[type="reset"],
+a,
+.menu-btn,
+.menu-toggle,
+.menu-link,
+.menu-contact-link,
+.menu-mobile-link,
+.menu-mobile-action,
+.welcome-action,
+.inicio-button,
+.login-button,
+.login-secondary-button,
+.login-password-toggle,
+.auth-back-button,
+.ped-hero-btn,
+.ped-action-btn,
+.ped-select,
+.amb-hero-btn,
+.amb-card-actions button,
+.amb-submit-btn,
+.amb-cancel-btn,
+.modal-actions button,
+.perfil-primary-btn,
+.perfil-secondary-btn,
+.perfil-ghost-btn,
+.perfil-toggle-password,
+.empresa-card-link,
+.explorer-location-btn,
+.explorer-popup__cta {
+  border-color: var(--theme-border) !important;
+}
+
+button:not(:disabled),
+a,
+.menu-btn,
+.menu-toggle,
+.menu-link,
+.menu-contact-link,
+.menu-mobile-link,
+.menu-mobile-action,
+.welcome-action,
+.inicio-button,
+.login-button,
+.login-secondary-button,
+.login-password-toggle,
+.auth-back-button,
+.ped-hero-btn,
+.ped-action-btn,
+.amb-hero-btn,
+.amb-card-actions button,
+.amb-submit-btn,
+.amb-cancel-btn,
+.modal-actions button,
+.perfil-primary-btn,
+.perfil-secondary-btn,
+.perfil-ghost-btn,
+.perfil-toggle-password,
+.empresa-card-link,
+.explorer-location-btn,
+.explorer-popup__cta {
+  box-shadow: var(--theme-shadow);
+}
+
+button:hover,
+a:hover,
+.menu-btn:hover,
+.menu-toggle:hover,
+.menu-link:hover,
+.menu-contact-link:hover,
+.menu-mobile-link:hover,
+.menu-mobile-action:hover,
+.welcome-action:hover,
+.inicio-button:hover,
+.login-button:hover,
+.login-secondary-button:hover,
+.login-password-toggle:hover,
+.auth-back-button:hover,
+.ped-hero-btn:hover,
+.ped-action-btn:hover,
+.amb-hero-btn:hover,
+.amb-card-actions button:hover,
+.amb-submit-btn:hover,
+.amb-cancel-btn:hover,
+.modal-actions button:hover,
+.perfil-primary-btn:hover,
+.perfil-secondary-btn:hover,
+.perfil-ghost-btn:hover,
+.perfil-toggle-password:hover,
+.empresa-card-link:hover,
+.explorer-location-btn:hover,
+.explorer-popup__cta:hover {
+  filter: brightness(1.01) saturate(1.02);
+}
+
+button:not(:disabled):hover,
+a:hover {
+  box-shadow: var(--theme-shadow-strong);
+}
+
+.welcome-page,
+.login-page,
+.inicio-page,
+.explorer-page,
+.ped-page,
+.perfil-page,
+.empresa-page,
+.an-page,
+.historico-page,
+.usuarios-page,
+.amb-page,
+.divulgar-page,
+.criar-tour-page,
+.tour-page {
+  background:
+    radial-gradient(circle at top left, rgba(141, 200, 255, 0.22), transparent 30%),
+    radial-gradient(circle at 84% 10%, rgba(214, 233, 248, 0.82), transparent 24%),
+    linear-gradient(180deg, #f7fbff 0%, #eef5fb 34%, #e8f1f9 68%, #f5f9fc 100%) !important;
+  color: var(--theme-text) !important;
+}
+
+.welcome-page::before,
+.login-page::before,
+.inicio-page::before,
+.explorer-page::before,
+.ped-page::before,
+.perfil-page::before,
+.empresa-page::before,
+.an-page::before,
+.historico-page::before,
+.usuarios-page::before,
+.amb-page::before,
+.divulgar-page::before,
+.criar-tour-page::before,
+.tour-page::before,
+.welcome-page::after,
+.login-page::after,
+.inicio-page::after,
+.explorer-page::after,
+.ped-page::after,
+.perfil-page::after,
+.empresa-page::after,
+.an-page::after,
+.historico-page::after,
+.usuarios-page::after,
+.amb-page::after,
+.divulgar-page::after,
+.criar-tour-page::after,
+.tour-page::after {
+  opacity: 0.28 !important;
+}
+
+:is(
+    .welcome-panel,
+    .welcome-highlight,
+    .welcome-point,
+    .welcome-benefit,
+    .login-copy,
+    .login-container,
+    .login-point,
+    .login-reset-box,
+    .inicio-hero-panel,
+    .inicio-card,
+    .inicio-cta-card,
+    .inicio-onboarding-panel,
+    .inicio-onboarding-choice,
+    .explorer-panel,
+    .explorer-hud,
+    .explorer-hud-empty,
+    .ped-hero,
+    .ped-story,
+    .ped-browser,
+    .ped-hero-panel,
+    .ped-stat,
+    .ped-story-card,
+    .ped-card,
+    .ped-empty-card,
+    .ped-history,
+    .ped-payment-panel,
+    .ped-inline-state,
+    .ped-modal-box,
+    .ped-confirm-box,
+    .perfil-hero,
+    .perfil-card,
+    .perfil-tip-box,
+    .perfil-security-box,
+    .empresa-wrapper,
+    .empresa-card,
+    .an-hero,
+    .an-empty-state-box,
+    .an-hero-panel,
+    .an-summary-card,
+    .an-insight-panel,
+    .an-section-card,
+    .an-top-item,
+    .an-location-item,
+    .an-access-item,
+    .historico-hero,
+    .historico-toolbar,
+    .historico-panel,
+    .historico-card,
+    .historico-feedback,
+    .historico-loading-card,
+    .historico-summary-card,
+    .historico-timeline-item,
+    .amb-hero-panel,
+    .amb-story-card,
+    .amb-browser,
+    .amb-card,
+    .amb-modal-box,
+    .modal-box,
+    .divulgar-card,
+    .criar-tour-shell,
+    .criar-tour-location-panel,
+    .criar-tour-location-status,
+    .criar-tour-manual-panel,
+    .criar-tour-suggestion-item,
+    .criar-tour-switch-row,
+    .tour-card,
+    .surface-card,
+    .glass-panel
+  ) {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(246, 251, 255, 0.8)),
+    rgba(255, 255, 255, 0.88) !important;
+  border-color: var(--theme-border) !important;
+  box-shadow: var(--theme-shadow) !important;
+  color: var(--theme-text) !important;
+}
+
+:is(
+    .welcome-panel,
+    .welcome-highlight,
+    .welcome-point,
+    .welcome-benefit,
+    .login-copy,
+    .login-container,
+    .login-point,
+    .login-reset-box,
+    .inicio-hero-panel,
+    .inicio-card,
+    .inicio-cta-card,
+    .inicio-onboarding-panel,
+    .inicio-onboarding-choice,
+    .explorer-panel,
+    .explorer-hud,
+    .explorer-hud-empty,
+    .ped-hero,
+    .ped-story,
+    .ped-browser,
+    .ped-hero-panel,
+    .ped-stat,
+    .ped-story-card,
+    .ped-card,
+    .ped-empty-card,
+    .ped-history,
+    .ped-payment-panel,
+    .ped-inline-state,
+    .ped-modal-box,
+    .ped-confirm-box,
+    .perfil-hero,
+    .perfil-card,
+    .perfil-tip-box,
+    .perfil-security-box,
+    .empresa-wrapper,
+    .empresa-card,
+    .an-hero,
+    .an-empty-state-box,
+    .an-hero-panel,
+    .an-summary-card,
+    .an-insight-panel,
+    .an-section-card,
+    .an-top-item,
+    .an-location-item,
+    .an-access-item,
+    .historico-hero,
+    .historico-toolbar,
+    .historico-panel,
+    .historico-card,
+    .historico-feedback,
+    .historico-loading-card,
+    .historico-summary-card,
+    .historico-timeline-item,
+    .amb-hero-panel,
+    .amb-story-card,
+    .amb-browser,
+    .amb-card,
+    .amb-modal-box,
+    .modal-box,
+    .divulgar-card,
+    .criar-tour-shell,
+    .criar-tour-location-panel,
+    .criar-tour-location-status,
+    .criar-tour-manual-panel,
+    .criar-tour-suggestion-item,
+    .criar-tour-switch-row,
+    .tour-card
+  ) :is(h1, h2, h3, h4, h5, h6, p, span, li, label, strong, small, div) {
+  color: var(--theme-text) !important;
+}
+
+:is(
+    .login-input,
+    .login-password-toggle,
+    .inicio-button,
+    .inicio-onboarding-skip,
+    .welcome-action,
+    .perfil-form input,
+    .perfil-toggle-password,
+    .perfil-secondary-btn,
+    .perfil-primary-btn,
+    .perfil-ghost-btn,
+    .empresa-card-link,
+    .an-filter select,
+    .historico-search input,
+    .historico-filter select,
+    .historico-action-button,
+    .amb-search,
+    .amb-category-select,
+    .amb-form input,
+    .amb-form textarea,
+    .amb-submit-btn,
+    .amb-cancel-btn,
+    .modal-actions button,
+    .ped-select,
+    .ped-form input,
+    .ped-form textarea,
+    .ped-edit-grid input,
+    .ped-edit-grid textarea,
+    .ped-hero-btn,
+    .ped-action-btn,
+    .criar-tour-field input,
+    .criar-tour-field textarea,
+    .criar-tour-submit,
+    .divulgar-field input,
+    .divulgar-field textarea,
+    .divulgar-submit,
+    .tour-whatsapp-btn,
+    .menu-mobile-link,
+    .menu-mobile-action,
+    .menu-link,
+    .menu-contact-link,
+    .menu-btn,
+    .menu-toggle,
+    .explorer-location-btn,
+    .explorer-popup__cta,
+    .amb-hero-btn,
+    .amb-card-actions button
+  ) {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 247, 252, 0.94)),
+    rgba(255, 255, 255, 0.9) !important;
+  color: var(--theme-text) !important;
+  border-color: var(--theme-border) !important;
+}
+
+:is(
+    .login-input,
+    .perfil-form input,
+    .an-filter select,
+    .historico-search input,
+    .historico-filter select,
+    .amb-search,
+    .amb-category-select,
+    .amb-form input,
+    .amb-form textarea,
+    .ped-select,
+    .ped-form input,
+    .ped-form textarea,
+    .ped-edit-grid input,
+    .ped-edit-grid textarea,
+    .criar-tour-field input,
+    .criar-tour-field textarea,
+    .divulgar-field input,
+    .divulgar-field textarea
+  ) {
+  background: rgba(255, 255, 255, 0.94) !important;
+  color: var(--theme-text) !important;
+}
+
+:is(
+    .login-input::placeholder,
+    .perfil-form input::placeholder,
+    .an-filter select::placeholder,
+    .historico-search input::placeholder,
+    .historico-filter select::placeholder,
+    .amb-search::placeholder,
+    .amb-category-select::placeholder,
+    .amb-form input::placeholder,
+    .amb-form textarea::placeholder,
+    .ped-select::placeholder,
+    .ped-form input::placeholder,
+    .ped-form textarea::placeholder,
+    .ped-edit-grid input::placeholder,
+    .ped-edit-grid textarea::placeholder,
+    .criar-tour-field input::placeholder,
+    .criar-tour-field textarea::placeholder,
+    .divulgar-field input::placeholder,
+    .divulgar-field textarea::placeholder
+  ) {
+  color: rgba(93, 117, 139, 0.58) !important;
+}
+
+.login-error,
+.login-success,
+.ped-error,
+.ped-feedback,
+.perfil-message,
+.divulgar-note,
+.divulgar-error,
+.historico-inline-alert,
+.an-alert-card,
+.explorer-location-status,
+.criar-tour-prefill-note,
+.criar-tour-manual-hint,
+.criar-tour-caption {
+  color: var(--theme-text-soft) !important;
+}
+
+.login-error,
+.ped-error,
+.perfil-message--error,
+.divulgar-error,
+.historico-inline-alert,
+.an-alert-card {
+  background: rgba(239, 107, 134, 0.1) !important;
+  border-color: rgba(239, 107, 134, 0.18) !important;
+}
+
+.login-success,
+.perfil-message--success {
+  background: rgba(54, 179, 126, 0.1) !important;
+  border-color: rgba(54, 179, 126, 0.18) !important;
+}
+
+.login-button,
+.login-secondary-button,
+.inicio-button--primary,
+.welcome-action--primary,
+.ped-hero-btn--primary,
+.ped-action-btn--primary,
+.amb-hero-btn--primary,
+.amb-submit-btn,
+.perfil-primary-btn,
+.explorer-location-btn {
+  color: #0b1724 !important;
+  background: linear-gradient(135deg, #dbeaf7 0%, #b7d2e8 100%) !important;
+}
+
+.login-button:hover,
+.inicio-button--primary:hover,
+.welcome-action--primary:hover,
+.ped-hero-btn--primary:hover,
+.ped-action-btn--primary:hover,
+.amb-hero-btn--primary:hover,
+.amb-submit-btn:hover,
+.perfil-primary-btn:hover,
+.explorer-location-btn:hover {
+  background: linear-gradient(135deg, #edf4fb 0%, #c7dbea 100%) !important;
+}
+
+.login-secondary-button,
+.inicio-button--secondary,
+.welcome-action--secondary,
+.ped-hero-btn--secondary,
+.ped-action-btn--ghost,
+.amb-hero-btn--secondary,
+.amb-cancel-btn,
+.perfil-secondary-btn,
+.perfil-ghost-btn,
+.perfil-toggle-password,
+.menu-btn,
+.menu-toggle,
+.menu-link,
+.menu-contact-link,
+.menu-mobile-link,
+.menu-mobile-action {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: var(--theme-text) !important;
+}
+
+.login-input,
+.perfil-form input,
+.an-filter select,
+.historico-search input,
+.historico-filter select,
+.amb-search,
+.amb-category-select,
+.amb-form input,
+.amb-form textarea,
+.ped-select,
+.ped-form input,
+.ped-form textarea,
+.ped-edit-grid input,
+.ped-edit-grid textarea,
+.criar-tour-field input,
+.criar-tour-field textarea,
+.divulgar-field input,
+.divulgar-field textarea {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: var(--theme-text) !important;
+  border-color: var(--theme-border) !important;
+}
+
+.login-input:focus,
+.perfil-form input:focus,
+.an-filter select:focus,
+.historico-search input:focus,
+.historico-filter select:focus,
+.amb-search:focus,
+.amb-category-select:focus,
+.amb-form input:focus,
+.amb-form textarea:focus,
+.ped-select:focus,
+.ped-form input:focus,
+.ped-form textarea:focus,
+.ped-edit-grid input:focus,
+.ped-edit-grid textarea:focus,
+.criar-tour-field input:focus,
+.criar-tour-field textarea:focus,
+.divulgar-field input:focus,
+.divulgar-field textarea:focus {
+  box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.12) !important;
+}
+
+.login-input::placeholder,
+.perfil-form input::placeholder,
+.an-filter select::placeholder,
+.historico-search input::placeholder,
+.historico-filter select::placeholder,
+.amb-search::placeholder,
+.amb-category-select::placeholder,
+.amb-form input::placeholder,
+.amb-form textarea::placeholder,
+.ped-select::placeholder,
+.ped-form input::placeholder,
+.ped-form textarea::placeholder,
+.ped-edit-grid input::placeholder,
+.ped-edit-grid textarea::placeholder,
+.criar-tour-field input::placeholder,
+.criar-tour-field textarea::placeholder,
+.divulgar-field input::placeholder,
+.divulgar-field textarea::placeholder {
+  color: rgba(93, 117, 139, 0.58) !important;
+}
+
+.ped-modal-overlay,
+.amb-modal-overlay,
+.inicio-onboarding-backdrop,
+.historico-modal-overlay {
+  background: rgba(232, 241, 249, 0.78) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.ped-page .ped-modal-box,
+.ped-page .ped-confirm-box,
+.amb-page .amb-modal-box,
+.amb-page .modal-box,
+.historico-page .amb-vr-container,
+.modal-box {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(244, 249, 253, 0.96)) !important;
+  border-color: var(--theme-border) !important;
+  box-shadow: var(--theme-shadow-strong) !important;
+  color: var(--theme-text) !important;
+}
+
+.explorer-page .leaflet-container,
+.explorer-page .leaflet-popup-content-wrapper,
+.explorer-page .leaflet-popup-tip,
+.explorer-panel,
+.explorer-hud,
+.explorer-hud-empty,
+.explorer-popup,
+.explorer-marker-tooltip {
+  background: rgba(255, 255, 255, 0.96) !important;
+  color: var(--theme-text) !important;
+  border-color: var(--theme-border) !important;
+}
+
+.explorer-page::before {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.12) 0%, rgba(255, 255, 255, 0.04) 26%, rgba(255, 255, 255, 0.18) 100%) !important;
+}
+
+.explorer-search,
+.explorer-category-select,
+.explorer-place-search__input {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: var(--theme-text) !important;
+}
+
+.explorer-search::placeholder,
+.explorer-place-search__input::placeholder {
+  color: rgba(93, 117, 139, 0.58) !important;
+}
+
+.explorer-location-btn--ghost {
+  background: rgba(255, 255, 255, 0.95) !important;
+  color: var(--theme-text) !important;
+}
+
+.explorer-popup__cta {
+  color: #0b1724 !important;
+}
+
+body:not(:has(.menu)) .auth-back-button,
+.login-page .auth-back-button,
+.divulgar-page .divulgar-back-button {
+  background: rgba(255, 255, 255, 0.96) !important;
+  border-color: var(--theme-border) !important;
+  color: var(--theme-text) !important;
+}
+
+.welcome-page .welcome-title,
+.login-page .login-title,
+.inicio-page .inicio-title,
+.explorer-page .explorer-hud-title,
+.ped-page .ped-title,
+.perfil-page .perfil-title,
+.empresa-page .empresa-title,
+.an-page .an-title,
+.historico-page .historico-title,
+.amb-page .amb-title,
+.divulgar-page h1,
+.criar-tour-page h1,
+.tour-page h1 {
+  color: var(--theme-text) !important;
+}
+
+.welcome-page .welcome-lead,
+.login-page .login-subtitle,
+.inicio-page .inicio-lead,
+.explorer-page .explorer-hud-subtitle,
+.explorer-page .explorer-hud-description,
+.ped-page .ped-lead,
+.perfil-page .perfil-subtitle,
+.empresa-page .empresa-description,
+.an-page p,
+.historico-page p,
+.amb-page .amb-lead,
+.divulgar-page p,
+.criar-tour-page p,
+.tour-page p {
+  color: var(--theme-text-soft) !important;
+}
+
+.welcome-header img,
+.menu-logo-image {
+  filter: brightness(0.74) contrast(1.28) saturate(1.06) !important;
+  opacity: 1 !important;
+}
+
+.welcome-action,
+.inicio-button,
+.login-button,
+.login-secondary-button,
+.ped-hero-btn,
+.ped-action-btn,
+.amb-hero-btn,
+.amb-submit-btn,
+.perfil-primary-btn,
+.explorer-location-btn,
+.empresa-card-link {
+  box-shadow:
+    0 18px 40px rgba(79, 118, 154, 0.14),
+    inset 0 1px 0 rgba(255, 255, 255, 0.68) !important;
+}
+
+.welcome-action--primary,
+.login-button,
+.inicio-button--primary,
+.ped-hero-btn--primary,
+.ped-action-btn--primary,
+.amb-hero-btn--primary,
+.amb-submit-btn,
+.perfil-primary-btn,
+.explorer-location-btn {
+  border-color: rgba(74, 144, 226, 0.18) !important;
+}
+
+@media (max-width: 768px) {
+  .welcome-page,
+  .login-page,
+  .inicio-page,
+  .explorer-page,
+  .ped-page,
+  .perfil-page,
+  .empresa-page,
+  .an-page,
+  .historico-page,
+  .usuarios-page,
+  .amb-page,
+  .divulgar-page,
+  .criar-tour-page,
+  .tour-page {
+    background:
+      radial-gradient(circle at top left, rgba(141, 200, 255, 0.18), transparent 30%),
+      linear-gradient(180deg, #f7fbff 0%, #eef5fb 44%, #f5f9fc 100%) !important;
+  }
+
+  .ped-modal-box,
+  .ped-confirm-box,
+  .amb-modal-box,
+  .modal-box {
+    border-radius: 22px !important;
+  }
+}

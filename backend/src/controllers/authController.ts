@@ -6,6 +6,10 @@ import prisma from "../lib/prisma";
 import { JWT_SECRET } from "../config/env";
 import { AuthRequest, AuthUser } from "../types";
 import { logAppEvent, withLogDuration } from "../utils/appLogging";
+import {
+  isDatabaseUnavailableError,
+  sendDatabaseUnavailableError,
+} from "../utils/dbErrors";
 import { sanitizeAuthUser } from "../utils/permissions";
 import { sendPasswordResetEmail } from "../email";
 import {
@@ -50,6 +54,26 @@ function sendValidationError(res: Response, details: string[]) {
     error: "Dados inválidos",
     details,
   });
+}
+
+function sendDatabaseUnavailableResponse(
+  res: Response,
+  startedAt: number,
+  requestId: string | null | undefined,
+  req: Request,
+  event: string,
+  error: unknown
+) {
+  logAppEvent({
+    domain: "auth",
+    event,
+    level: "error",
+    requestId,
+    meta: withLogDuration(startedAt, withRequestPath(req)),
+    error,
+  });
+
+  return sendDatabaseUnavailableError(res);
 }
 
 function normalizeEmail(value: unknown): string | undefined {
@@ -195,6 +219,17 @@ export async function register(req: Request, res: Response) {
 
     res.json({ token, usuario: safe });
   } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return sendDatabaseUnavailableResponse(
+        res,
+        startedAt,
+        requestId,
+        req,
+        "auth.register.database_unavailable",
+        error
+      );
+    }
+
     logAppEvent({
       domain: "auth",
       event: "auth.register.failed",
@@ -295,6 +330,17 @@ export async function login(req: Request, res: Response) {
 
     res.json({ token, usuario: safe });
   } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return sendDatabaseUnavailableResponse(
+        res,
+        startedAt,
+        requestId,
+        req,
+        "auth.login.database_unavailable",
+        error
+      );
+    }
+
     logAppEvent({
       domain: "auth",
       event: "auth.login.failed",
@@ -373,6 +419,17 @@ export async function requestPasswordReset(req: Request, res: Response) {
         "Se o email estiver cadastrado, você receberá as instruções para redefinir a senha.",
     });
   } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return sendDatabaseUnavailableResponse(
+        res,
+        startedAt,
+        requestId,
+        req,
+        "auth.password_reset.request.database_unavailable",
+        error
+      );
+    }
+
     logAppEvent({
       domain: "auth",
       event: "auth.password_reset.request.failed",
@@ -466,6 +523,17 @@ export async function confirmPasswordReset(req: Request, res: Response) {
       message: "Senha redefinida com sucesso",
     });
   } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return sendDatabaseUnavailableResponse(
+        res,
+        startedAt,
+        requestId,
+        req,
+        "auth.password_reset.confirm.database_unavailable",
+        error
+      );
+    }
+
     logAppEvent({
       domain: "auth",
       event: "auth.password_reset.confirm.failed",
@@ -517,6 +585,17 @@ export async function me(req: AuthRequest, res: Response) {
 
     res.json(usuario);
   } catch (error) {
+    if (isDatabaseUnavailableError(error)) {
+      return sendDatabaseUnavailableResponse(
+        res,
+        startedAt,
+        requestId,
+        req,
+        "auth.me.database_unavailable",
+        error
+      );
+    }
+
     logAppEvent({
       domain: "auth",
       event: "auth.me.failed",

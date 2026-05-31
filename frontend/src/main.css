@@ -1,31 +1,31 @@
 /* src/main.css */
 :root {
-  color-scheme: dark;
+  color-scheme: light;
   --font-sans: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --bg: #030615;
-  --bg-soft: #071126;
-  --surface: rgba(12, 20, 42, 0.78);
-  --surface-strong: rgba(14, 24, 50, 0.92);
-  --surface-muted: rgba(255, 255, 255, 0.06);
-  --surface-border: rgba(148, 163, 184, 0.18);
-  --surface-border-strong: rgba(96, 165, 250, 0.3);
-  --text: #f8fafc;
-  --text-soft: rgba(226, 232, 240, 0.76);
-  --text-muted: rgba(148, 163, 184, 0.82);
-  --primary: #1d7fff;
-  --primary-strong: #0f5fd6;
-  --primary-soft: rgba(29, 127, 255, 0.18);
-  --accent: #7dd3fc;
-  --danger: #fb7185;
-  --danger-soft: rgba(251, 113, 133, 0.14);
-  --success: #34d399;
+  --bg: #f2f7fc;
+  --bg-soft: #e8f1f9;
+  --surface: rgba(255, 255, 255, 0.72);
+  --surface-strong: rgba(246, 251, 255, 0.94);
+  --surface-muted: rgba(225, 236, 246, 0.72);
+  --surface-border: rgba(137, 170, 196, 0.18);
+  --surface-border-strong: rgba(74, 144, 226, 0.28);
+  --text: #163046;
+  --text-soft: rgba(40, 66, 92, 0.82);
+  --text-muted: rgba(86, 110, 133, 0.82);
+  --primary: #4a90e2;
+  --primary-strong: #2f74c0;
+  --primary-soft: rgba(74, 144, 226, 0.14);
+  --accent: #8dc8ff;
+  --danger: #ef6b86;
+  --danger-soft: rgba(239, 107, 134, 0.12);
+  --success: #36b37e;
   --radius-sm: 12px;
   --radius-md: 18px;
   --radius-lg: 24px;
   --radius-xl: 32px;
-  --shadow-sm: 0 10px 30px rgba(2, 6, 23, 0.22);
-  --shadow-md: 0 20px 50px rgba(2, 6, 23, 0.4);
-  --shadow-lg: 0 30px 80px rgba(2, 6, 23, 0.54);
+  --shadow-sm: 0 10px 24px rgba(47, 84, 122, 0.08);
+  --shadow-md: 0 20px 44px rgba(47, 84, 122, 0.12);
+  --shadow-lg: 0 30px 72px rgba(47, 84, 122, 0.16);
   --container: 1200px;
   --transition-fast: 180ms ease;
   --transition-base: 280ms ease;
@@ -58,9 +58,9 @@ body {
   font-family: var(--font-sans);
   color: var(--text);
   background:
-    radial-gradient(circle at top left, rgba(129, 165, 196, 0.18), transparent 28%),
-    radial-gradient(circle at 85% 12%, rgba(147, 177, 202, 0.12), transparent 24%),
-    linear-gradient(180deg, #07111c 0%, #09131f 28%, #0b1520 62%, #060d16 100%);
+    radial-gradient(circle at top left, rgba(141, 200, 255, 0.28), transparent 28%),
+    radial-gradient(circle at 84% 10%, rgba(214, 233, 248, 0.92), transparent 22%),
+    linear-gradient(180deg, #f7fbff 0%, #eef5fb 34%, #e9f2f9 68%, #f5f9fc 100%);
   line-height: 1.5;
   overflow-x: hidden;
   text-rendering: optimizeLegibility;
@@ -239,8 +239,8 @@ iframe {
 }
 
 ::selection {
-  background: rgba(29, 127, 255, 0.3);
-  color: #ffffff;
+  background: rgba(74, 144, 226, 0.18);
+  color: #0f2440;
 }
 
 :focus-visible {
@@ -280,7 +280,7 @@ iframe {
   left: -80px;
   width: min(38vw, 480px);
   height: min(38vw, 480px);
-  background: radial-gradient(circle, rgba(29, 127, 255, 0.24) 0%, rgba(29, 127, 255, 0.08) 38%, transparent 72%);
+  background: radial-gradient(circle, rgba(141, 200, 255, 0.36) 0%, rgba(141, 200, 255, 0.14) 38%, transparent 72%);
   animation: shellFloatOne 18s ease-in-out infinite;
 }
 
@@ -289,7 +289,7 @@ iframe {
   right: -120px;
   width: min(34vw, 420px);
   height: min(34vw, 420px);
-  background: radial-gradient(circle, rgba(125, 211, 252, 0.18) 0%, rgba(125, 211, 252, 0.05) 40%, transparent 74%);
+  background: radial-gradient(circle, rgba(193, 224, 247, 0.4) 0%, rgba(193, 224, 247, 0.16) 40%, transparent 74%);
   animation: shellFloatTwo 22s ease-in-out infinite;
 }
 
@@ -298,7 +298,7 @@ iframe {
   left: 42%;
   width: min(42vw, 560px);
   height: min(42vw, 560px);
-  background: radial-gradient(circle, rgba(14, 95, 214, 0.16) 0%, rgba(14, 95, 214, 0.04) 42%, transparent 74%);
+  background: radial-gradient(circle, rgba(117, 176, 227, 0.3) 0%, rgba(117, 176, 227, 0.1) 42%, transparent 74%);
   animation: shellFloatThree 24s ease-in-out infinite;
 }
 
@@ -306,11 +306,11 @@ iframe {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    linear-gradient(rgba(74, 144, 226, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(74, 144, 226, 0.05) 1px, transparent 1px);
   background-size: 120px 120px;
   mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.88) 28%, transparent 82%);
-  opacity: 0.12;
+  opacity: 0.16;
 }
 
 .app-shell-noise {
@@ -318,10 +318,10 @@ iframe {
   inset: 0;
   background-image:
     linear-gradient(transparent, rgba(255, 255, 255, 0.01)),
-    radial-gradient(rgba(255, 255, 255, 0.035) 0.7px, transparent 0.7px);
+    radial-gradient(rgba(74, 144, 226, 0.06) 0.7px, transparent 0.7px);
   background-size: auto, 14px 14px;
   mix-blend-mode: soft-light;
-  opacity: 0.3;
+  opacity: 0.24;
 }
 
 .route-transition-layer {
@@ -334,7 +334,7 @@ iframe {
 }
 
 .glass-panel {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.04));
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.8), rgba(248, 251, 255, 0.64));
   border: 1px solid var(--surface-border);
   box-shadow: var(--shadow-md);
   backdrop-filter: blur(var(--blur));
@@ -378,9 +378,9 @@ iframe {
   gap: 8px;
   padding: 8px 14px;
   border-radius: 999px;
-  border: 1px solid rgba(125, 211, 252, 0.2);
-  background: rgba(125, 211, 252, 0.08);
-  color: #dbeafe;
+  border: 1px solid rgba(74, 144, 226, 0.18);
+  background: rgba(74, 144, 226, 0.08);
+  color: #2b5f91;
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: 0.14em;
@@ -388,7 +388,7 @@ iframe {
 }
 
 .gradient-text {
-  background: linear-gradient(90deg, #eef6ff 0%, #79b6ff 35%, #1d7fff 70%, #7dd3fc 100%);
+  background: linear-gradient(90deg, #21486f 0%, #4a90e2 38%, #76b7ee 70%, #9ed0ff 100%);
   -webkit-background-clip: text;
   background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -417,7 +417,7 @@ iframe {
   height: 320px;
   top: 5%;
   left: -80px;
-  background: radial-gradient(circle, rgba(29, 127, 255, 0.18), transparent 68%);
+  background: radial-gradient(circle, rgba(141, 200, 255, 0.22), transparent 68%);
 }
 
 .auth-layout::after {
@@ -425,7 +425,7 @@ iframe {
   height: 360px;
   right: -120px;
   bottom: 0;
-  background: radial-gradient(circle, rgba(125, 211, 252, 0.12), transparent 70%);
+  background: radial-gradient(circle, rgba(214, 233, 248, 0.7), transparent 70%);
 }
 
 .auth-back-button {
@@ -439,8 +439,8 @@ iframe {
   min-height: 46px;
   padding: 0 18px;
   border-radius: 999px;
-  border: 1px solid var(--surface-border);
-  background: rgba(10, 18, 36, 0.72);
+  border: 1px solid rgba(74, 144, 226, 0.18);
+  background: rgba(255, 255, 255, 0.78);
   color: var(--text);
   box-shadow: var(--shadow-sm);
   backdrop-filter: blur(14px);
@@ -590,6 +590,365 @@ a:hover .button-marquee__icon-track,
 
 .app-shell.with-menu {
   padding-top: 0;
+}
+
+.welcome-page,
+.login-page,
+.inicio-page,
+.explorer-page,
+.ped-page,
+.perfil-page,
+.empresa-page,
+.an-page,
+.historico-page,
+.usuarios-page,
+.amb-page,
+.divulgar-page,
+.criar-tour-page,
+.tour-page {
+  background:
+    radial-gradient(circle at top left, rgba(141, 200, 255, 0.22), transparent 30%),
+    radial-gradient(circle at 84% 10%, rgba(214, 233, 248, 0.78), transparent 24%),
+    linear-gradient(180deg, #f7fbff 0%, #eef5fb 34%, #e8f1f9 68%, #f5f9fc 100%) !important;
+  color: var(--text);
+}
+
+.welcome-page::before,
+.login-page::before,
+.inicio-page::before,
+.explorer-page::before,
+.ped-page::before,
+.perfil-page::before,
+.empresa-page::before,
+.an-page::before,
+.historico-page::before,
+.usuarios-page::before,
+.amb-page::before,
+.divulgar-page::before,
+.criar-tour-page::before,
+.tour-page::before,
+.welcome-page::after,
+.login-page::after,
+.inicio-page::after,
+.explorer-page::after,
+.ped-page::after,
+.perfil-page::after,
+.empresa-page::after,
+.an-page::after,
+.historico-page::after,
+.usuarios-page::after,
+.amb-page::after,
+.divulgar-page::after,
+.criar-tour-page::after,
+.tour-page::after {
+  opacity: 0.38;
+}
+
+:is(
+    .welcome-panel,
+    .welcome-highlight,
+    .welcome-point,
+    .welcome-benefit,
+    .login-copy,
+    .login-container,
+    .login-point,
+    .login-reset-box,
+    .inicio-hero-panel,
+    .inicio-card,
+    .inicio-cta-card,
+    .inicio-onboarding-panel,
+    .inicio-onboarding-choice,
+    .explorer-panel,
+    .explorer-hud,
+    .explorer-hud-empty,
+    .ped-hero,
+    .ped-story,
+    .ped-browser,
+    .ped-hero-panel,
+    .ped-stat,
+    .ped-story-card,
+    .ped-card,
+    .ped-empty-card,
+    .ped-history,
+    .ped-payment-panel,
+    .ped-inline-state,
+    .ped-modal-box,
+    .ped-confirm-box,
+    .perfil-hero,
+    .perfil-card,
+    .perfil-tip-box,
+    .perfil-security-box,
+    .empresa-wrapper,
+    .empresa-card,
+    .an-hero,
+    .an-empty-state-box,
+    .an-hero-panel,
+    .an-summary-card,
+    .an-insight-panel,
+    .an-section-card,
+    .an-top-item,
+    .an-location-item,
+    .an-access-item,
+    .historico-hero,
+    .historico-toolbar,
+    .historico-panel,
+    .historico-card,
+    .historico-feedback,
+    .historico-loading-card,
+    .historico-summary-card,
+    .historico-timeline-item,
+    .amb-hero-panel,
+    .amb-story-card,
+    .amb-browser,
+    .amb-card,
+    .amb-modal-box,
+    .modal-box,
+    .divulgar-card,
+    .criar-tour-shell,
+    .criar-tour-location-panel,
+    .criar-tour-location-status,
+    .criar-tour-manual-panel,
+    .criar-tour-suggestion-item,
+    .criar-tour-switch-row,
+    .tour-card,
+    .surface-card,
+    .glass-panel
+  ) {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(246, 251, 255, 0.76)),
+    rgba(255, 255, 255, 0.82);
+  border-color: rgba(137, 170, 196, 0.2) !important;
+  box-shadow: 0 18px 44px rgba(79, 118, 154, 0.12) !important;
+  color: var(--text);
+}
+
+:is(
+    .welcome-panel,
+    .welcome-highlight,
+    .welcome-point,
+    .welcome-benefit,
+    .login-copy,
+    .login-container,
+    .login-point,
+    .login-reset-box,
+    .inicio-hero-panel,
+    .inicio-card,
+    .inicio-cta-card,
+    .inicio-onboarding-panel,
+    .inicio-onboarding-choice,
+    .explorer-panel,
+    .explorer-hud,
+    .explorer-hud-empty,
+    .ped-hero,
+    .ped-story,
+    .ped-browser,
+    .ped-hero-panel,
+    .ped-stat,
+    .ped-story-card,
+    .ped-card,
+    .ped-empty-card,
+    .ped-history,
+    .ped-payment-panel,
+    .ped-inline-state,
+    .ped-modal-box,
+    .ped-confirm-box,
+    .perfil-hero,
+    .perfil-card,
+    .perfil-tip-box,
+    .perfil-security-box,
+    .empresa-wrapper,
+    .empresa-card,
+    .an-hero,
+    .an-empty-state-box,
+    .an-hero-panel,
+    .an-summary-card,
+    .an-insight-panel,
+    .an-section-card,
+    .an-top-item,
+    .an-location-item,
+    .an-access-item,
+    .historico-hero,
+    .historico-toolbar,
+    .historico-panel,
+    .historico-card,
+    .historico-feedback,
+    .historico-loading-card,
+    .historico-summary-card,
+    .historico-timeline-item,
+    .amb-hero-panel,
+    .amb-story-card,
+    .amb-browser,
+    .amb-card,
+    .amb-modal-box,
+    .modal-box,
+    .divulgar-card,
+    .criar-tour-shell,
+    .criar-tour-location-panel,
+    .criar-tour-location-status,
+    .criar-tour-manual-panel,
+    .criar-tour-suggestion-item,
+    .criar-tour-switch-row,
+    .tour-card
+  ) :is(h1, h2, h3, h4, h5, h6) {
+  color: #17324a !important;
+}
+
+:is(
+    .login-input,
+    .login-password-toggle,
+    .inicio-button,
+    .inicio-onboarding-skip,
+    .welcome-action,
+    .perfil-form input,
+    .perfil-toggle-password,
+    .perfil-secondary-btn,
+    .perfil-primary-btn,
+    .perfil-ghost-btn,
+    .empresa-card-link,
+    .an-filter select,
+    .historico-search input,
+    .historico-filter select,
+    .historico-action-button,
+    .amb-search,
+    .amb-category-select,
+    .amb-form input,
+    .amb-form textarea,
+    .amb-submit-btn,
+    .amb-cancel-btn,
+    .modal-actions button,
+    .ped-select,
+    .ped-form input,
+    .ped-form textarea,
+    .ped-edit-grid input,
+    .ped-edit-grid textarea,
+    .ped-hero-btn,
+    .ped-action-btn,
+    .criar-tour-field input,
+    .criar-tour-field textarea,
+    .criar-tour-submit,
+    .divulgar-field input,
+    .divulgar-field textarea,
+    .divulgar-submit,
+    .tour-whatsapp-btn,
+    .menu-mobile-link,
+    .menu-mobile-action,
+    .menu-link,
+    .menu-contact-link,
+    .menu-btn,
+    .menu-toggle
+  ) {
+  border-color: rgba(137, 170, 196, 0.24) !important;
+}
+
+:is(
+    .login-input,
+    .perfil-form input,
+    .an-filter select,
+    .historico-search input,
+    .historico-filter select,
+    .amb-search,
+    .amb-category-select,
+    .amb-form input,
+    .amb-form textarea,
+    .ped-select,
+    .ped-form input,
+    .ped-form textarea,
+    .ped-edit-grid input,
+    .ped-edit-grid textarea,
+    .criar-tour-field input,
+    .criar-tour-field textarea,
+    .divulgar-field input,
+    .divulgar-field textarea
+  ) {
+  background: rgba(255, 255, 255, 0.84) !important;
+  color: var(--text) !important;
+}
+
+:is(
+    .login-input::placeholder,
+    .perfil-form input::placeholder,
+    .an-filter select::placeholder,
+    .historico-search input::placeholder,
+    .historico-filter select::placeholder,
+    .amb-search::placeholder,
+    .amb-category-select::placeholder,
+    .amb-form input::placeholder,
+    .amb-form textarea::placeholder,
+    .ped-select::placeholder,
+    .ped-form input::placeholder,
+    .ped-form textarea::placeholder,
+    .ped-edit-grid input::placeholder,
+    .ped-edit-grid textarea::placeholder,
+    .criar-tour-field input::placeholder,
+    .criar-tour-field textarea::placeholder,
+    .divulgar-field input::placeholder,
+    .divulgar-field textarea::placeholder
+  ) {
+  color: rgba(86, 110, 133, 0.6) !important;
+}
+
+.login-error,
+.login-success,
+.ped-error,
+.ped-feedback,
+.perfil-message,
+.divulgar-note,
+.divulgar-error,
+.historico-inline-alert,
+.an-alert-card,
+.explorer-location-status,
+.criar-tour-prefill-note,
+.criar-tour-manual-hint,
+.criar-tour-caption {
+  color: var(--text-soft);
+}
+
+.explorer-page .leaflet-container {
+  background: #edf4fb;
+}
+
+.explorer-page .leaflet-popup-content-wrapper,
+.explorer-page .leaflet-popup-tip,
+.explorer-marker-tooltip,
+.explorer-popup,
+.explorer-panel,
+.explorer-hud,
+.explorer-hud-empty {
+  background: rgba(255, 255, 255, 0.94) !important;
+  color: var(--text) !important;
+  border-color: rgba(137, 170, 196, 0.2) !important;
+}
+
+.ped-modal-overlay,
+.amb-modal-overlay,
+.inicio-onboarding-backdrop {
+  background: rgba(232, 241, 249, 0.72) !important;
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.ped-page .ped-modal-box,
+.ped-page .ped-confirm-box,
+.amb-page .amb-modal-box,
+.amb-page .modal-box,
+.historico-page .amb-vr-container {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(244, 249, 253, 0.94)) !important;
+  border-color: rgba(137, 170, 196, 0.22) !important;
+  box-shadow: 0 24px 60px rgba(79, 118, 154, 0.16) !important;
+}
+
+.ped-page .ped-modal-overlay,
+.amb-page .amb-modal-overlay,
+.historico-page .amb-modal-overlay {
+  background: rgba(232, 241, 249, 0.76) !important;
+}
+
+body:not(:has(.menu)) .auth-back-button,
+.login-page .auth-back-button,
+.divulgar-page .divulgar-back-button {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border-color: rgba(137, 170, 196, 0.2) !important;
+  color: var(--text) !important;
 }
 
 @media (max-width: 1024px) {
