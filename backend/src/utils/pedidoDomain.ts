@@ -179,6 +179,12 @@ export function normalizeNomeCliente(value: unknown): string | undefined {
   return normalized;
 }
 
+function hasPresentPagamentoFilter(...values: unknown[]) {
+  return values.some(
+    (value) => value !== undefined && value !== null && value !== ""
+  );
+}
+
 export function normalizePedidoQueryFilters(input: {
   search?: unknown;
   q?: unknown;
@@ -196,11 +202,18 @@ export function normalizePedidoQueryFilters(input: {
     undefined;
 
   const status = normalizePedidoStatus(input.status);
-  const pagamentoStatus =
-    normalizePagamentoStatusValue(input.pagamentoStatus) ??
-    normalizePagamentoStatusValue(input.paymentStatus) ??
-    normalizePagamentoStatusValue(input.pago) ??
-    normalizePagamentoStatusValue(input.paid);
+
+  const pagamentoStatus = hasPresentPagamentoFilter(
+    input.pagamentoStatus,
+    input.paymentStatus,
+    input.pago,
+    input.paid
+  )
+    ? (normalizePagamentoStatusValue(input.pagamentoStatus) ??
+      normalizePagamentoStatusValue(input.paymentStatus) ??
+      normalizePagamentoStatusValue(input.pago) ??
+      normalizePagamentoStatusValue(input.paid))
+    : undefined;
 
   const empresaIdCandidate = input.empresaId ?? input.companyId;
   const empresaId =
