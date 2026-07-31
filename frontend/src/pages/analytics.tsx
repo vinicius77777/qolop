@@ -3,10 +3,14 @@ import { motion } from "framer-motion";
 import {
   FiActivity,
   FiArrowUpRight,
+  FiClock,
   FiEye,
   FiGlobe,
   FiLayers,
   FiMapPin,
+  FiMonitor,
+  FiSmartphone,
+  FiTablet,
   FiTrendingUp,
 } from "react-icons/fi";
 import "../styles/analytics.css";
@@ -42,13 +46,23 @@ interface AnalyticsAcessoRecente {
   createdAt: string;
 }
 
+interface TempoPermanencia {
+  mediana: number | null;
+  amostrasValidas: number;
+  interpretacao: string;
+  recomendacao: string | null;
+}
+
 interface AnalyticsResponse {
   parceiro: boolean;
   empresa: AnalyticsEmpresa | null;
   resumo: AnalyticsResumo;
   ambientes: AnalyticsAmbiente[];
   acessosRecentes: AnalyticsAcessoRecente[];
+  tempoPermanencia: Record<number, TempoPermanencia>;
 }
+
+type TipoDispositivo = "computador" | "celular" | "tablet" | "desconhecido";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
@@ -160,6 +174,24 @@ function formatarIp(ip?: string) {
   return ip;
 }
 
+function detectarDispositivo(userAgent?: string): TipoDispositivo {
+  if (!userAgent) return "desconhecido";
+
+  const ua = userAgent.toLowerCase();
+
+  // Tablet: iPad or Android tablet (Android without "mobile" in UA)
+  if (/ipad/.test(ua)) return "tablet";
+  if (/android/.test(ua) && !/mobile/.test(ua)) return "tablet";
+
+  // Celular: common mobile indicators
+  if (/iphone|ipod|android|mobile|blackberry|webos/.test(ua)) return "celular";
+
+  // Computador: everything else with a known OS/browser
+  if (/windows|mac os|linux|cros/.test(ua)) return "computador";
+
+  return "desconhecido";
+}
+
 function getStartDate(period: PeriodValue) {
   const days = Number(period);
   const date = new Date();
@@ -234,6 +266,8 @@ const Analytics: React.FC = () => {
         filteredAcessos: [] as AnalyticsAcessoRecente[],
         topAmbientes: [] as Array<AnalyticsAmbiente & { recentViews: number; share: number; lastAccess?: string }>,
         locationRanking: [] as Array<{ label: string; count: number; percentage: number }>,
+        dispositivos: [] as Array<{ tipo: TipoDispositivo; count: number; percentage: number; icon: React.ReactNode }>,
+        dispositivoInsight: "",
         visualizacoesPeriodo: 0,
         visitasEmpresaPeriodo: 0,
         crescimentoVisualizacoes: 0,
@@ -302,6 +336,55 @@ const Analytics: React.FC = () => {
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
 
+    // Device distribution
+    const dispositivoMap = new Map<TipoDispositivo, number>();
+    const DISPOSITIVO_ORDER: TipoDispositivo[] = ["celular", "computador", "tablet", "desconhecido"];
+
+    filteredAcessos.forEach((acesso) => {
+      const tipo = detectarDispositivo(acesso.userAgent);
+      dispositivoMap.set(tipo, (dispositivoMap.get(tipo) || 0) + 1);
+    });
+
+    const dispositivos = DISPOSITIVO_ORDER
+      .filter((tipo) => dispositivoMap.has(tipo))
+      .map((tipo) => ({
+        tipo,
+        count: dispositivoMap.get(tipo)!,
+        percentage: filteredAcessos.length > 0
+          ? (dispositivoMap.get(tipo)! / filteredAcessos.length) * 100
+          : 0,
+        icon:
+          tipo === "celular" ? <FiSmartphone /> :
+          tipo === "computador" ? <FiMonitor /> :
+          tipo === "tablet" ? <FiTablet /> :
+          <FiMonitor />,
+      }));
+
+    // Device insight
+    let dispositivoInsight = "Ainda não há dados de dispositivo para gerar uma análise.";
+    if (dispositivos.length > 0) {
+      const topDevice = dispositivos[0];
+      const mobileCount = (dispositivoMap.get("celular") || 0) + (dispositivoMap.get("tablet") || 0);
+      const mobilePercent = filteredAcessos.length > 0 ? (mobileCount / filteredAcessos.length) * 100 : 0;
+      const desktopPercent = filteredAcessos.length > 0
+        ? ((dispositivoMap.get("computador") || 0) / filteredAcessos.length) * 100
+        : 0;
+
+      if (mobilePercent >= 60) {
+        dispositivoInsight = `A maioria dos acessos (${Math.round(mobilePercent)}%) vem de dispositivos móveis. Certifique-se de que seus tours e ambientes estejam otimizados para telas menores e navegação touch.`;
+      } else if (desktopPercent >= 60) {
+        dispositivoInsight = `O acesso é predominantemente via computador (${Math.round(desktopPercent)}%). A experiência em telas grandes está bem aproveitada — considere destacar elementos visuais e tours com mais detalhes.`;
+      } else if (topDevice.tipo === "celular") {
+        dispositivoInsight = `Celular lidera com ${Math.round(topDevice.percentage)}% dos acessos. A navegação mobile é o principal ponto de contato com seus visitantes — priorize carregamento rápido e botões acessíveis.`;
+      } else if (topDevice.tipo === "computador") {
+        dispositivoInsight = `Computador lidera com ${Math.round(topDevice.percentage)}% dos acessos. Seus visitantes exploram os ambientes com mais calma em telas grandes — tours detalhados tendem a performar bem.`;
+      } else if (topDevice.tipo === "tablet") {
+        dispositivoInsight = `Tablet representa ${Math.round(topDevice.percentage)}% dos acessos — um meio-termo entre mobilidade e imersão. Garanta que a interface se adapte bem a resoluções intermediárias.`;
+      } else {
+        dispositivoInsight = `Há uma distribuição equilibrada entre dispositivos. Mantenha a experiência consistente em celular, computador e tablet.`;
+      }
+    }
+
     const visualizacoesPeriodo =
       filteredAcessos.length > 0
         ? filteredAcessos.length
@@ -328,26 +411,26 @@ const Analytics: React.FC = () => {
       ? formatarDataRelativa(analytics.acessosRecentes[0].createdAt)
       : "sem registro";
 
-    let insightText = "Ainda não há volume suficiente para gerar um insight mais avançado.";
+    let insightText = "Ainda não há dados suficientes para gerar uma análise.";
     if (topAmbiente && topAmbiente.visualizacoes > 0) {
       insightText = `"${topAmbiente.titulo}" concentra ${Math.round(
         topAmbiente.share
-      )}% das visualizações totais e lidera a atenção sobre os demais ambientes.`;
+      )}% das visualizações totais e lidera a atenção entre os ambientes.`;
     } else if (locationRanking[0]) {
-      insightText = `${locationRanking[0].label} é a origem com mais acessos neste período, representando ${Math.round(
+      insightText = `${locationRanking[0].label} é a origem com mais acessos neste período, com ${Math.round(
         locationRanking[0].percentage
-      )}% da audiência recente.`;
+      )}% das visitas recentes.`;
     }
 
-    let alertText = "Fluxo estável no período atual, sem variações bruscas perceptíveis.";
+    let alertText = "Números estáveis no período, sem mudanças bruscas.";
     if (crescimentoVisualizacoes >= 25) {
       alertText = `As visualizações cresceram ${formatPercent(
         crescimentoVisualizacoes
-      )} no período selecionado. Pode ser um bom momento para destacar o ambiente líder.`;
+      )} no período. Pode ser um bom momento para destacar o ambiente líder.`;
     } else if (crescimentoVisualizacoes <= -20) {
       alertText = `As visualizações caíram ${formatPercent(
         crescimentoVisualizacoes
-      )} no período selecionado. Vale revisar divulgação ou destacar ambientes públicos.`;
+      )} no período. Vale revisar a divulgação ou destacar ambientes públicos.`;
     } else if (recentPublicViews > 0 && visualizacoesPeriodo > 0) {
       alertText = `${Math.round(
         (recentPublicViews / visualizacoesPeriodo) * 100
@@ -358,6 +441,8 @@ const Analytics: React.FC = () => {
       filteredAcessos,
       topAmbientes,
       locationRanking,
+      dispositivos,
+      dispositivoInsight,
       visualizacoesPeriodo,
       visitasEmpresaPeriodo,
       crescimentoVisualizacoes,
@@ -380,7 +465,7 @@ const Analytics: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
           >
-            Carregando intelligence analytics...
+            Carregando estatísticas...
           </motion.div>
         </div>
       </div>
@@ -442,8 +527,8 @@ const Analytics: React.FC = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7 }}
           >
-            <span className="an-eyebrow">Analytics · visão estratégica</span>
-            <h1 className="an-title">Transforme números em leitura rápida, contexto e decisão.</h1>
+            <span className="an-eyebrow">Estatísticas · visão geral</span>
+            <h1 className="an-title">Acompanhe o desempenho dos seus ambientes.</h1>
             <div className="an-toolbar">
               <label className="an-filter">
                 <span>Recorte</span>
@@ -469,7 +554,7 @@ const Analytics: React.FC = () => {
             transition={{ duration: 0.8, delay: 0.12 }}
           >
             <div className="an-panel-top">
-              <span className="an-panel-kicker">Resumo estratégico</span>
+              <span className="an-panel-kicker">Resumo</span>
               <span className="an-panel-period">
                 {PERIOD_OPTIONS.find((option) => option.value === period)?.label}
               </span>
@@ -477,7 +562,7 @@ const Analytics: React.FC = () => {
 
             <div className="an-highlight">
               <div>
-                <span className="an-mini-label">Insight automático</span>
+                <span className="an-mini-label">Destaque</span>
                 <h3>{analyticsView.topAmbiente?.titulo || "Sem ambiente líder definido"}</h3>
                 <p>{analyticsView.insightText}</p>
               </div>
@@ -491,7 +576,7 @@ const Analytics: React.FC = () => {
             <div className="an-alert-card">
               <FiArrowUpRight />
               <div>
-                <span className="an-mini-label">O que observar</span>
+                <span className="an-mini-label">Fique de olho</span>
                 <p>{analyticsView.alertText}</p>
               </div>
             </div>
@@ -529,11 +614,92 @@ const Analytics: React.FC = () => {
         ) : (
           <>
             <section className="an-insights-grid">
+              <article className="an-section-card">
+                <div className="an-section-head">
+                  <div>
+                    <span className="an-section-kicker">Dispositivos utilizados</span>
+                    <h2>Distribuição entre celular, computador e tablet</h2>
+                  </div>
+                  <span className="an-section-note">
+                    {analyticsView.dispositivos.length > 0
+                      ? `${analyticsView.filteredAcessos.length} acessos analisados`
+                      : "Sem dados de dispositivo no período"}
+                  </span>
+                </div>
+
+                {analyticsView.dispositivos.length === 0 ? (
+                  <p className="an-empty-text">Ainda não há acessos registrados para calcular a distribuição de dispositivos.</p>
+                ) : (
+                  <div className="an-device-list">
+                    {analyticsView.dispositivos.map((dispositivo) => (
+                      <div key={dispositivo.tipo} className="an-device-item">
+                        <div className="an-device-top">
+                          <span className="an-device-label">
+                            <span className="an-device-icon">{dispositivo.icon}</span>
+                            {dispositivo.tipo === "celular"
+                              ? "Celular"
+                              : dispositivo.tipo === "computador"
+                              ? "Computador"
+                              : dispositivo.tipo === "tablet"
+                              ? "Tablet"
+                              : "Não identificado"}
+                          </span>
+                          <strong>{dispositivo.count}</strong>
+                        </div>
+                        <div className="an-device-bar">
+                          <span style={{ width: `${Math.max(dispositivo.percentage, 6)}%` }} />
+                        </div>
+                        <small>{Math.round(dispositivo.percentage)}% dos acessos</small>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {analyticsView.dispositivoInsight && (
+                  <div className="an-device-insight">
+                    <FiArrowUpRight />
+                    <p>{analyticsView.dispositivoInsight}</p>
+                  </div>
+                )}
+              </article>
+
               <article className="an-insight-panel">
                 <div className="an-section-head">
                   <div>
-                    <span className="an-section-kicker">Top desempenho</span>
-                    <h2>Ambientes com mais tração</h2>
+                    <span className="an-section-kicker">De onde acessam</span>
+                    <h2>Locais com mais visitas recentes</h2>
+                  </div>
+                </div>
+
+                {analyticsView.locationRanking.length === 0 ? (
+                  <p className="an-empty-text">Ainda não há acessos suficientes para montar o ranking.</p>
+                ) : (
+                  <div className="an-location-list">
+                    {analyticsView.locationRanking.map((item) => (
+                      <div key={item.label} className="an-location-item">
+                        <div className="an-location-top">
+                          <span>
+                            <FiMapPin /> {item.label}
+                          </span>
+                          <strong>{item.count}</strong>
+                        </div>
+                        <div className="an-location-bar">
+                          <span style={{ width: `${Math.max(item.percentage, 8)}%` }} />
+                        </div>
+                        <small>{Math.round(item.percentage)}% do volume recente</small>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </article>
+            </section>
+
+            <section className="an-insights-grid">
+              <article className="an-insight-panel">
+                <div className="an-section-head">
+                  <div>
+                    <span className="an-section-kicker">Mais acessados</span>
+                    <h2>Ambientes que mais chamam atenção</h2>
                   </div>
                 </div>
 
@@ -564,32 +730,76 @@ const Analytics: React.FC = () => {
                 )}
               </article>
 
-              <article className="an-insight-panel">
+              <article className="an-section-card">
                 <div className="an-section-head">
                   <div>
-                    <span className="an-section-kicker">Origem dos acessos</span>
-                    <h2>Ranking geográfico recente</h2>
+                    <span className="an-section-kicker">Tempo de permanência</span>
+                    <h2>Tempo médio dos visitantes em cada ambiente</h2>
                   </div>
+                  <span className="an-section-note">
+                    Baseado na mediana (descarta cliques com menos de 5s)
+                  </span>
                 </div>
 
-                {analyticsView.locationRanking.length === 0 ? (
-                  <p className="an-empty-text">Ainda não há acessos suficientes para montar o ranking.</p>
+                {analytics.ambientes.length === 0 ? (
+                  <p className="an-empty-text">Nenhum ambiente encontrado para esta empresa.</p>
                 ) : (
-                  <div className="an-location-list">
-                    {analyticsView.locationRanking.map((item) => (
-                      <div key={item.label} className="an-location-item">
-                        <div className="an-location-top">
-                          <span>
-                            <FiMapPin /> {item.label}
-                          </span>
-                          <strong>{item.count}</strong>
+                  <div className="an-top-list">
+                    {analytics.ambientes.map((ambiente) => {
+                      const permanencia = analytics.tempoPermanencia[ambiente.id];
+                      const hasData = permanencia && permanencia.mediana !== null;
+
+                      const interpretacaoClass =
+                        permanencia?.interpretacao === "Baixa permanência"
+                          ? "an-dwell-low"
+                          : permanencia?.interpretacao === "Permanência moderada"
+                          ? "an-dwell-moderate"
+                          : permanencia?.interpretacao === "Boa permanência"
+                          ? "an-dwell-good"
+                          : permanencia?.interpretacao === "Excelente permanência"
+                          ? "an-dwell-excellent"
+                          : "an-dwell-none";
+
+                      return (
+                        <div key={ambiente.id} className="an-top-item">
+                          <div className="an-top-rank">
+                            <FiClock />
+                          </div>
+                          <div className="an-top-content">
+                            <div className="an-top-title-row">
+                              <strong>{ambiente.titulo}</strong>
+                              <span className={`an-chip ${interpretacaoClass}`}>
+                                {hasData ? permanencia.interpretacao : "Aguardando dados"}
+                              </span>
+                            </div>
+
+                            <div className="an-top-metrics">
+                              {hasData ? (
+                                <>
+                                  <span>
+                                    {permanencia.mediana}s (mediana)
+                                  </span>
+                                  <span>
+                                    {permanencia.amostrasValidas} visita{permanencia.amostrasValidas !== 1 ? "s" : ""} válida{permanencia.amostrasValidas !== 1 ? "s" : ""}
+                                  </span>
+                                </>
+                              ) : (
+                                <span>
+                                  {permanencia?.interpretacao || "Sem dados suficientes"}
+                                </span>
+                              )}
+                            </div>
+
+                            {hasData && permanencia.recomendacao && (
+                              <div className="an-dwell-recommendation">
+                                <FiArrowUpRight />
+                                <span>{permanencia.recomendacao}</span>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        <div className="an-location-bar">
-                          <span style={{ width: `${Math.max(item.percentage, 8)}%` }} />
-                        </div>
-                        <small>{Math.round(item.percentage)}% do volume recente</small>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 )}
               </article>
@@ -599,8 +809,8 @@ const Analytics: React.FC = () => {
               <article className="an-section-card">
                 <div className="an-section-head">
                   <div>
-                    <span className="an-section-kicker">Desempenho detalhado</span>
-                    <h2>Ambientes com mais acessos</h2>
+                    <span className="an-section-kicker">Visão completa</span>
+                    <h2>Todos os ambientes</h2>
                   </div>
                   <span className="an-section-note">Ordenados por visualizações totais</span>
                 </div>

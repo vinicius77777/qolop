@@ -53,6 +53,7 @@ export type NumericIdInput = {
 export type AmbienteViewInput = {
   cidade?: string;
   pais?: string;
+  duration?: number;
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -466,6 +467,7 @@ export function validateAmbienteViewPayload(
   const errors: string[] = [];
   const cidade = normalizeOptionalString(input.cidade);
   const pais = normalizeOptionalString(input.pais);
+  const duration = parseOptionalNumber(input.duration, "duration", errors);
 
   if (input.cidade !== undefined && cidade === undefined) {
     errors.push("cidade inválida");
@@ -473,6 +475,10 @@ export function validateAmbienteViewPayload(
 
   if (input.pais !== undefined && pais === undefined) {
     errors.push("pais inválido");
+  }
+
+  if (input.duration !== undefined && duration === undefined) {
+    errors.push("duration inválido (deve ser número em segundos)");
   }
 
   if (errors.length > 0) {
@@ -487,6 +493,39 @@ export function validateAmbienteViewPayload(
     data: {
       ...(cidade !== undefined && { cidade }),
       ...(pais !== undefined && { pais }),
+      ...(duration !== undefined && { duration }),
     },
+  };
+}
+
+export type DurationUpdateInput = {
+  viewId: number;
+  duration: number;
+};
+
+export function validateDurationUpdatePayload(
+  input: unknown
+): ValidationResult<{ duration: number }> {
+  if (!isRecord(input)) {
+    return {
+      success: false,
+      errors: ["Dados inválidos"],
+    };
+  }
+
+  const errors: string[] = [];
+  const duration = parseInt(String(input.duration ?? ""), 10);
+
+  if (!Number.isFinite(duration) || duration < 0) {
+    errors.push("duration deve ser um número positivo de segundos");
+  }
+
+  if (errors.length > 0) {
+    return { success: false, errors };
+  }
+
+  return {
+    success: true,
+    data: { duration },
   };
 }

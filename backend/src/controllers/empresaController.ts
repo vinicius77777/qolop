@@ -76,6 +76,23 @@ export async function listEmpresaAmbientes(
   );
 }
 
+/**
+ * Calcula a mediana de um array de números.
+ * Se o array estiver vazio, retorna null.
+ */
+function median(values: number[]): number | null {
+  if (values.length === 0) return null;
+
+  const sorted = [...values].sort((a, b) => a - b);
+  const mid = Math.floor(sorted.length / 2);
+
+  if (sorted.length % 2 === 0) {
+    return (sorted[mid - 1] + sorted[mid]) / 2;
+  }
+
+  return sorted[mid];
+}
+
 export async function getEmpresaAnalytics(
   req: AuthRequest,
   res: Response
@@ -97,6 +114,7 @@ export async function getEmpresaAnalytics(
     },
     ambientes: [],
     acessosRecentes: [],
+    tempoPermanencia: {} as Record<number, { mediana: number | null; amostrasValidas: number; interpretacao: string; recomendacao: string | null }>,
   };
 
   const empresaId =
@@ -190,6 +208,7 @@ export async function getEmpresaAnalytics(
       cidade: true,
       pais: true,
       userAgent: true,
+      duration: true,
       createdAt: true,
       ambiente: {
         select: {
@@ -199,6 +218,80 @@ export async function getEmpresaAnalytics(
     },
     orderBy: { createdAt: "desc" },
   });
+
+  // Calcular mediana de tempo de permanência por ambiente
+  // Filtra apenas visitas com duration > 5 segundos (descarta cliques acidentais)
+  const MIN_DURATION_THRESHOLD = 5; // segundos
+
+  const durationByAmbiente = new Map<number, number[]>();
+
+  for (const acesso of acessosRecentes) {
+    if (typeof acesso.duration === "number" && acesso.duration > MIN_DURATION_THRESHOLD) {
+      const existing = durationByAmbiente.get(acesso.ambienteId);
+      if (existing) {
+        existing.push(acesso.duration);
+      } else {
+        durationByAmbiente.set(acesso.ambienteId, [acesso.duration]);
+      }
+    }
+  }
+
+  function interpretarPermanencia(medianaSegundos: number): { interpretacao: string; recomendacao: string | null } {
+    if (medianaSegundos < 15) {
+      return {
+        interpretacao: "Baixa permanência",
+        recomendacao: "Considere adicionar mais conteúdo interativo ou melhorar a descrição para reter visitantes por mais tempo.",
+      };
+    }
+
+    if (medianaSegundos < 45) {
+      return {
+        interpretacao: "Permanência moderada",
+        recomendacao: "O tempo está razoável, mas você pode otimizar com CTAs mais visíveis para aumentar o engajamento.",
+      };
+    }
+
+    if (medianaSegundos < 120) {
+      return {
+        interpretacao: "Boa permanência",
+        recomendacao: null,
+      };
+    }
+
+    return {
+      interpretacao: "Excelente permanência",
+      recomendacao: null,
+    };
+  }
+
+  const tempoPermanencia: Record<number, {
+    mediana: number | null;
+    amostrasValidas: number;
+    interpretacao: string;
+    recomendacao: string | null;
+  }> = {};
+
+  for (const ambiente of ambientes) {
+    const durations = durationByAmbiente.get(ambiente.id) ?? [];
+    const medianaSegundos = median(durations);
+
+    if (medianaSegundos !== null) {
+      const { interpretacao, recomendacao } = interpretarPermanencia(medianaSegundos);
+      tempoPermanencia[ambiente.id] = {
+        mediana: Math.round(medianaSegundos),
+        amostrasValidas: durations.length,
+        interpretacao,
+        recomendacao,
+      };
+    } else {
+      tempoPermanencia[ambiente.id] = {
+        mediana: null,
+        amostrasValidas: 0,
+        interpretacao: "Sem dados suficientes",
+        recomendacao: "Aguardando visitas com duração superior a 5 segundos para calcular a métrica.",
+      };
+    }
+  }
 
   return res.json({
     parceiro,
@@ -225,6 +318,7 @@ export async function getEmpresaAnalytics(
       userAgent: acesso.userAgent ?? undefined,
       createdAt: acesso.createdAt,
     })),
+    tempoPermanencia,
   });
 }
 
@@ -317,7 +411,50 @@ export async function getEmpresaBySlug(req: AuthRequest, res: Response) {
     data: { visualizacoes: { increment: 1 } },
   });
 
-  return res.json(empresa);
+  return res.json({
+    ...empresa,
+    ambientes: empresa.ambiente,
+    ambiente: undefined,
+  });
+}
+
+export async function listEmpresas(_req: AuthRequest, res: Response) {
+  const empresas = await prisma.empresa.findMany({
+    where: {
+      ambiente: {
+        some: {
+          publico: true,
+        },
+      },
+    },
+    select: {
+      id: true,
+      nome: true,
+      slug: true,
+      logo: true,
+      descricao: true,
+      whatsapp: true,
+      telefone: true,
+      email: true,
+      publico: true,
+      visualizacoes: true,
+      _count: {
+        select: {
+          ambiente: {
+            where: { publico: true },
+          },
+        },
+      },
+    },
+    orderBy: [{ visualizacoes: "desc" }, { nome: "asc" }],
+  });
+
+  return res.json(
+    empresas.map((emp) => {
+      const { _count, ...rest } = emp;
+      return { ...rest, totalAmbientes: _count.ambiente };
+    })
+  );
 }
 
 export async function updateEmpresa(req: AuthRequest, res: Response) {

@@ -1,6 +1,6 @@
 import { getStoredToken, request } from "./httpClient";
 import { getMe } from "./authService";
-import type { Ambiente, CreateAmbientePayload, Lead, Empresa, Usuario } from "./types";
+import type { Ambiente, CreateAmbientePayload, EmpresaComAmbiente, Lead, Empresa, Usuario } from "./types";
 
 export function getAmbiente(id: number): Promise<Ambiente> {
   return request<Ambiente>(`/ambientes/${id}`, { method: "GET" }, Boolean(getStoredToken()));
@@ -96,12 +96,20 @@ export function deleteAmbiente(id: number): Promise<void> {
   return request<void>(`/ambientes/${id}`, { method: "DELETE" }, true);
 }
 
+export function getAmbientesPopulares(): Promise<Ambiente[]> {
+  return request<Ambiente[]>("/ambientes/popular", { method: "GET" }, false);
+}
+
 export function enviarLead(data: Lead) {
   return request("/leads", { method: "POST", body: JSON.stringify(data) });
 }
 
 export function getEmpresa(slug: string): Promise<Empresa> {
   return request<Empresa>(`/empresa/${slug}`);
+}
+
+export function getEmpresas(): Promise<EmpresaComAmbiente[]> {
+  return request<EmpresaComAmbiente[]>("/empresas");
 }
 
 async function getClientLocationMetadata(): Promise<{ cidade?: string; pais?: string }> {
@@ -145,14 +153,34 @@ async function getClientLocationMetadata(): Promise<{ cidade?: string; pais?: st
   }
 }
 
-export async function registrarVisualizacaoAmbiente(id: number) {
+export async function registrarVisualizacaoAmbiente(
+  id: number,
+  duration?: number
+): Promise<{ ok: boolean; viewId: number }> {
   const location = await getClientLocationMetadata();
 
-  return request(
+  return request<{ ok: boolean; viewId: number }>(
     `/ambientes/${id}/view`,
     {
       method: "POST",
-      body: JSON.stringify(location),
+      body: JSON.stringify({
+        ...location,
+        ...(duration !== undefined && { duration }),
+      }),
+    },
+    Boolean(getStoredToken())
+  );
+}
+
+export async function atualizarDuracaoView(
+  viewId: number,
+  duration: number
+): Promise<{ ok: boolean }> {
+  return request<{ ok: boolean }>(
+    `/ambientes/view/${viewId}/duration`,
+    {
+      method: "PATCH",
+      body: JSON.stringify({ duration }),
     },
     Boolean(getStoredToken())
   );

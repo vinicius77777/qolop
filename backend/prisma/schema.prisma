@@ -120,6 +120,7 @@ model tourview {
   pais       String?
   cidade     String?
   userAgent  String?
+  duration   Int?
   createdAt  DateTime @default(now())
   ambiente   ambiente @relation(fields: [ambienteId], references: [id], map: "TourView_ambienteId_fkey")
 

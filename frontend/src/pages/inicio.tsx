@@ -20,24 +20,24 @@ type OnboardingChoice = {
 
 const highlights = [
   {
-    title: "Experiência imersiva",
-    description: "Tours, imagens, vídeo e hotspots em uma navegação simples e direta.",
+    title: "Tours em 360°",
+    description: "Imagens, vídeos e hotspots em uma navegação simples e direta.",
   },
   {
-    title: "Apresentação mais clara",
-    description: "Menos informação solta, mais contexto para quem visita e para quem cria.",
+    title: "Destaque para seus espaços",
+    description: "Informações organizadas para quem visita e para quem cria.",
   },
   {
-    title: "Insights úteis",
-    description: "Analytics para entender o interesse do público sem poluir a interface.",
+    title: "Dados de acesso",
+    description: "Estatísticas simples para entender o interesse do público.",
   },
 ];
 
 const quickActions = [
-  "Explorar ambientes com mais fluidez",
-  "Divulgar um espaço de forma visualmente forte",
-  "Acompanhar histórico e analytics no mesmo fluxo",
-  "Centralizar conteúdo sem deixar a tela pesada",
+  "Navegue por tours, imagens, vídeos e hotspots",
+  "Publique seus espaços de forma organizada",
+  "Acompanhe as estatísticas de acesso",
+  "Reúna todos os seus ambientes em um só lugar",
 ];
 
 const onboardingChoices: OnboardingChoice[] = [
@@ -85,7 +85,6 @@ function OnboardingModal({
   open,
   userName,
   onChoose,
-  onSkip,
   isChoosing,
   choiceError,
 }: {
@@ -115,9 +114,9 @@ function OnboardingModal({
       >
         <div className="inicio-onboarding-header">
           <span className="inicio-kicker">Primeiro acesso</span>
-          <h2>Como você quer usar o QOLOP, {userName}?</h2>
+          <h2>O que você quer fazer, {userName}?</h2>
           <p>
-            Seu cadastro está pronto. Escolha o caminho que faz mais sentido para o seu objetivo.
+            Seu cadastro está pronto. Escolha uma opção para começar.
           </p>
         </div>
 
@@ -139,11 +138,6 @@ function OnboardingModal({
 
         {choiceError ? <p className="inicio-error-text">{choiceError}</p> : null}
 
-        <div className="inicio-onboarding-footer">
-          <button type="button" className="inicio-onboarding-skip" onClick={onSkip}>
-            Agora não
-          </button>
-        </div>
       </motion.div>
     </motion.div>,
     document.body
@@ -316,7 +310,7 @@ export default function Inicio() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.08 }}
               >
-                Menos ruído. Mais presença para cada espaço.
+                Interface mais simples. Destaque para seus espaços.
               </motion.h1>
 
               <motion.p
@@ -325,8 +319,8 @@ export default function Inicio() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.7, delay: 0.14 }}
               >
-                Uma tela inicial mais limpa, com foco no essencial: explorar ambientes,
-                apresentar espaços e acompanhar resultados sem excesso de informação.
+                Explore ambientes, apresente espaços e acompanhe os resultados
+                em uma interface mais simples e organizada.
               </motion.p>
 
               <motion.div
@@ -400,17 +394,17 @@ export default function Inicio() {
             animate={heroInView ? { opacity: [0.6, 1, 0.6], y: [0, 4, 0] } : {}}
             transition={{ repeat: Infinity, duration: 1.8, ease: "easeInOut" }}
           >
-            Role para ver o que dá para fazer
+            Role para ver mais
           </motion.div>
         </motion.section>
 
         <RevealSection className="inicio-section">
           <div className="inicio-section-header">
             <span className="inicio-kicker">O essencial</span>
-            <h2>Uma apresentação mais direta, com menos distração visual.</h2>
+            <h2>Tudo o que você precisa está reunido em uma única interface.</h2>
             <p>
-              A tela foi reduzida para destacar o que importa e deixar a experiência mais
-              calma, elegante e fácil de entender.
+              Explorar ambientes, publicar espaços, consultar estatísticas e gerenciar
+              seu conteúdo — tudo no mesmo lugar.
             </p>
           </div>
 
@@ -435,35 +429,50 @@ export default function Inicio() {
         <RevealSection className="inicio-section inicio-section--compact">
           <div className="inicio-cta-card">
             <span className="inicio-kicker">Próximo passo</span>
-            <h2>Use a plataforma com um fluxo mais leve e mais bonito.</h2>
+            <h2>Escolha uma opção abaixo para começar.</h2>
             <p>
-              Explore ambientes, publique um espaço ou acesse os dados em uma interface que
-              respira mais — mais próxima de uma direção visual editorial.
+              Explore ambientes, publique um espaço ou acesse as estatísticas
+              em uma interface simples e direta.
             </p>
 
-            {canAccessAdminAreas ? (
-              <div className="inicio-cta-actions">
-                <motion.button
-                  type="button"
-                  className="inicio-button inicio-button--primary"
-                  whileHover={{ y: -2 }}
-                  whileTap={{ scale: 0.985 }}
-                  onClick={() => navigate(analyticsRoute)}
-                >
-                  Abrir analytics
-                </motion.button>
+            <div className="inicio-cta-actions">
+              <motion.button
+                type="button"
+                className="inicio-button inicio-button--primary"
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.985 }}
+                onClick={() => navigate("/explorer")}
+              >
+                Explorar ambientes
+              </motion.button>
 
-                <motion.button
-                  type="button"
-                  className="inicio-button inicio-button--secondary"
-                  whileHover={{ y: -2 }}
-                  whileTap={{ scale: 0.985 }}
-                  onClick={() => navigate(historyRoute)}
-                >
-                  Ver histórico
-                </motion.button>
-              </div>
-            ) : null}
+              <motion.button
+                type="button"
+                className="inicio-button inicio-button--secondary"
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.985 }}
+                onClick={() =>
+                  navigate("/divulgar-espaco", {
+                    state: {
+                      nome: usuario?.nome,
+                      email: usuario?.email,
+                    },
+                  })
+                }
+              >
+                Publicar espaço
+              </motion.button>
+
+              <motion.button
+                type="button"
+                className="inicio-button inicio-button--secondary"
+                whileHover={{ y: -2 }}
+                whileTap={{ scale: 0.985 }}
+                onClick={() => navigate(analyticsRoute)}
+              >
+                Acessar estatísticas
+              </motion.button>
+            </div>
           </div>
         </RevealSection>
       </motion.main>

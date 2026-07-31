@@ -4,6 +4,7 @@ import { AuthRequest } from "../types";
 import {
   validateAmbienteViewPayload,
   validateCreateAmbientePayload,
+  validateDurationUpdatePayload,
   validateNumericId,
   validateUpdateAmbientePayload,
 } from "../validators/ambientes";
@@ -408,7 +409,7 @@ export async function registerAmbienteView(req: AuthRequest, res: Response) {
       : await resolveGeoFromIp(normalizedIp);
 
   try {
-    await prisma.$transaction([
+    const [, tourview] = await prisma.$transaction([
       prisma.ambiente.update({
         where: { id },
         data: { visualizacoes: { increment: 1 } },
@@ -420,15 +421,45 @@ export async function registerAmbienteView(req: AuthRequest, res: Response) {
           cidade: geo.cidade,
           pais: geo.pais,
           userAgent,
+          duration: bodyValidation.data.duration ?? null,
         },
       }),
     ]);
 
-    return res.json({ ok: true });
+    return res.json({ ok: true, viewId: tourview.id });
   } catch (err) {
     console.error("Erro ao registrar view:", err);
     return res.status(500).json({ error: "Erro ao registrar visualização" });
   }
+}
+
+export async function updateTourviewDuration(req: AuthRequest, res: Response) {
+  const idValidation = validateNumericId(req.params);
+
+  if (!idValidation.success) {
+    return sendValidationError(res, idValidation.errors);
+  }
+
+  const bodyValidation = validateDurationUpdatePayload(req.body);
+
+  if (!bodyValidation.success) {
+    return sendValidationError(res, bodyValidation.errors);
+  }
+
+  const viewId = idValidation.data.id;
+
+  const existing = await prisma.tourview.findUnique({ where: { id: viewId } });
+
+  if (!existing) {
+    return res.status(404).json({ error: "View não encontrada" });
+  }
+
+  await prisma.tourview.update({
+    where: { id: viewId },
+    data: { duration: bodyValidation.data.duration },
+  });
+
+  return res.json({ ok: true });
 }
 
 export async function listExplorerAmbientes(_req: AuthRequest, res: Response) {
@@ -495,4 +526,31 @@ export async function listExplorerAmbientes(_req: AuthRequest, res: Response) {
     });
 
   return res.json(ambientesComCoordenadasValidas);
+}
+
+export async function listPopularAmbientes(_req: AuthRequest, res: Response) {
+  const ambientes = await prisma.ambiente.findMany({
+    where: { publico: true },
+    include: {
+      empresa: true,
+      pedido: {
+        select: {
+          id: true,
+          pagamentoStatus: true,
+          pago: true,
+          telefone: true,
+          email: true,
+        },
+      },
+      usuario: {
+        include: {
+          empresa: true,
+        },
+      },
+    },
+    orderBy: { visualizacoes: "desc" },
+    take: 6,
+  });
+
+  return res.json(ambientes.map(mapAmbienteWithEmpresaPedido));
 }

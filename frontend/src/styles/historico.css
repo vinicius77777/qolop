@@ -258,23 +258,16 @@
   color: #e8eeff;
   cursor: pointer;
   font-weight: 700;
-  transition:
-    transform 0.2s ease,
-    background 0.2s ease,
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+  transition: background-color 180ms ease, border-color 180ms ease;
 }
 
-.historico-tab:hover,
-.historico-action-button:hover,
-.amb-card:hover {
-  transform: translateY(-2px);
+.historico-tab:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .historico-tab.active {
   background: linear-gradient(135deg, #2a1b91, #4a7aff);
   border-color: rgba(122, 142, 255, 0.5);
-  box-shadow: 0 14px 28px rgba(74, 122, 255, 0.2);
 }
 
 .historico-timeline {
@@ -499,20 +492,25 @@
   padding: 0 16px;
   border-radius: 14px;
   border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.04);
+  background: rgba(255, 255, 255, 0.06);
   color: #eef2ff;
   text-decoration: none;
   font-weight: 700;
   cursor: pointer;
-  transition:
-    transform 0.2s ease,
-    background 0.2s ease,
-    border-color 0.2s ease;
+  transition: background-color 180ms ease, border-color 180ms ease;
+}
+
+.historico-action-button:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .historico-action-button.primary {
   background: linear-gradient(135deg, #2a1b91, #4a7aff);
   border-color: rgba(122, 142, 255, 0.5);
+}
+
+.historico-action-button.primary:hover {
+  background: linear-gradient(135deg, #3a2ba1, #5a8aff);
 }
 
 .amb-modal-overlay {

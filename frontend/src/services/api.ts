@@ -25,14 +25,17 @@ export {
 } from "./pedidoService";
 
 export {
+  atualizarDuracaoView,
   createAmbiente,
   deleteAmbiente,
   enviarLead,
   getAmbiente,
   getAmbientes,
   getAmbientesExplorer,
+  getAmbientesPopulares,
   getAmbientesPublicos,
   getEmpresa,
+  getEmpresas,
   registrarVisualizacaoAmbiente,
   updateAmbiente,
 } from "./ambienteService";

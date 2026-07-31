@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Ambiente, getAmbiente, registrarVisualizacaoAmbiente } from "../services/api";
 import "../styles/tour.css";
@@ -12,16 +12,44 @@ function normalizePhone(value?: string | null) {
 export default function Tour() {
   const { id } = useParams();
   const [ambiente, setAmbiente] = useState<Ambiente | null>(null);
+  const entryTimeRef = useRef<number>(0);
+  const viewIdRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (!id) return;
 
     const ambienteId = Number(id);
+    entryTimeRef.current = Date.now();
 
     getAmbiente(ambienteId).then(setAmbiente);
-    registrarVisualizacaoAmbiente(ambienteId).catch((err) => {
+    registrarVisualizacaoAmbiente(ambienteId).then((res) => {
+      viewIdRef.current = res.viewId;
+    }).catch((err) => {
       console.error("Erro ao registrar visualização do ambiente:", err);
     });
+
+    // Enviar duração ao sair da página
+    const enviarDuracao = () => {
+      const durationSec = Math.round((Date.now() - entryTimeRef.current) / 1000);
+
+      if (viewIdRef.current && durationSec > 0) {
+        // Usar sendBeacon para garantir envio mesmo com a página fechando
+        const payload = JSON.stringify({ duration: durationSec });
+        navigator.sendBeacon(
+          `${API_URL}/ambientes/view/${viewIdRef.current}/duration`,
+          new Blob([payload], { type: "application/json" })
+        );
+      }
+    };
+
+    window.addEventListener("beforeunload", enviarDuracao);
+    window.addEventListener("pagehide", enviarDuracao);
+
+    return () => {
+      enviarDuracao();
+      window.removeEventListener("beforeunload", enviarDuracao);
+      window.removeEventListener("pagehide", enviarDuracao);
+    };
   }, [id]);
 
   const contato = useMemo(() => {

@@ -86,7 +86,7 @@ export default function Login() {
       <div className="login-ambient login-ambient--three" />
 
       <button type="button" className="auth-back-button" onClick={() => navigate("/")}>
-        ← Voltar
+        Voltar
       </button>
 
       <main className="login-shell">
@@ -206,7 +206,7 @@ export default function Login() {
               <p className="login-register-text">
                 Ainda não tem conta?{" "}
                 <Link to="/register" className="login-register-link">
-                  Criar cadastro
+                  Criar conta
                 </Link>
               </p>
 
@@ -216,7 +216,7 @@ export default function Login() {
                   className="login-secondary-button"
                   onClick={() => navigate("/register")}
                 >
-                  Criar cadastro
+                  Criar conta
                 </button>
               </div>
             </div>

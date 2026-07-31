@@ -14,6 +14,7 @@ import ResetPassword from "./pages/resetPassword";
 import Welcome from "./pages/welcome";
 import Tour from "./pages/tour";
 import Empresa from "./pages/empresa";
+import ListaEmpresas from "./pages/listaEmpresas";
 
 const Inicio = lazy(() => import("./pages/inicio"));
 const Perfil = lazy(() => import("./pages/perfil"));
@@ -172,6 +173,9 @@ function AppContent() {
               <Route path="/historico-publico/:usuarioId" element={<HistoricoPublico />} />
 
               <Route path="/empresa/:slug" element={<Empresa />} />
+
+              {/* lista pública de empresas que possuem ambientes */}
+              <Route path="/empresas" element={<ListaEmpresas />} />
 
               {/* =====================
                   ROTAS PRIVADAS

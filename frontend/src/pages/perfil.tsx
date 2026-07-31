@@ -179,9 +179,6 @@ const Perfil: React.FC = () => {
           </div>
 
           <div className="perfil-hero-actions">
-            <button type="button" className="perfil-secondary-btn" onClick={() => navigate(-1)}>
-              Voltar
-            </button>
             <button type="button" className="perfil-ghost-btn" onClick={handleLogout}>
               Sair
             </button>

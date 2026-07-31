@@ -358,12 +358,11 @@
   font-size: 1rem;
   font-weight: 700;
   cursor: pointer;
-  transition: transform 180ms ease, box-shadow 180ms ease, opacity 180ms ease;
+  transition: opacity 180ms ease;
 }
 
 .criar-tour-submit:hover:not(:disabled) {
-  transform: translateY(-1px) scale(1.01);
-  box-shadow: 0 18px 34px rgba(97, 218, 251, 0.22);
+  opacity: 0.9;
 }
 
 .criar-tour-submit:disabled {

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import L from "leaflet";
 import { Circle, MapContainer, Marker, Popup, TileLayer, Tooltip, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
@@ -238,6 +238,12 @@ function formatarDistancia(distanciaKm?: number | null) {
   }
 
   return `${distanciaKm.toFixed(1)} km do ponto de referência`;
+}
+
+function getBoundsFromCenterRadius(lat: number, lng: number, radiusKm: number) {
+  const latDelta = (radiusKm / 6371) * (180 / Math.PI);
+  const lngDelta = ((radiusKm / 6371) * (180 / Math.PI)) / Math.cos((lat * Math.PI) / 180);
+  return L.latLngBounds([lat - latDelta, lng - lngDelta], [lat + latDelta, lng + lngDelta]);
 }
 
 function formatarRaioBusca(radiusKm: number) {
@@ -486,8 +492,11 @@ function AjustarMapa({
 
   useEffect(() => {
     if (referenceLocation && proximityRadiusKm !== null) {
-      const radiusMeters = proximityRadiusKm * 1000;
-      const bounds = L.circle([referenceLocation.latitude, referenceLocation.longitude], radiusMeters).getBounds();
+      const bounds = getBoundsFromCenterRadius(
+        referenceLocation.latitude,
+        referenceLocation.longitude,
+        proximityRadiusKm
+      );
 
       map.fitBounds(bounds, {
         paddingTopLeft: window.innerWidth >= 768 ? [160, 160] : [24, 160],
@@ -533,15 +542,16 @@ function AjustarMapa({
   return null;
 }
 
-
 export default function Explorer() {
   const [tours, setTours] = useState<Tour[]>([]);
   const [loading, setLoading] = useState(true);
+  const autoGeoAttempted = useRef(false);
   const [selectedTourId, setSelectedTourId] = useState<number | null>(null);
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("todos");
   const [placeSearch, setPlaceSearch] = useState("");
   const [placeSearchLoading, setPlaceSearchLoading] = useState(false);
+  const [geoLoading, setGeoLoading] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [addressSearchState, setAddressSearchState] = useState<
     "idle" | "searching" | "not-found" | "found-exact" | "found-approximate" | "no-nearby"
@@ -570,6 +580,53 @@ export default function Explorer() {
       })
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    if (loading || autoGeoAttempted.current || searchedLocation) {
+      return;
+    }
+
+    if (!navigator.geolocation) {
+      autoGeoAttempted.current = true;
+      return;
+    }
+
+    autoGeoAttempted.current = true;
+
+    setGeoLoading(true);
+    setAddressSearchState("searching");
+    setLocationStatus("Obtendo sua localização atual...");
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+
+        const location: SearchedLocation = {
+          latitude,
+          longitude,
+          label: `Sua localização (${latitude.toFixed(5)}, ${longitude.toFixed(5)})`,
+          source: "manual",
+          isApproximate: false,
+        };
+
+        setSearchedLocation(location);
+        setLocationMode("search");
+        setAddressSearchState("found-exact");
+        setGeoLoading(false);
+
+        const radiusKm = SEARCH_RESULT_RADIUS_KM;
+        const radiusLabel = formatarRaioBusca(radiusKm);
+        setLocationStatus(
+          `Localização obtida com sucesso. Mostrando ambientes em até ${radiusLabel} da sua posição.`
+        );
+      },
+      () => {
+        setGeoLoading(false);
+        setLocationStatus("Mostrando todos os ambientes. Busque um lugar para navegar por raio.");
+      },
+      { enableHighAccuracy: false, timeout: 15000, maximumAge: 120000 }
+    );
+  }, [loading, searchedLocation]);
 
   const categoriasDisponiveis = useMemo(() => {
     return Array.from(new Set(tours.map((tour) => normalizeText(tour.categoria)).filter(Boolean))).sort(
@@ -820,6 +877,59 @@ export default function Explorer() {
     [placeSearch]
   );
 
+  const usarMinhaLocalizacao = useCallback(() => {
+    if (!navigator.geolocation) {
+      setLocationStatus("Seu navegador não suporta geolocalização.");
+      return;
+    }
+
+    setGeoLoading(true);
+    setAddressSearchState("searching");
+    setLocationStatus("Obtendo sua localização atual...");
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+
+        const location: SearchedLocation = {
+          latitude,
+          longitude,
+          label: `Sua localização (${latitude.toFixed(5)}, ${longitude.toFixed(5)})`,
+          source: "manual",
+          isApproximate: false,
+        };
+
+        setSearchedLocation(location);
+        setLocationMode("search");
+        setAddressSearchState("found-exact");
+        setGeoLoading(false);
+
+        const radiusKm = SEARCH_RESULT_RADIUS_KM;
+        const radiusLabel = formatarRaioBusca(radiusKm);
+        setLocationStatus(
+          `Localização obtida com sucesso. Mostrando ambientes em até ${radiusLabel} da sua posição.`
+        );
+      },
+      (error) => {
+        console.error("Erro ao obter geolocalização:", error);
+        setGeoLoading(false);
+
+        let message = "Não foi possível obter sua localização.";
+        if (error.code === error.PERMISSION_DENIED) {
+          message = "Permissão de localização negada. Autorize o acesso nas configurações do seu navegador ou dispositivo.";
+        } else if (error.code === error.POSITION_UNAVAILABLE) {
+          message = "Localização indisponível no momento. Tente novamente ou use a busca por lugar.";
+        } else if (error.code === error.TIMEOUT) {
+          message = "A busca pela localização demorou demais. Tente novamente ou use a busca por lugar.";
+        }
+
+        setAddressSearchState("not-found");
+        setLocationStatus(message);
+      },
+      { enableHighAccuracy: false, timeout: 15000, maximumAge: 120000 }
+    );
+  }, []);
+
   const limparLocalizacao = useCallback(() => {
     setSearchedLocation(null);
     setLocationMode(null);
@@ -835,9 +945,22 @@ export default function Explorer() {
     []
   );
 
+  const [panelExpanded, setPanelExpanded] = useState(false);
+  const togglePanel = useCallback(() => setPanelExpanded((prev) => !prev), []);
+
   return (
     <div className="explorer-page">
-      <div className="explorer-topbar">
+      <div className={`explorer-topbar ${panelExpanded ? "explorer-topbar--expanded" : ""}`}>
+        <button
+          type="button"
+          className="explorer-panel-toggle"
+          onClick={togglePanel}
+          aria-label={panelExpanded ? "Recolher painéis" : "Expandir painéis"}
+          title={panelExpanded ? "Recolher" : "Expandir"}
+        >
+          <span>{panelExpanded ? "▲" : "▼"}</span>
+        </button>
+
         <div className="explorer-panel explorer-panel--filters">
           <p className="explorer-hud-label">Filtros</p>
           <div className="explorer-filters">
@@ -879,6 +1002,14 @@ export default function Explorer() {
           </form>
 
           <div className="explorer-location-actions">
+            <button
+              type="button"
+              className="explorer-location-btn explorer-location-btn--secondary"
+              onClick={usarMinhaLocalizacao}
+              disabled={geoLoading}
+            >
+              {geoLoading ? "Obtendo localização..." : "Usar minha localização"}
+            </button>
             {searchedLocation ? (
               <button
                 type="button"
@@ -905,6 +1036,14 @@ export default function Explorer() {
           <strong>Carregando pontos do mapa...</strong>
           <p className="explorer-hud-subtitle">
             Preparando os ambientes públicos disponíveis para navegação.
+          </p>
+        </div>
+      ) : geoLoading ? (
+        <div className="explorer-hud-empty--loading">
+          <div className="explorer-geo-spinner" />
+          <strong>Obtendo sua localização...</strong>
+          <p className="explorer-hud-subtitle">
+            Aguardando a resposta do GPS do seu dispositivo. Certifique-se de que a localização está ativada.
           </p>
         </div>
       ) : !selectedTour ? (
@@ -1000,29 +1139,29 @@ export default function Explorer() {
           const localizacao = formatarLocalizacao(tour);
 
           return (
-          <Marker
-            key={tour.id}
-            position={[tour.latitude, tour.longitude]}
-            icon={getTourMarkerIcon(tour)}
-            eventHandlers={createMarkerHandlers(tour.id)}
-          >
-            <Tooltip direction="top" offset={[0, -28]} opacity={1}>
-              <div className="explorer-marker-tooltip">
-                <strong>{tour.titulo}</strong>
-                {getExplorerBadgeLabel(tour) ? (
-                  <span className="explorer-marker-tooltip__badge">{getExplorerBadgeLabel(tour)}</span>
-                ) : null}
-                {referenceLocation ? <span>{formatarDistancia(tour.distanciaKm)}</span> : null}
-              </div>
-            </Tooltip>
-            <Popup>
-              <div className="explorer-popup">
-                <div className="explorer-popup__header">
-                  <h3>{tour.titulo}</h3>
+            <Marker
+              key={tour.id}
+              position={[tour.latitude, tour.longitude]}
+              icon={getTourMarkerIcon(tour)}
+              eventHandlers={createMarkerHandlers(tour.id)}
+            >
+              <Tooltip direction="top" offset={[0, -28]} opacity={1}>
+                <div className="explorer-marker-tooltip">
+                  <strong>{tour.titulo}</strong>
                   {getExplorerBadgeLabel(tour) ? (
-                    <span className={getTourBadgeClassName(tour)}>{getExplorerBadgeLabel(tour)}</span>
+                    <span className="explorer-marker-tooltip__badge">{getExplorerBadgeLabel(tour)}</span>
                   ) : null}
+                  {referenceLocation ? <span>{formatarDistancia(tour.distanciaKm)}</span> : null}
                 </div>
+              </Tooltip>
+              <Popup>
+                <div className="explorer-popup">
+                  <div className="explorer-popup__header">
+                    <h3>{tour.titulo}</h3>
+                    {getExplorerBadgeLabel(tour) ? (
+                      <span className={getTourBadgeClassName(tour)}>{getExplorerBadgeLabel(tour)}</span>
+                    ) : null}
+                  </div>
                   {imageUrl ? <img src={imageUrl} alt={tour.titulo} /> : null}
                   {tour.categoria ? (
                     <p>

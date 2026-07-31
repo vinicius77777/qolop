@@ -77,7 +77,7 @@ export default function Register() {
         className="auth-back-button"
         onClick={() => navigate("/")}
       >
-        ← Voltar
+        Voltar
       </button>
 
       <main className="login-shell">

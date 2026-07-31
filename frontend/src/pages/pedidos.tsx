@@ -64,7 +64,6 @@ type PendingAction =
   | "delete"
   | "status"
   | "payment"
-  | "filter"
   | null;
 type PedidoFieldErrors = Partial<Record<"telefone" | "mensagem" | "local" | "cep", string>>;
 type LoadingState = {
@@ -140,11 +139,9 @@ function getPagamentoDisplayLabel(
   pago?: boolean
 ) {
   const normalized = normalizePagamentoStatus(pagamentoStatus, pago);
-
   if (normalized === "pago_a_mais") {
     return "Destaque";
   }
-
   return getPagamentoLabel(pagamentoStatus, pago);
 }
 
@@ -204,8 +201,6 @@ function getPendingActionLabel(action: PendingAction) {
       return "Atualizando status...";
     case "payment":
       return "Atualizando pagamento...";
-    case "filter":
-      return "Aplicando filtros...";
     default:
       return "";
   }
@@ -250,13 +245,11 @@ function formatTelefone(value: string) {
       digits.length - 4
     )}`;
   }
-
   return `(${digits.slice(0, 2)}) ${digits.slice(2, 7)}-${digits.slice(7, 11)}`;
 }
 
 function formatCep(value: string) {
   const digits = sanitizeCep(value);
-
   if (digits.length <= 5) return digits;
   return `${digits.slice(0, 5)}-${digits.slice(5)}`;
 }
@@ -265,7 +258,6 @@ function getDisplayErrorMessage(error: string, pedidosCount: number) {
   if (pedidosCount > 0) {
     return error;
   }
-
   return `${error} Tente atualizar a lista em alguns instantes.`;
 }
 
@@ -280,15 +272,12 @@ function buildInitialTourTitle(pedido: Pedido) {
   if (empresaNome && clienteNome) {
     return `Tour ${empresaNome} - ${clienteNome}`;
   }
-
   if (empresaNome) {
     return `Tour ${empresaNome}`;
   }
-
   if (clienteNome) {
     return `Tour ${clienteNome}`;
   }
-
   return "Novo tour";
 }
 
@@ -296,7 +285,6 @@ function buildInitialTourDescricao(pedido: Pedido) {
   const partes = [pedido.mensagem?.trim(), pedido.local?.trim(), pedido.cep?.trim()].filter(
     Boolean
   );
-
   return partes.join(" • ");
 }
 
@@ -311,9 +299,6 @@ export default function Pedidos() {
   const [feedback, setFeedback] = useState<FeedbackState>(null);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [pendingAction, setPendingAction] = useState<PendingAction>(null);
-  const [filtering, setFiltering] = useState(false);
-  const [filtersInitialized, setFiltersInitialized] = useState(false);
-  const [lastSyncMode, setLastSyncMode] = useState<"server" | "fallback">("server");
   const [loadingState, setLoadingState] = useState<LoadingState | null>(null);
 
   const [telefone, setTelefone] = useState("");
@@ -350,11 +335,9 @@ export default function Pedidos() {
 
   useEffect(() => {
     if (!feedback) return;
-
     const timeout = window.setTimeout(() => {
       setFeedback(null);
     }, 3500);
-
     return () => window.clearTimeout(timeout);
   }, [feedback]);
 
@@ -373,13 +356,11 @@ export default function Pedidos() {
         allPedidosRef.current = pedidosFiltradosPorUsuario;
         setAllPedidos(pedidosFiltradosPorUsuario);
         setPedidos(pedidosFiltradosPorUsuario);
-        setLastSyncMode("server");
         setError("");
       } catch {
         navigate("/login");
       } finally {
         setLoading(false);
-        setFiltersInitialized(true);
       }
     })();
   }, [navigate]);
@@ -411,13 +392,11 @@ export default function Pedidos() {
         const sameEmpresa =
           empresaId !== undefined && empresaId !== null && p.empresaId === empresaId;
         const sameEmail = Boolean(email && pedidoEmail && pedidoEmail === email);
-
         return sameEmpresa || sameEmail;
       });
     }
 
     const email = currentUser?.email?.toLowerCase();
-
     return data.filter((p) => {
       const pedidoEmail = p.email?.toLowerCase();
       return Boolean(email && pedidoEmail && pedidoEmail === email);
@@ -468,7 +447,6 @@ export default function Pedidos() {
     setBusca("");
     setStatusFiltro("all");
     setPagamentoFiltro("all");
-    setLastSyncMode("server");
     setError("");
   }
 
@@ -482,15 +460,12 @@ export default function Pedidos() {
     if (telefone && cleanedTelefone.length > 0 && cleanedTelefone.length < 10) {
       nextErrors.telefone = "Informe um telefone válido com DDD.";
     }
-
     if (!cleanedMensagem) {
       nextErrors.mensagem = "Descreva o pedido antes de enviar.";
     }
-
     if (locationMode === "cep" && cleanedCep.length !== 8) {
       nextErrors.cep = "Informe um CEP válido com 8 dígitos.";
     }
-
     if (locationMode === "manual" && !cleanedLocal) {
       nextErrors.local = "Informe o endereço manual para continuar.";
     }
@@ -517,11 +492,9 @@ export default function Pedidos() {
     if (editTelefone && cleanedTelefone.length > 0 && cleanedTelefone.length < 10) {
       nextErrors.telefone = "Informe um telefone válido com DDD ou deixe em branco.";
     }
-
     if (!cleanedMensagem) {
       nextErrors.mensagem = "A mensagem do pedido não pode ficar vazia.";
     }
-
     if (editCep && cleanedCep.length > 0 && cleanedCep.length !== 8) {
       nextErrors.cep = "Se informar o CEP, use 8 dígitos.";
     }
@@ -546,81 +519,38 @@ export default function Pedidos() {
     if (!silent) {
       setIsRefreshing(true);
     }
-
     if (action) {
       setPendingAction(action);
-    }
-
-    if (action === "filter") {
-      setFiltering(true);
-    }
-
-    if (action) {
       setLoadingState({
         action,
-        message: action === "filter" ? "Refinando resultados..." : getPendingActionLabel(action),
+        message: getPendingActionLabel(action),
       });
     }
 
     try {
-      const params = {
-        search: searchTerm || undefined,
-        status: statusFiltro !== "all" ? statusFiltro : undefined,
-        pagamentoStatus:
-          pagamentoFiltro !== "all" ? (pagamentoFiltro as PagamentoStatus) : undefined,
-        empresaId:
-          currentUser?.role === "admin" ? undefined : currentUser?.empresa?.id,
-      };
-
-      const data = await getPedidos(params);
+      const data = await getPedidos({
+        empresaId: currentUser?.role === "admin" ? undefined : currentUser?.empresa?.id,
+      });
       const pedidosConvertidos = formatarPedidos(data);
       const pedidosFiltradosPorUsuario = filtrarPorUsuario(pedidosConvertidos, currentUser);
 
       allPedidosRef.current = pedidosFiltradosPorUsuario;
       setAllPedidos(pedidosFiltradosPorUsuario);
       setPedidos(pedidosFiltradosPorUsuario);
-      setLastSyncMode("server");
       setError("");
       return pedidosFiltradosPorUsuario;
     } catch (err: any) {
       const message = err?.message || "Erro ao carregar pedidos.";
-
-      if (action === "filter") {
-        const fallbackBase = filtrarPorUsuario(allPedidosRef.current, currentUser);
-        const fallbackData = filtrarLocalmente(fallbackBase);
-        setPedidos(fallbackData);
-        setLastSyncMode("fallback");
-        definirFeedback(
-          "error",
-          "Não foi possível aplicar os filtros no servidor. Exibindo resultado local."
-        );
-        setError(message);
-        return fallbackData;
-      }
-
       setError(message);
       throw err;
     } finally {
       if (!silent) {
         setIsRefreshing(false);
       }
-      if (action === "filter") {
-        setFiltering(false);
-      }
       setPendingAction(null);
       setLoadingState(null);
     }
-  }, [filtrarLocalmente, pagamentoFiltro, searchTerm, statusFiltro, usuario]);
-
-  useEffect(() => {
-    if (!filtersInitialized || !usuario) return;
-
-    const timeout = window.setTimeout(() => {
-      atualizarLista(usuario, true, "filter").catch(() => undefined);
-    }, 350);
-
-    return () => window.clearTimeout(timeout);
-  }, [filtersInitialized, usuario, atualizarLista]);
+  }, [usuario]);
 
   async function handleCriar(e: React.FormEvent) {
     e.preventDefault();
@@ -748,14 +678,7 @@ export default function Pedidos() {
         message: getPedidoActionMessage("status", pedidoAtual),
       });
       await updatePedido(id, { status: normalizedStatus });
-      setPedidos((prev) =>
-        prev.map((p) => (p.id === id ? { ...p, status: normalizedStatus } : p))
-      );
-      setAllPedidos((prev) => {
-        const next = prev.map((p) => (p.id === id ? { ...p, status: normalizedStatus } : p));
-        allPedidosRef.current = next;
-        return next;
-      });
+      await atualizarLista(usuario, true, "refresh");
       setError("");
       definirFeedback("success", "Status do pedido atualizado.");
     } catch (err: any) {
@@ -863,38 +786,10 @@ export default function Pedidos() {
   const pedidoDestaque = pedidosFiltrados[0] || pedidosOrdenados[0] || null;
   const filtrosAtivos =
     searchTerm.length > 0 || statusFiltro !== "all" || pagamentoFiltro !== "all";
-  const busyLabel = loadingState?.message || getPendingActionLabel(pendingAction);
   const hasData = allPedidos.length > 0 || pedidosOrdenados.length > 0;
   const hasVisibleResults = pedidosFiltrados.length > 0;
   const displayError = error ? getDisplayErrorMessage(error, pedidosOrdenados.length) : "";
   const hasSearchTerm = searchTerm.length > 0;
-
-  const activeFilterChips = [
-    hasSearchTerm
-      ? {
-          key: "busca",
-          label: `Busca: "${searchTerm}"`,
-          onRemove: () => setBusca(""),
-        }
-      : null,
-    statusFiltro !== "all"
-      ? {
-          key: "status",
-          label: `Status: ${getStatusLabel(statusFiltro)}`,
-          onRemove: () => setStatusFiltro("all"),
-        }
-      : null,
-    pagamentoFiltro !== "all"
-      ? {
-          key: "pagamento",
-          label: `Pagamento: ${
-            PAGAMENTO_OPTIONS.find((option) => option.value === pagamentoFiltro)?.label ||
-            pagamentoFiltro
-          }`,
-          onRemove: () => setPagamentoFiltro("all"),
-        }
-      : null,
-  ].filter(Boolean) as Array<{ key: string; label: string; onRemove: () => void }>;
 
   const heroStats = [
     {
@@ -979,7 +874,10 @@ export default function Pedidos() {
               <button
                 type="button"
                 className="ped-hero-btn ped-hero-btn--primary"
-                onClick={() => setAbrirModal(true)}
+                onClick={() => {
+                  setTelefone(formatTelefone(usuario?.empresa?.telefone || usuario?.empresa?.whatsapp || ""));
+                  setAbrirModal(true);
+                }}
                 disabled={enviando || pendingAction === "delete"}
               >
                 {enviando ? <FiRefreshCw className="ped-spin" /> : null}
@@ -1160,7 +1058,7 @@ export default function Pedidos() {
               type="button"
               className="ped-hero-btn ped-hero-btn--secondary ped-refresh-btn"
               onClick={() => atualizarLista(usuario, false, "refresh")}
-              disabled={isRefreshing || filtering || pendingAction === "delete"}
+              disabled={isRefreshing || pendingAction === "delete"}
             >
               <FiRefreshCw className={isRefreshing ? "ped-spin" : ""} />
               {isRefreshing ? "Atualizando..." : "Atualizar lista"}
@@ -1168,7 +1066,7 @@ export default function Pedidos() {
           </div>
 
           <div className="ped-filter-bar">
-            <div className={`ped-filter-search${filtering ? " ped-filter-search--active" : ""}`}>
+            <div className="ped-filter-search">
               <FiSearch />
               <input
                 type="text"
@@ -1231,33 +1129,12 @@ export default function Pedidos() {
                   type="button"
                   className="ped-action-btn ped-action-btn--ghost ped-clear-filters"
                   onClick={limparFiltros}
-                  disabled={filtering}
                 >
                   Limpar filtros
                 </button>
               )}
             </div>
           </div>
-
-          {activeFilterChips.length > 0 && (
-            <div className="ped-active-filters" aria-label="Filtros ativos">
-              <span className="ped-active-filters-label">Filtros ativos</span>
-              <div className="ped-active-filters-list">
-                {activeFilterChips.map((chip) => (
-                  <button
-                    key={chip.key}
-                    type="button"
-                    className="ped-filter-chip"
-                    onClick={chip.onRemove}
-                    aria-label={`Remover filtro ${chip.label}`}
-                  >
-                    <span>{chip.label}</span>
-                    <FiX />
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
 
           <div
             className="ped-filter-summary"
@@ -1270,72 +1147,13 @@ export default function Pedidos() {
               {pedidosFiltrados.length === 1 ? "" : "s"}
               {filtrosAtivos ? " após filtros" : ""}
             </span>
-            <div className="ped-summary-flags">
-              {filtering && <span className="ped-sync-chip">Filtrando no servidor...</span>}
-              {!filtering && filtrosAtivos && lastSyncMode === "fallback" && (
-                <span className="ped-sync-chip ped-sync-chip--warning">
-                  Resultado local temporário
-                </span>
-              )}
-              {busyLabel && <span className="ped-sync-chip">{busyLabel}</span>}
-            </div>
-          </div>
-
-          <div className="ped-filter-hint">
-            {lastSyncMode === "fallback" && filtrosAtivos ? (
-              <p>
-                Os filtros atuais foram refinados localmente por causa de uma falha temporária
-                de comunicação. Você pode continuar operando normalmente e tentar atualizar
-                a lista quando quiser.
-              </p>
-            ) : filtrosAtivos ? (
-              <p>
-                Use busca livre com status e pagamento para encontrar rapidamente o pedido
-                certo. A busca também considera mensagem, local, CEP, cliente e empresa.
-              </p>
-            ) : (
-              <p>
-                Digite parte do nome, email, telefone, mensagem, local ou CEP para refinar a
-                leitura sem perder o fallback local quando necessário.
-              </p>
+            {loadingState && (
+              <span className="ped-sync-chip">{loadingState.message}</span>
             )}
           </div>
 
-          <div className="ped-marquee" aria-label="mensagem contínua da experiência">
-            <motion.div
-              className="ped-marquee-track"
-              animate={{ x: ["0%", "-50%"] }}
-              transition={{ duration: 18, ease: "linear", repeat: Infinity }}
-            >
-              <span>Pedidos com presença</span>
-              <span>Operação mais clara</span>
-              <span>Leitura com profundidade</span>
-              <span>Pouca informação, boa hierarquia</span>
-              <span>Pedidos com presença</span>
-              <span>Operação mais clara</span>
-              <span>Leitura com profundidade</span>
-              <span>Pouca informação, boa hierarquia</span>
-            </motion.div>
-          </div>
-
-          <div className={`ped-grid${filtering ? " ped-grid--loading" : ""}`}>
-            {filtering && (
-              <motion.article
-                className="ped-inline-state"
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                role="status"
-                aria-live="polite"
-              >
-                <FiRefreshCw className="ped-spin" />
-                <div>
-                  <strong>Aplicando filtros</strong>
-                  <p>Buscando pedidos compatíveis no servidor.</p>
-                </div>
-              </motion.article>
-            )}
-
-            {!filtering && hasVisibleResults ? (
+          <div className="ped-grid">
+            {hasVisibleResults ? (
               pedidosFiltrados.map((p, index) => {
                 const pagamentoAtual = normalizePagamentoStatus(
                   p.pagamentoStatus,
@@ -1374,9 +1192,9 @@ export default function Pedidos() {
                           <h3>{p.empresa?.nome || p.nomeCliente || "Pedido sem empresa"}</h3>
                         </div>
 
-                          <span className={getPagamentoBadgeClass(p.pagamentoStatus, p.pago)}>
-                            {getPagamentoDisplayLabel(p.pagamentoStatus, p.pago)}
-                          </span>
+                        <span className={getPagamentoBadgeClass(p.pagamentoStatus, p.pago)}>
+                          {getPagamentoDisplayLabel(p.pagamentoStatus, p.pago)}
+                        </span>
                       </div>
 
                       <div className="ped-card-summary">
@@ -1779,7 +1597,10 @@ export default function Pedidos() {
                   <button
                     type="button"
                     className="ped-hero-btn ped-hero-btn--primary"
-                    onClick={() => setAbrirModal(true)}
+                    onClick={() => {
+                      setTelefone(formatTelefone(usuario?.empresa?.telefone || usuario?.empresa?.whatsapp || ""));
+                      setAbrirModal(true);
+                    }}
                   >
                     Criar primeiro pedido
                   </button>

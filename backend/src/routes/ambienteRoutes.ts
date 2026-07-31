@@ -6,9 +6,11 @@ import {
   listAdminAmbientes,
   listEmpresaAmbientes,
   listExplorerAmbientes,
+  listPopularAmbientes,
   listPublicAmbientes,
   registerAmbienteView,
   updateAmbiente,
+  updateTourviewDuration,
   uploadAmbienteImagem,
 } from "../controllers/ambienteController";
 import { auth, requireAdmin, requireAuth } from "../middleware/auth";
@@ -113,8 +115,10 @@ router.get("/empresa/ambientes", auth, requireAuth, listEmpresaAmbientes);
 router.post("/ambientes", auth, requireAuth, uploadAmbienteImagem.single("imagem"), createAmbiente);
 router.put("/ambientes/:id", auth, requireAuth, uploadAmbienteImagem.single("imagem"), updateAmbiente);
 router.delete("/ambientes/:id", auth, requireAuth, deleteAmbiente);
+router.get("/ambientes/popular", listPopularAmbientes);
 router.get("/ambientes/:id", getAmbienteById);
 router.post("/ambientes/:id/view", registerAmbienteView);
+router.patch("/ambientes/view/:id/duration", updateTourviewDuration);
 router.get("/explorer", listExplorerAmbientes);
 
 export default router;

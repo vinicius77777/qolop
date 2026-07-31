@@ -1,22 +1,14 @@
 import React from "react";
-import { FiArrowRight } from "react-icons/fi";
+
 import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import "../styles/welcome.css";
-import "../styles/editorial-buttons.css";
 
 function ButtonMarquee({ label }: { label: string }) {
   return (
     <span className="button-marquee" aria-hidden="true">
       <span className="button-marquee__viewport">
         <span className="button-marquee__copy">{label}</span>
-        <span className="button-marquee__copy">{label}</span>
-      </span>
-      <span className="button-marquee__icon">
-        <span className="button-marquee__icon-track">
-          <FiArrowRight />
-          <FiArrowRight />
-        </span>
       </span>
     </span>
   );
@@ -24,16 +16,16 @@ function ButtonMarquee({ label }: { label: string }) {
 
 const quickPoints = [
   {
-    title: "Explorar no mapa",
+    title: "Explore no mapa",
     body: "Veja lugares no mapa e entre neles de forma virtual.",
   },
   {
-    title: "Adicionar conteúdos",
-    body: "Use tours 3D, hotspots, fotos, vídeos e outros materiais interativos.",
+    title: "Adicione conteúdos",
+    body: "Use tours 3D, hotspots, fotos e vídeos interativos.",
   },
   {
-    title: "Analisar resultados",
-    body: "Acompanhe visualizações, comportamento e pontos que mais chamam atenção no ambiente.",
+    title: "Acompanhe os resultados",
+    body: "Veja as visualizações e os pontos que mais chamam atenção em cada ambiente.",
   },
 ];
 
@@ -60,13 +52,14 @@ export default function Welcome() {
             transition={{ duration: 0.7 }}
           >
             <span className="welcome-eyebrow">
-              Qolop · plataforma que digitaliza e transorma ambientes 
+              Qolop · tours, ambientes e presença digital
             </span>
 
-            <h1 className="welcome-title">Entre e comece a explorar lugares.</h1>
+            <h1 className="welcome-title">Explore lugares como se estivesse lá.</h1>
 
             <p className="welcome-lead">
-              O Qolop transforma lugares reais em experiências digitais imersivas, com tours virtuais em 3D, hotspots interativos e navegação online para que a pessoa explore um espaço como se estivesse lá dentro.
+              Tours em 3D, hotspots interativos e navegação online para conhecer
+              espaços de um jeito simples e direto.
             </p>
 
             <div className="welcome-actions">
@@ -99,14 +92,14 @@ export default function Welcome() {
                 animate={{ x: ["0%", "-50%"] }}
                 transition={{ duration: 18, ease: "linear", repeat: Infinity }}
               >
-                <span>Qolop cria experiências imersivas</span>
+                <span>Qolop cria tours em 3D</span>
                 <span>Qolop conecta mapa, tour e conteúdo</span>
                 <span>Qolop transforma lugares em vitrines digitais</span>
-                <span>Qolop revela insights com analytics</span>
-                <span>Qolop cria experiências imersivas</span>
+                <span>Qolop mostra dados de acesso</span>
+                <span>Qolop cria tours em 3D</span>
                 <span>Qolop conecta mapa, tour e conteúdo</span>
                 <span>Qolop transforma lugares em vitrines digitais</span>
-                <span>Qolop revela insights com analytics</span>
+                <span>Qolop mostra dados de acesso</span>
               </motion.div>
             </div>
           </motion.div>
@@ -128,9 +121,10 @@ export default function Welcome() {
 
             <div className="welcome-highlight">
               <span className="welcome-highlight-badge">O que você pode fazer</span>
-              <h2>Descubra, explore e apresente lugares de um jeito muito mais imersivo.</h2>
+              <h2>Descubra, explore e apresente lugares com tours em 3D.</h2>
               <p>
-                Além de criar uma vitrine digital no mapa, o Qolop funciona como um ambiente de descoberta onde pessoas encontram espaços, navegam por tours 3D e conhecem melhor cada local.
+                O Qolop é um mapa interativo onde você encontra espaços, navega por tours
+                e conhece cada lugar com riqueza de detalhes.
               </p>
             </div>
 
@@ -156,9 +150,10 @@ export default function Welcome() {
             </div>
 
             <div className="welcome-benefit">
-              <strong>Por que isso é útil?</strong>
+              <strong>Por que usar o Qolop?</strong>
               <span>
-                Porque ele une apresentação imersiva, descoberta de espaços e analytics para ajudar cada lugar a chamar mais atenção e gerar melhores resultados.
+                Ele reúne tours, mapa interativo e estatísticas de acesso em um só lugar,
+                ajudando cada espaço a ter mais visibilidade.
               </span>
             </div>
           </motion.div>

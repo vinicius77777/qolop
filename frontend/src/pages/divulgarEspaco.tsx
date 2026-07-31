@@ -89,7 +89,7 @@ export default function DivulgarEspaco() {
       <div className="divulgar-ambient divulgar-ambient--two" />
 
       <button type="button" className="divulgar-back-button" onClick={() => navigate("/inicio")}>
-        ← Voltar
+        Voltar
       </button>
 
       <main className="divulgar-shell">
@@ -99,10 +99,10 @@ export default function DivulgarEspaco() {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.65 }}
         >
-          <span className="divulgar-eyebrow">Divulgação de espaço</span>
-          <h1>Cadastre sua empresa para divulgar um ambiente.</h1>
+          <span className="divulgar-eyebrow">Divulgação de espaço</span>  
+              <h1>Cadastre sua empresa para divulgar um ambiente.</h1>
           <p className="divulgar-lead">
-            O nome da empresa é obrigatório. Os demais campos são opcionais: e-mail, telefone, descrição e logo.
+            Preencha o nome da empresa e os dados que quiser compartilhar.
           </p>
 
           {state.nome ? (
@@ -132,7 +132,7 @@ export default function DivulgarEspaco() {
                 <input
                   id="empresa-email"
                   type="email"
-                  placeholder="Caso o email seja o mesmo ja cadastro, não é necessário preenhcer esse campo"
+                  placeholder="Se o e-mail for o mesmo do cadastro, não precisa preencher"
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
                 />
@@ -162,13 +162,21 @@ export default function DivulgarEspaco() {
             </div>
 
             <div className="divulgar-field">
-              <label htmlFor="empresa-logo">Logo <span className="divulgar-optional">(opcional)</span></label>
-              <input
-                id="empresa-logo"
-                type="file"
-                accept="image/png,image/jpeg,image/webp"
-                onChange={handleLogoChange}
-              />
+              <label>Logo <span className="divulgar-optional">(opcional)</span></label>
+              <div className="divulgar-file-wrap">
+                <input
+                  id="empresa-logo"
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  onChange={handleLogoChange}
+                  className="divulgar-file-input"
+                />
+                <label htmlFor="empresa-logo" className="divulgar-file-button">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                  Escolher arquivo
+                </label>
+                <span className="divulgar-file-name">{logo ? logo.name : "Nenhum arquivo selecionado"}</span>
+              </div>
             </div>
 
             {logoPreview ? (

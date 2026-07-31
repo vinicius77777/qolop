@@ -272,24 +272,13 @@
   line-height: 0;
   border: 1px solid rgba(125, 211, 252, 0.14);
   border-radius: 12px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)),
-    rgba(255, 255, 255, 0.03);
+  background: rgba(255, 255, 255, 0.05);
   color: rgba(255, 255, 255, 0.78);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.08),
-    0 10px 18px rgba(2, 6, 23, 0.14);
-  transition:
-    transform 0.24s ease,
-    background 0.24s ease,
-    color 0.24s ease,
-    border-color 0.24s ease,
-    box-shadow 0.24s ease,
-    filter 0.24s ease;
+  transition: background-color 180ms ease, color 180ms ease, border-color 180ms ease;
 }
 
 .login-password-toggle svg {
@@ -302,15 +291,9 @@
 }
 
 .login-password-toggle:hover {
-  background:
-    linear-gradient(180deg, rgba(125, 211, 252, 0.14), rgba(255, 255, 255, 0.06)),
-    rgba(255, 255, 255, 0.05);
+  background: rgba(125, 211, 252, 0.15);
   color: #fff;
-  border-color: rgba(125, 211, 252, 0.24);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-    0 14px 24px rgba(2, 6, 23, 0.16);
-  filter: saturate(1.05);
+  border-color: rgba(125, 211, 252, 0.3);
 }
 
 .login-password-toggle:focus-visible {
@@ -338,37 +321,18 @@
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.01em;
-  transition:
-    transform 0.22s ease,
-    box-shadow 0.22s ease,
-    opacity 0.22s ease,
-    filter 0.22s ease,
-    background 0.22s ease,
-    border-color 0.22s ease;
-  transform: translateZ(0);
+  transition: background-color 180ms ease, border-color 180ms ease, opacity 180ms ease;
 }
 
 .login-button {
   margin-top: 8px;
   color: #05111f;
-  background:
-    linear-gradient(135deg, #8fe7ff 0%, #7cc9ff 52%, #bfe9ff 100%);
-  box-shadow:
-    0 16px 36px rgba(110, 167, 255, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.24);
-}
-
-.login-button:hover,
-.login-secondary-button:hover {
-  transform: translateY(-2px);
-  filter: saturate(1.05) brightness(1.02);
+  background: linear-gradient(135deg, #8fe7ff 0%, #7cc9ff 52%, #bfe9ff 100%);
 }
 
 .login-button:hover {
-  box-shadow:
-    0 20px 42px rgba(110, 167, 255, 0.28),
-    0 0 0 4px rgba(125, 211, 252, 0.08);
-  border-color: rgba(125, 211, 252, 0.28);
+  background: linear-gradient(135deg, #9feeff 0%, #8dd6ff 52%, #cdf0ff 100%);
+  border-color: rgba(125, 211, 252, 0.3);
 }
 
 .login-button:disabled {
@@ -435,47 +399,32 @@
   padding: 0 14px;
   border: 1px solid rgba(125, 211, 252, 0.28);
   border-radius: 14px;
-  background:
-    linear-gradient(135deg, #262929 0%, #070923 100%);
-  color: #05111f;
-  font-weight: 740;
+  background: rgba(125, 211, 252, 0.15);
+  color: #fff;
+  font-weight: 700;
   cursor: pointer;
-  box-shadow:
-    0 14px 30px rgba(110, 167, 255, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.18);
-  transition:
-    transform 0.22s ease,
-    box-shadow 0.22s ease,
-    opacity 0.22s ease,
-    filter 0.22s ease;
+  transition: background-color 180ms ease, border-color 180ms ease;
 }
 
 .login-reset-button:hover {
-  transform: translateY(-2px);
-  box-shadow:
-    0 18px 36px rgba(16, 10, 86, 0.3),
-    0 0 0 4px rgba(125, 211, 252, 0.08);
-  filter: saturate(1.05);
+  background: rgba(125, 211, 252, 0.25);
+  border-color: rgba(125, 211, 252, 0.4);
 }
 
 .login-reset-button:disabled {
   opacity: 0.58;
   cursor: not-allowed;
-  transform: none;
 }
 
 .login-secondary-button {
   color: #fff;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04)),
-    rgba(255, 255, 255, 0.04);
-  box-shadow:
-    0 12px 28px rgba(2, 6, 23, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.06);
+  transition: background-color 180ms ease, border-color 180ms ease;
 }
 
 .login-secondary-button:hover {
-  border-color: rgba(125, 211, 252, 0.18);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(125, 211, 252, 0.25);
 }
 
 .auth-back-button {
@@ -483,9 +432,7 @@
   top: 24px;
   left: 24px;
   z-index: 9999;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04)),
-    rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.08);
   backdrop-filter: blur(12px);
   border: 1px solid rgba(125, 211, 252, 0.14);
   color: rgba(255, 255, 255, 0.82);
@@ -495,24 +442,12 @@
   font-weight: 600;
   letter-spacing: 0.02em;
   cursor: pointer;
-  transition:
-    transform 0.3s ease,
-    background 0.3s ease,
-    border-color 0.3s ease,
-    box-shadow 0.3s ease,
-    filter 0.3s ease;
+  transition: background-color 180ms ease, border-color 180ms ease;
 }
 
 .auth-back-button:hover {
-  background:
-    linear-gradient(180deg, rgba(125, 211, 252, 0.12), rgba(255, 255, 255, 0.07)),
-    rgba(255, 255, 255, 0.06);
-  transform: translateX(-3px) translateY(-2px);
-  border-color: rgba(125, 211, 252, 0.24);
-  box-shadow:
-    0 16px 28px rgba(2, 6, 23, 0.18),
-    0 0 0 4px rgba(125, 211, 252, 0.06);
-  filter: saturate(1.03);
+  background: rgba(125, 211, 252, 0.15);
+  border-color: rgba(125, 211, 252, 0.3);
 }
 
 @keyframes fadeInUp {

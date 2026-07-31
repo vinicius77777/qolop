@@ -24,11 +24,45 @@
 .explorer-topbar {
   position: absolute;
   z-index: 1000;
-  top: 104px;
+  top: 94px;
   left: 16px;
   right: 16px;
   display: grid;
   gap: 12px;
+}
+
+.explorer-panel-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border: 2px solid rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(10, 14, 21, 0.7);
+  color: #fff;
+  cursor: pointer;
+  font-size: 0.75rem;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  justify-self: center;
+  transition: background 180ms ease, border-color 180ms ease;
+  z-index: 1001;
+}
+
+.explorer-panel-toggle:hover {
+  background: rgba(30, 40, 55, 0.85);
+  border-color: rgba(159, 231, 255, 0.4);
+}
+
+.explorer-panel-toggle span {
+  display: block;
+  line-height: 1;
+  transition: transform 180ms ease;
+}
+
+.explorer-topbar--expanded .explorer-panel-toggle span {
+  transform: rotate(180deg);
 }
 
 .explorer-panel {
@@ -241,22 +275,74 @@
 
 .explorer-hud-empty {
   position: absolute;
-  top: 0;
-  right: 0;
-  max-width: 260px;
-  padding: 12px 14px;
-  border-radius: 16px;
-  background: rgba(7, 12, 20, 0.54);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  z-index: 1001;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: min(400px, calc(100vw - 32px));
+  width: 100%;
+  padding: 20px 22px;
+  border-radius: 18px;
+  background: rgba(7, 12, 20, 0.82);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  text-align: center;
 }
 
 .explorer-hud-empty .explorer-hud-subtitle {
-  font-size: 0.76rem;
+  font-size: 0.82rem;
+  margin-top: 6px;
+  line-height: 1.5;
 }
 
 .explorer-hud-empty strong,
 .explorer-hud-loading strong {
-  font-size: 1.02rem;
+  font-size: 1.08rem;
+}
+
+.explorer-hud-empty--loading {
+  position: absolute;
+  z-index: 1001;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: min(360px, calc(100vw - 32px));
+  width: 100%;
+  padding: 28px 24px;
+  border-radius: 18px;
+  background: rgba(7, 12, 20, 0.85);
+  border: 1px solid rgba(159, 231, 255, 0.15);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+}
+
+.explorer-hud-empty--loading .explorer-geo-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(159, 231, 255, 0.15);
+  border-top-color: #9fe7ff;
+  border-radius: 50%;
+  animation: explorerGeoSpin 0.8s linear infinite;
+}
+
+@keyframes explorerGeoSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.explorer-hud-empty--loading strong {
+  font-size: 1.08rem;
+}
+
+.explorer-hud-empty--loading .explorer-hud-subtitle {
+  font-size: 0.82rem;
+  line-height: 1.5;
+  margin: 0;
 }
 
 .explorer-map-note {
@@ -679,6 +765,84 @@
   100% {
     transform: scale(1.12);
     opacity: 0;
+  }
+}
+
+@media (max-width: 767px) {
+  .explorer-topbar {
+    top: 74px;
+    left: 8px;
+    right: 8px;
+    gap: 6px;
+  }
+
+  .explorer-panel-toggle {
+    display: flex;
+  }
+
+  .explorer-panel {
+    padding: 10px 12px;
+    border-radius: 14px;
+    gap: 8px;
+    display: none;
+  }
+
+  .explorer-topbar--expanded .explorer-panel {
+    display: grid;
+  }
+
+  .explorer-panel--filters {
+    width: 100%;
+  }
+
+  .explorer-panel--location {
+    width: 100%;
+  }
+
+  .explorer-hud-label {
+    font-size: 0.6rem;
+  }
+
+  .explorer-search,
+  .explorer-category-select,
+  .explorer-place-search__input {
+    min-height: 36px;
+    font-size: 0.82rem;
+    padding: 0 10px;
+    border-radius: 10px;
+  }
+
+  .explorer-location-btn {
+    min-height: 34px;
+    font-size: 0.8rem;
+    padding: 0 12px;
+  }
+
+  .explorer-location-status {
+    font-size: 0.7rem;
+  }
+
+  .explorer-map-note {
+    left: 8px;
+    right: 8px;
+    bottom: 12px;
+  }
+
+  .explorer-map-note span {
+    font-size: 0.7rem;
+    min-height: 30px;
+    padding: 0 10px;
+  }
+
+  .explorer-hud-empty,
+  .explorer-hud-empty--loading {
+    max-width: min(320px, calc(100vw - 32px));
+    padding: 18px 16px;
+    font-size: 0.82rem;
+  }
+
+  .explorer-hud-empty .explorer-hud-subtitle {
+    font-size: 0.74rem;
   }
 }
 

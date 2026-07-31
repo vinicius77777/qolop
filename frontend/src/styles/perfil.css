@@ -253,8 +253,8 @@
   min-height: 48px;
   border-radius: 14px;
   font-weight: 700;
-  transition: 0.25s;
   cursor: pointer;
+  transition: background-color 180ms ease, border-color 180ms ease, opacity 180ms ease;
 }
 
 .perfil-toggle-password {
@@ -264,11 +264,8 @@
   color: #dfe6ff;
 }
 
-.perfil-toggle-password:hover,
-.perfil-secondary-btn:hover,
-.perfil-ghost-btn:hover {
-  transform: translateY(-1px);
-  background: rgba(255, 255, 255, 0.1);
+.perfil-toggle-password:hover {
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .perfil-primary-btn,
@@ -281,19 +278,22 @@
   border: none;
   color: white;
   background: linear-gradient(135deg, #5e35ff, #4a7aff);
-  box-shadow: 0 16px 30px rgba(58, 86, 215, 0.28);
 }
 
 .perfil-primary-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 20px 40px rgba(58, 86, 215, 0.35);
+  background: linear-gradient(135deg, #6e45ff, #5a8aff);
 }
 
 .perfil-secondary-btn,
 .perfil-ghost-btn {
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(255, 255, 255, 0.06);
   color: #eef2ff;
+}
+
+.perfil-secondary-btn:hover,
+.perfil-ghost-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .perfil-primary-btn:disabled,
@@ -301,8 +301,6 @@
 .perfil-toggle-password:disabled {
   opacity: 0.55;
   cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
 }
 
 .perfil-password-meta {

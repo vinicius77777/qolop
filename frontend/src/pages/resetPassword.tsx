@@ -85,7 +85,7 @@ export default function ResetPassword() {
       <div className="login-ambient login-ambient--three" />
 
       <button type="button" className="auth-back-button" onClick={() => navigate("/login")}>
-        ← Voltar
+        Voltar
       </button>
 
       <main className="login-shell">

@@ -3,8 +3,9 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { FiArrowLeft, FiArrowRight, FiMail, FiX } from "react-icons/fi";
+import { FiMail, FiMenu, FiX, FiSun, FiMoon } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
+import { useTheme } from "../context/ThemeContext";
 import { canAccessEmpresaFeatures, isAdminUser } from "../utils/permissions";
 import "../styles/menu.css";
 
@@ -45,6 +46,8 @@ export default function Menu() {
   const fecharMenu = () => setMenuAberto(false);
   const alternarMenu = () => setMenuAberto((valorAtual) => !valorAtual);
 
+  const { isDark, toggleTheme } = useTheme();
+
   return (
     <motion.header
       className={`menu ${menuAberto ? "menu-open" : ""}`}
@@ -62,14 +65,14 @@ export default function Menu() {
         <div className="menu-center-wrap">
           <button
             type="button"
-            className="menu-toggle menu-arrow-button"
+            className="menu-toggle"
             aria-label={menuAberto ? "Fechar menu" : "Abrir menu"}
             aria-expanded={menuAberto}
             aria-controls="menu-principal"
             onClick={alternarMenu}
           >
-            {menuAberto ? <FiArrowLeft /> : <FiArrowRight />}
-            <span>{menuAberto ? "Fechar" : "Menu"}</span>
+            {menuAberto ? <FiX className="menu-toggle-icon" /> : <FiMenu className="menu-toggle-icon" />}
+            <span className="menu-toggle-label">{menuAberto ? "Fechar" : "Menu"}</span>
           </button>
 
           <nav
@@ -88,6 +91,8 @@ export default function Menu() {
                 Ambientes
               </NavLink>
             </motion.div>
+
+            
 
             {user && (
               <motion.div {...itemMotion}>
@@ -128,6 +133,12 @@ export default function Menu() {
                 </NavLink>
               </motion.div>
             )}
+
+            <motion.div {...itemMotion}>
+              <NavLink to="/empresas" className="menu-link" onClick={fecharMenu}>
+                Organizações
+              </NavLink>
+            </motion.div>
 
             {user && (
               <motion.div {...itemMotion}>
@@ -170,7 +181,7 @@ export default function Menu() {
                   <span>Contato</span>
                 </motion.a>
 
-                <motion.button
+              <motion.button
                   className="menu-btn menu-arrow-button"
                   onClick={sair}
                   whileHover={{ y: -2, scale: 1.01 }}
@@ -186,6 +197,22 @@ export default function Menu() {
                 </motion.button>
               </>
             )}
+            <motion.button
+              className="menu-theme-toggle"
+              onClick={toggleTheme}
+              aria-label={isDark ? "Ativar modo claro" : "Ativar modo escuro"}
+              title={isDark ? "Modo claro" : "Modo escuro"}
+              whileHover={{ y: -2, scale: 1.01 }}
+              whileTap={{ scale: 0.97 }}
+              transition={{
+                type: "spring",
+                stiffness: 420,
+                damping: 24,
+                mass: 0.7,
+              }}
+            >
+              {isDark ? <FiSun /> : <FiMoon />}
+            </motion.button>
           </div>
         </div>
       </div>
@@ -211,6 +238,7 @@ export default function Menu() {
             <NavLink to="/ambientes" className="menu-mobile-link" onClick={fecharMenu}>
               Ambientes
             </NavLink>
+        
             {user && (
               <NavLink to="/explorer" className="menu-mobile-link" onClick={fecharMenu}>
                 Explorar
@@ -240,6 +268,11 @@ export default function Menu() {
                 Analytics
               </NavLink>
             )}
+
+            <NavLink to="/empresas" className="menu-mobile-link" onClick={fecharMenu}>
+              Organizações
+            </NavLink>
+            
             {user && (
               <NavLink to="/perfil" className="menu-mobile-link" onClick={fecharMenu}>
                 Perfil
@@ -253,6 +286,16 @@ export default function Menu() {
           </nav>
 
           <div className="menu-mobile-actions">
+            <motion.button
+              className="menu-mobile-action menu-mobile-action-theme"
+              onClick={() => { toggleTheme(); fecharMenu(); }}
+              whileTap={{ scale: 0.97 }}
+              aria-label={isDark ? "Ativar modo claro" : "Ativar modo escuro"}
+            >
+              {isDark ? <FiSun /> : <FiMoon />}
+              <span>{isDark ? "Modo Claro" : "Modo Escuro"}</span>
+            </motion.button>
+
             <motion.a
               href={CONTACT_URL}
               className="menu-mobile-action menu-mobile-action-contact menu-arrow-button"

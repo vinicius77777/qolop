@@ -1,3 +1,17 @@
+export interface EmpresaComAmbiente {
+  id: number;
+  nome: string;
+  slug: string;
+  logo: string | null;
+  descricao: string | null;
+  email: string | null;
+  telefone: string | null;
+  whatsapp: string | null;
+  publico: boolean;
+  visualizacoes: number;
+  totalAmbientes: number;
+}
+
 export interface Empresa {
   id: number;
   nome: string;

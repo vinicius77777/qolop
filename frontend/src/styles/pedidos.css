@@ -170,16 +170,9 @@
 .ped-select {
   min-height: 46px;
   border-radius: 16px;
-  border: 1px solid rgba(125, 211, 252, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   font-weight: 700;
-  transition:
-    transform 0.24s ease,
-    box-shadow 0.24s ease,
-    background 0.24s ease,
-    border-color 0.24s ease,
-    opacity 0.24s ease,
-    filter 0.24s ease;
-  transform: translateZ(0);
+  transition: background-color 180ms ease, border-color 180ms ease, opacity 180ms ease;
 }
 
 .ped-hero-btn,
@@ -193,10 +186,9 @@
 }
 
 .ped-hero-btn:hover,
-.ped-action-btn:hover,
-.ped-select:hover {
-  transform: translateY(-2px);
-  filter: saturate(1.04) brightness(1.02);
+.ped-action-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.22);
 }
 
 .ped-hero-btn:disabled,
@@ -204,43 +196,52 @@
 .ped-select:disabled {
   cursor: not-allowed;
   opacity: 0.58;
-  transform: none;
 }
 
 .ped-hero-btn--primary,
 .ped-action-btn--primary {
-  background:
-    linear-gradient(135deg, #6e4cff 0%, #3c8dff 100%),
-    rgba(255, 255, 255, 0.04);
+  background: linear-gradient(135deg, #6e4cff 0%, #3c8dff 100%);
   color: #fff;
-  box-shadow:
-    0 16px 34px rgba(78, 102, 255, 0.3),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  border-color: rgba(125, 211, 252, 0.2);
+}
+
+.ped-hero-btn--primary:hover,
+.ped-action-btn--primary:hover {
+  background: linear-gradient(135deg, #7e5cff 0%, #4c9dff 100%);
+  border-color: rgba(125, 211, 252, 0.35);
 }
 
 .ped-hero-btn--secondary,
 .ped-action-btn--ghost {
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)),
-    rgba(255, 255, 255, 0.045);
-  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   color: #edf2ff;
 }
 
+.ped-hero-btn--secondary:hover,
+.ped-action-btn--ghost:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+
 .ped-action-btn--danger {
-  background:
-    linear-gradient(180deg, rgba(229, 57, 53, 0.18), rgba(229, 57, 53, 0.08)),
-    rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(229, 57, 53, 0.2);
+  background: rgba(229, 57, 53, 0.15);
+  border: 1px solid rgba(229, 57, 53, 0.25);
   color: #ffb7b1;
 }
 
+.ped-action-btn--danger:hover {
+  background: rgba(229, 57, 53, 0.25);
+}
+
 .ped-action-btn--accent {
-  background:
-    linear-gradient(180deg, rgba(56, 189, 248, 0.18), rgba(56, 189, 248, 0.08)),
-    rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(56, 189, 248, 0.22);
+  background: rgba(56, 189, 248, 0.15);
+  border: 1px solid rgba(56, 189, 248, 0.25);
   color: #97e7ff;
+}
+
+.ped-action-btn--accent:hover {
+  background: rgba(56, 189, 248, 0.25);
 }
 
 .ped-scroll-indicator {

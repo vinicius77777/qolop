@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import {
   getAmbientes,
   getAmbientesPublicos,
+  getAmbientesPopulares,
   deleteAmbiente,
   getMe,
   registrarVisualizacaoAmbiente,
@@ -10,7 +11,7 @@ import {
 } from "../services/api";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
-import { FiEye, FiTrash2, FiEdit, FiSearch, FiLayers, FiGlobe, FiZap } from "react-icons/fi";
+import { FiEye, FiTrash2, FiEdit, FiSearch, FiLayers, FiGlobe, FiZap, FiTrendingUp, FiClock } from "react-icons/fi";
 import "../styles/ambientes.css";
 
 interface Ambiente {
@@ -162,8 +163,38 @@ const Ambientes: React.FC = () => {
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("todos");
 
+  const [populares, setPopulares] = useState<Ambiente[]>([]);
+  const [ultimoVisto, setUltimoVisto] = useState<Ambiente | null>(null);
+
   const navigate = useNavigate();
   const location = useLocation();
+
+  function salvarUltimoVisto(amb: Ambiente) {
+    const entry = {
+      id: amb.id,
+      titulo: amb.titulo,
+      imagemPreview: amb.imagemPreview,
+      categoria: amb.categoria,
+    };
+    localStorage.setItem("ultimoAmbienteVisto", JSON.stringify(entry));
+    setUltimoVisto(amb);
+  }
+
+  const carregarUltimoVistoLocal = React.useCallback(() => {
+    try {
+      const raw = localStorage.getItem("ultimoAmbienteVisto");
+      if (!raw) return;
+      const parsed = JSON.parse(raw);
+      if (parsed && typeof parsed.id === "number") {
+        const match = ambientes.find((a) => a.id === parsed.id);
+        if (match) {
+          setUltimoVisto(match);
+          return;
+        }
+      }
+    } catch { /* ignora */ }
+    setUltimoVisto(null);
+  }, [ambientes]);
 
   useEffect(() => {
     async function carregar() {
@@ -201,6 +232,18 @@ const Ambientes: React.FC = () => {
     }
     carregar();
   }, [navigate]);
+
+  useEffect(() => {
+    getAmbientesPopulares()
+      .then(setPopulares)
+      .catch(() => setPopulares([]));
+  }, []);
+
+  useEffect(() => {
+    if (ambientes.length > 0) {
+      carregarUltimoVistoLocal();
+    }
+  }, [ambientes, carregarUltimoVistoLocal]);
 
   useEffect(() => {
     if (selected) {
@@ -273,6 +316,7 @@ const Ambientes: React.FC = () => {
 
   async function handleVisualizarAmbiente(amb: Ambiente) {
     setSelected(amb);
+    salvarUltimoVisto(amb);
 
     try {
       await registrarVisualizacaoAmbiente(amb.id);
@@ -547,6 +591,60 @@ const Ambientes: React.FC = () => {
             ))}
           </div>
         </section>
+
+        {(populares.length > 0 || ultimoVisto) && (
+          <section className="amb-quick-section">
+            <div className="amb-quick-grid">
+              {populares.length > 0 && (
+                <div className="amb-quick-panel">
+                  <div className="amb-quick-header">
+                    <FiTrendingUp className="amb-quick-icon" />
+                    <span>Mais vistos</span>
+                  </div>
+                  <div className="amb-quick-list">
+                    {populares.slice(0, 4).map((amb) => (
+                      <button
+                        key={`pop-${amb.id}`}
+                        className="amb-quick-chip"
+                        onClick={() => handleVisualizarAmbiente(amb)}
+                      >
+                        <span className="amb-quick-chip-title">{amb.titulo}</span>
+                        <span className="amb-quick-chip-cat">{formatCategoriaLabel(amb.categoria)}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {ultimoVisto && (
+                <div className="amb-quick-panel amb-quick-panel--last">
+                  <div className="amb-quick-header">
+                    <FiClock className="amb-quick-icon" />
+                    <span>Seu último visto</span>
+                  </div>
+                  <button
+                    className="amb-quick-last"
+                    onClick={() => handleVisualizarAmbiente(ultimoVisto)}
+                  >
+                    {ultimoVisto.imagemPreview ? (
+                      <img
+                        src={`${API_URL}${ultimoVisto.imagemPreview}`}
+                        alt={ultimoVisto.titulo}
+                        className="amb-quick-last-img"
+                      />
+                    ) : (
+                      <div className="amb-quick-last-placeholder" />
+                    )}
+                    <div className="amb-quick-last-info">
+                      <strong>{ultimoVisto.titulo}</strong>
+                      <span>{formatCategoriaLabel(ultimoVisto.categoria)}</span>
+                    </div>
+                  </button>
+                </div>
+              )}
+            </div>
+          </section>
+        )}
 
         <section className="amb-browser" id="amb-grid">
           <div className="amb-browser-top">

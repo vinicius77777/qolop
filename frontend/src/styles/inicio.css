@@ -227,52 +227,30 @@
 }
 
 .inicio-button {
-  position: relative;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   min-height: 52px;
   padding: 0 1.25rem;
   border-radius: 999px;
-  border: 1px solid rgba(125, 211, 252, 0.16);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   font-size: 0.96rem;
   font-weight: 600;
   letter-spacing: 0.01em;
   text-decoration: none;
   cursor: pointer;
   color: var(--inicio-text);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.04)),
-    rgba(255, 255, 255, 0.03);
-  box-shadow:
-    0 18px 34px rgba(0, 0, 0, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(14px);
-  transition:
-    transform 220ms var(--inicio-ease),
-    border-color 220ms var(--inicio-ease),
-    background-color 220ms var(--inicio-ease),
-    box-shadow 220ms var(--inicio-ease),
-    color 220ms var(--inicio-ease),
-    filter 220ms var(--inicio-ease);
-  will-change: transform;
-  transform: translateZ(0);
+  background: rgba(255, 255, 255, 0.06);
+  transition: background-color 180ms ease, border-color 180ms ease;
 }
 
 .inicio-button:hover {
-  transform: translateY(-2px);
-  border-color: rgba(125, 211, 252, 0.22);
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.06)),
-    rgba(255, 255, 255, 0.05);
-  box-shadow:
-    0 22px 36px rgba(0, 0, 0, 0.22),
-    0 0 0 4px rgba(125, 211, 252, 0.06);
-  filter: saturate(1.04) brightness(1.02);
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(255, 255, 255, 0.22);
 }
 
 .inicio-button:active {
-  transform: translateY(0) scale(0.985);
+  opacity: 0.85;
 }
 
 .inicio-button:focus-visible,
@@ -549,7 +527,7 @@
 
 .inicio-grid {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 1rem;
 }
 
@@ -717,9 +695,12 @@ button {
 
 @media (max-width: 1120px) {
   .inicio-hero-inner,
-  .inicio-grid,
   .inicio-onboarding-grid {
     grid-template-columns: 1fr;
+  }
+
+  .inicio-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .inicio-hero {
@@ -788,6 +769,10 @@ button {
   .inicio-card,
   .inicio-cta-card {
     border-radius: 20px;
+  }
+
+  .inicio-grid {
+    grid-template-columns: 1fr;
   }
 
   .inicio-onboarding-grid {

@@ -1,0 +1,1626 @@
+/* Global neutral-light overrides */
+:root {
+  color-scheme: light;
+  --theme-neutral-bg: #eef3f8;
+  --theme-neutral-bg-soft: #e6edf5;
+  --theme-neutral-surface: rgba(255, 255, 255, 0.9);
+  --theme-neutral-surface-strong: rgba(248, 250, 252, 0.98);
+  --theme-neutral-border: rgba(92, 109, 125, 0.16);
+  --theme-neutral-border-strong: rgba(92, 109, 125, 0.24);
+  --theme-neutral-text: #18212b;
+  --theme-neutral-text-soft: rgba(24, 33, 43, 0.76);
+  --theme-neutral-text-muted: rgba(24, 33, 43, 0.58);
+  --theme-neutral-accent: #8fa6be;
+  --theme-neutral-accent-strong: #6f879f;
+  --theme-neutral-shadow: 0 18px 40px rgba(63, 82, 98, 0.12);
+}
+
+html,
+body,
+#root {
+  background: var(--theme-neutral-bg) !important;
+}
+
+body {
+  color: var(--theme-neutral-text) !important;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(176, 191, 206, 0.2), transparent 26%),
+    radial-gradient(circle at 88% 12%, rgba(198, 210, 223, 0.16), transparent 24%),
+    linear-gradient(180deg, #e8eef5 0%, #dfe8f1 100%) !important;
+  background-color: var(--theme-neutral-bg) !important;
+  background-image: none !important;
+}
+
+.app-shell,
+.route-transition-layer,
+.route-transition-shell {
+  background: transparent !important;
+}
+
+.app-shell-background {
+  background: transparent !important;
+}
+
+.app-shell-orb,
+.app-shell-grid,
+.app-shell-noise {
+  display: none !important;
+}
+
+.route-loading-overlay {
+  background: rgba(238, 243, 248, 0.82) !important;
+  backdrop-filter: blur(8px);
+}
+
+.route-loading-card {
+  background: var(--theme-neutral-surface) !important;
+  color: var(--theme-neutral-text) !important;
+  border: 1px solid var(--theme-neutral-border) !important;
+  box-shadow: var(--theme-neutral-shadow) !important;
+}
+
+.route-loading-badge {
+  color: var(--theme-neutral-text) !important;
+}
+
+.login-page,
+.welcome-page,
+.inicio-page,
+.amb-page,
+.explorer-page,
+.ped-page,
+.perfil-page,
+.empresa-page,
+.divulgar-page,
+.tour-page,
+.an-page,
+.criar-tour-page,
+.historico-page,
+.usuarios-page {
+  color: var(--theme-neutral-text) !important;
+  background-color: var(--theme-neutral-bg) !important;
+  background-image: none !important;
+  font-family: var(--font-sans);
+  letter-spacing: 0.01em;
+}
+
+.login-page,
+.welcome-page,
+.inicio-page,
+.empresa-page,
+.divulgar-page,
+.tour-page,
+.perfil-page,
+.usuarios-page,
+.historico-page,
+.criar-tour-page,
+.explorer-page,
+.ped-page {
+  color: var(--theme-neutral-text) !important;
+}
+
+.login-page :is(h1, h2, h3, h4, h5, h6, p, span, small, label),
+.welcome-page :is(h1, h2, h3, h4, h5, h6, p, span, small, label),
+.inicio-page :is(h1, h2, h3, h4, h5, h6, p, span, small, label),
+.empresa-page :is(h1, h2, h3, h4, h5, h6, p, span, small, label),
+.divulgar-page :is(h1, h2, h3, h4, h5, h6, p, span, small, label),
+.tour-page :is(h1, h2, h3, h4, h5, h6, p, span, small, label),
+.perfil-page :is(h1, h2, h3, h4, h5, h6, p, span, small, label),
+.usuarios-page :is(h1, h2, h3, h4, h5, h6, p, span, small, label),
+.historico-page :is(h1, h2, h3, h4, h5, h6, p, span, small, label),
+.criar-tour-page :is(h1, h2, h3, h4, h5, h6, p, span, small, label),
+.explorer-page :is(h1, h2, h3, h4, h5, h6, p, span, small, label),
+.ped-page :is(h1, h2, h3, h4, h5, h6, p, span, small, label) {
+  color: var(--theme-neutral-text) !important;
+  font-family: var(--font-sans) !important;
+  font-weight: 400 !important;
+  letter-spacing: 0.01em !important;
+  text-shadow: none !important;
+}
+
+.welcome-page {
+  --welcome-bg: #e7edf4;
+  --welcome-surface: rgba(255, 255, 255, 0.92);
+  --welcome-surface-soft: rgba(255, 255, 255, 0.8);
+  --welcome-border: rgba(92, 109, 125, 0.18);
+  --welcome-border-strong: rgba(92, 109, 125, 0.26);
+  --welcome-text: #101828;
+  --welcome-text-soft: rgba(16, 24, 40, 0.72);
+  --welcome-text-muted: rgba(16, 24, 40, 0.54);
+  --welcome-accent: #7f95aa;
+  --welcome-accent-strong: #64778a;
+  --welcome-shadow-lg: 0 18px 42px rgba(63, 82, 98, 0.14);
+  background:
+    radial-gradient(circle at top left, rgba(179, 194, 209, 0.28), transparent 28%),
+    radial-gradient(circle at 85% 12%, rgba(209, 218, 227, 0.2), transparent 24%),
+    linear-gradient(180deg, #e8eef5 0%, #dde7f0 100%) !important;
+}
+
+.welcome-page .welcome-title {
+  color: #0b1220 !important;
+  font-weight: 700 !important;
+  letter-spacing: -0.06em !important;
+}
+
+.welcome-page .welcome-lead,
+.welcome-page .welcome-scroll-indicator,
+.welcome-page .welcome-panel-label,
+.welcome-page .welcome-point p,
+.welcome-page .welcome-benefit span {
+  color: rgba(16, 24, 40, 0.72) !important;
+}
+
+.welcome-page .welcome-action {
+  color: #0f172a !important;
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: rgba(92, 109, 125, 0.18) !important;
+  box-shadow: 0 14px 30px rgba(63, 82, 98, 0.12) !important;
+}
+
+.welcome-page .welcome-action--primary {
+  color: #0b1220 !important;
+  background: #dde6ef !important;
+}
+
+.welcome-page .welcome-action--secondary {
+  background: rgba(255, 255, 255, 0.9) !important;
+}
+
+.welcome-page .welcome-eyebrow,
+.welcome-page .welcome-highlight-badge,
+.welcome-page .welcome-point-index {
+  background: rgba(255, 255, 255, 0.88) !important;
+  color: rgba(16, 24, 40, 0.8) !important;
+  border-color: rgba(92, 109, 125, 0.14) !important;
+}
+
+.welcome-page .welcome-panel {
+  background: rgba(255, 255, 255, 0.92) !important;
+  border-color: rgba(92, 109, 125, 0.16) !important;
+}
+
+.welcome-page .welcome-highlight,
+.welcome-page .welcome-point,
+.welcome-page .welcome-benefit {
+  background: rgba(255, 255, 255, 0.88) !important;
+  border-color: rgba(92, 109, 125, 0.12) !important;
+}
+
+.welcome-page .welcome-header img {
+  opacity: 1;
+  filter: contrast(1.1) brightness(0.6) saturate(0.78);
+}
+
+[class$="-page"]::before,
+[class$="-page"]::after,
+.welcome-page::before,
+.welcome-page::after,
+.login-copy::before,
+.login-container::before,
+.inicio-hero-panel::before,
+.inicio-card::before,
+.inicio-cta-card::before,
+.inicio-onboarding-panel::before,
+.amb-hero-panel::before,
+.amb-story-card::before,
+.amb-browser::before,
+.amb-modal-box::before,
+.modal-box::before,
+.explorer-page::before,
+.ped-card--overpaid::before,
+.ped-card--overpaid::after,
+.divulgar-page::before,
+.divulgar-page::after,
+.criar-tour-hero,
+.historico-page::before {
+  background: none !important;
+  background-image: none !important;
+  box-shadow: none !important;
+}
+
+.login-copy,
+.login-container,
+.welcome-panel,
+.inicio-hero-panel,
+.inicio-card,
+.inicio-cta-card,
+.inicio-onboarding-panel,
+.amb-hero-panel,
+.amb-story-card,
+.amb-browser,
+.amb-modal-box,
+.modal-box,
+.amb-card,
+.explorer-panel,
+.explorer-hud,
+.ped-hero,
+.ped-story,
+.ped-browser,
+.ped-card,
+.ped-empty-card,
+.ped-inline-state,
+.ped-history,
+.ped-payment-panel,
+.ped-modal-box,
+.ped-confirm-box,
+.perfil-hero,
+.perfil-card,
+.empresa-wrapper,
+.empresa-card,
+.divulgar-card,
+.tour-card,
+.an-hero,
+.an-hero-panel,
+.an-summary-card,
+.an-insight-panel,
+.an-section-card,
+.an-empty-state-box,
+.criar-tour-shell,
+.historico-hero,
+.historico-toolbar,
+.historico-panel,
+.historico-card,
+.historico-feedback,
+.historico-loading-card,
+.usuarios-wrapper,
+.usuario-card {
+  border: 1px solid var(--theme-neutral-border) !important;
+  box-shadow: var(--theme-neutral-shadow) !important;
+  background: var(--theme-neutral-surface) !important;
+  background-image: none !important;
+  color: var(--theme-neutral-text) !important;
+}
+
+.login-copy,
+.login-container,
+.welcome-panel,
+.inicio-hero-panel,
+.inicio-card,
+.inicio-cta-card,
+.inicio-onboarding-panel,
+.amb-hero-panel,
+.amb-story-card,
+.amb-browser,
+.amb-modal-box,
+.modal-box,
+.amb-card,
+.explorer-panel,
+.explorer-hud,
+.ped-hero,
+.ped-story,
+.ped-browser,
+.ped-card,
+.ped-empty-card,
+.ped-inline-state,
+.ped-history,
+.ped-payment-panel,
+.ped-modal-box,
+.ped-confirm-box,
+.perfil-hero,
+.perfil-card,
+.empresa-wrapper,
+.empresa-card,
+.divulgar-card,
+.tour-card,
+.an-hero,
+.an-hero-panel,
+.an-summary-card,
+.an-insight-panel,
+.an-section-card,
+.an-empty-state-box,
+.criar-tour-shell,
+.historico-hero,
+.historico-toolbar,
+.historico-panel,
+.historico-card,
+.historico-feedback,
+.historico-loading-card,
+.usuarios-wrapper,
+.usuario-card {
+  background: var(--theme-neutral-surface) !important;
+}
+
+.login-page .login-copy,
+.login-page .login-container,
+.login-page .login-input,
+.login-page .login-button,
+.login-page .login-secondary-button,
+.login-page .login-reset-button,
+.login-page .auth-back-button,
+.welcome-page .welcome-panel,
+.welcome-page .welcome-action,
+.welcome-page .welcome-eyebrow,
+.welcome-page .welcome-highlight,
+.welcome-page .welcome-point,
+.welcome-page .welcome-benefit,
+.inicio-page .inicio-hero-panel,
+.inicio-page .inicio-card,
+.inicio-page .inicio-cta-card,
+.inicio-page .inicio-onboarding-panel,
+.inicio-page .inicio-button,
+.inicio-page .inicio-onboarding-choice,
+.inicio-page .inicio-onboarding-skip,
+.ped-page .ped-hero,
+.ped-page .ped-story,
+.ped-page .ped-browser,
+.ped-page .ped-card,
+.ped-page .ped-empty-card,
+.ped-page .ped-inline-state,
+.ped-page .ped-feedback,
+.ped-page .ped-modal-box,
+.ped-page .ped-confirm-box,
+.explorer-page .explorer-panel,
+.explorer-page .explorer-hud,
+.perfil-page .perfil-hero,
+.perfil-page .perfil-card,
+.historico-page .historico-panel,
+.historico-page .historico-card,
+.historico-page .historico-toolbar,
+.historico-page .historico-feedback,
+.usuarios-page .usuario-card,
+.usuarios-page .usuarios-wrapper {
+  background-image: none !important;
+}
+
+.login-page .login-title,
+.login-page .login-display-title,
+.welcome-page .welcome-title,
+.welcome-page .welcome-highlight h2,
+.inicio-page .inicio-title,
+.inicio-page .inicio-section-header h2,
+.inicio-page .inicio-cta-card h2,
+.inicio-page .inicio-onboarding-header h2,
+.ped-page .ped-title,
+.ped-page .ped-story-header h2,
+.ped-page .ped-browser-copy h2,
+.ped-page .ped-empty-card h3,
+.perfil-page .perfil-title,
+.explorer-page .explorer-hud-title,
+.explorer-page .explorer-popup h3,
+.historico-page .historico-title,
+.historico-page .historico-card h2,
+.usuarios-page .usuarios-title,
+.empresa-page h1,
+.empresa-page h2,
+.divulgar-page h1,
+.divulgar-page h2,
+.tour-page h1,
+.tour-page h2 {
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  -webkit-text-fill-color: currentColor !important;
+  color: #0f172a !important;
+}
+
+.login-page .login-display-lead,
+.login-page .login-subtitle,
+.welcome-page .welcome-lead,
+.welcome-page .welcome-scroll-indicator,
+.welcome-page .welcome-panel-label,
+.welcome-page .welcome-point p,
+.welcome-page .welcome-benefit span,
+.inicio-page .inicio-lead,
+.inicio-page .inicio-panel-item p,
+.inicio-page .inicio-section-header p,
+.inicio-page .inicio-cta-card p,
+.inicio-page .inicio-onboarding-header p,
+.inicio-page .inicio-card p,
+.ped-page .ped-lead,
+.ped-page .ped-hero-focus p,
+.ped-page .ped-browser-copy p,
+.ped-page .ped-story-header p,
+.ped-page .ped-story-card p,
+.ped-page .ped-empty-card p,
+.ped-page .ped-card-message p,
+.ped-page .ped-card-meta p,
+.ped-page .ped-inline-state p,
+.perfil-page .perfil-subtitle,
+.perfil-page .perfil-tip-box p,
+.perfil-page .perfil-security-box p,
+.perfil-page .perfil-section-header p,
+.explorer-page .explorer-hud-subtitle,
+.explorer-page .explorer-hud-description,
+.explorer-page .explorer-location-status,
+.explorer-page .explorer-popup p,
+.historico-page .historico-subtitle,
+.historico-page .historico-card p,
+.usuarios-page .usuario-card p {
+  color: rgba(24, 33, 43, 0.72) !important;
+}
+
+.login-page .login-eyebrow,
+.login-page .login-badge,
+.welcome-page .welcome-eyebrow,
+.welcome-page .welcome-highlight-badge,
+.welcome-page .welcome-point-index,
+.inicio-page .inicio-kicker,
+.inicio-page .inicio-panel-index,
+.inicio-page .inicio-card-index,
+.amb-page .amb-eyebrow,
+.amb-page .amb-section-kicker,
+.amb-page .amb-mini-label,
+.amb-page .amb-focus-chip,
+.amb-page .amb-card-badge,
+.amb-page .amb-overpaid-badge,
+.explorer-page .explorer-hud-label,
+.explorer-page .explorer-pill,
+.explorer-page .explorer-tour-badge,
+.explorer-page .explorer-marker-tooltip__badge,
+.ped-page .ped-eyebrow,
+.ped-page .ped-section-kicker,
+.ped-page .ped-mini-label,
+.ped-page .ped-summary-label,
+.ped-page .ped-focus-chip,
+.ped-page .ped-focus-meta,
+.ped-page .ped-sync-chip,
+.ped-page .pedidos-status,
+.ped-page .payment-badge,
+.perfil-page .perfil-badge,
+.perfil-page .perfil-chip,
+.divulgar-page .divulgar-eyebrow,
+.criar-tour-page .criar-tour-eyebrow,
+.criar-tour-page .criar-tour-location-badge,
+.historico-page .historico-kicker,
+.historico-page .historico-card-tag,
+.historico-page .historico-summary-label,
+.usuarios-page .usuarios-title,
+.usuarios-page .usuario-role {
+  border-color: rgba(92, 109, 125, 0.14) !important;
+  background: rgba(255, 255, 255, 0.8) !important;
+  color: rgba(24, 33, 43, 0.78) !important;
+  box-shadow: none !important;
+}
+
+.login-page .login-input,
+.login-page .login-password-toggle,
+.login-page .login-button,
+.login-page .login-secondary-button,
+.login-page .login-reset-button,
+.login-page .auth-back-button,
+.inicio-page .inicio-button,
+.inicio-page .inicio-onboarding-choice,
+.inicio-page .inicio-onboarding-skip,
+.welcome-page .welcome-action,
+.ped-page .ped-hero-btn,
+.ped-page .ped-action-btn,
+.ped-page .ped-select,
+.ped-page .ped-filter-chip,
+.ped-page .ped-feedback-close,
+.perfil-page .perfil-toggle-password,
+.perfil-page .perfil-secondary-btn,
+.perfil-page .perfil-primary-btn,
+.perfil-page .perfil-ghost-btn,
+.explorer-page .explorer-location-btn,
+.explorer-page .explorer-popup__cta {
+  border-color: rgba(92, 109, 125, 0.18) !important;
+  box-shadow: 0 10px 24px rgba(63, 82, 98, 0.12) !important;
+  background-image: none !important;
+}
+
+.login-page .login-button,
+.login-page .login-secondary-button,
+.login-page .login-reset-button,
+.welcome-page .welcome-action--primary,
+.inicio-page .inicio-button--primary,
+.amb-page .amb-hero-btn--primary,
+.amb-page .amb-submit-btn,
+.ped-page .ped-hero-btn--primary,
+.ped-page .ped-action-btn--primary,
+.ped-page .ped-action-btn--accent,
+.perfil-page .perfil-primary-btn,
+.empresa-page .empresa-card-link,
+.divulgar-page .divulgar-submit,
+.criar-tour-page .criar-tour-submit,
+.historico-page .historico-action-button.primary,
+.explorer-page .explorer-location-btn,
+.explorer-page .explorer-popup__cta {
+  color: #0f172a !important;
+  background: #dde6ef !important;
+  background-image: none !important;
+}
+
+.login-page input,
+.login-page select,
+.login-page textarea,
+.welcome-page input,
+.welcome-page select,
+.welcome-page textarea,
+.inicio-page input,
+.inicio-page select,
+.inicio-page textarea,
+.ped-page input,
+.ped-page select,
+.ped-page textarea,
+.perfil-page input,
+.perfil-page select,
+.perfil-page textarea,
+.explorer-page input,
+.explorer-page select,
+.explorer-page textarea,
+.historico-page input,
+.historico-page select,
+.historico-page textarea,
+.divulgar-page input,
+.divulgar-page textarea,
+.criar-tour-page input,
+.criar-tour-page textarea,
+.empresa-page input,
+.empresa-page textarea {
+  border-color: rgba(92, 109, 125, 0.18) !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  color: var(--theme-neutral-text) !important;
+}
+
+input::placeholder,
+textarea::placeholder,
+.login-input::placeholder,
+.ped-form input::placeholder,
+.ped-form textarea::placeholder,
+.ped-edit-grid input::placeholder,
+.ped-edit-grid textarea::placeholder,
+.explorer-search::placeholder,
+.explorer-place-search__input::placeholder,
+.perfil-form input::placeholder,
+.divulgar-field input::placeholder,
+.divulgar-field textarea::placeholder,
+.criar-tour-field input::placeholder,
+.criar-tour-field textarea::placeholder,
+.historico-search input::placeholder {
+  color: rgba(24, 33, 43, 0.5) !important;
+  opacity: 1 !important;
+}
+
+input:focus,
+select:focus,
+textarea:focus,
+.login-input:focus,
+.ped-select:focus,
+.ped-form input:focus,
+.ped-form textarea:focus,
+.ped-edit-grid input:focus,
+.ped-edit-grid textarea:focus,
+.explorer-search:focus,
+.explorer-category-select:focus,
+.explorer-place-search__input:focus,
+.perfil-form input:focus,
+.divulgar-field input:focus,
+.divulgar-field textarea:focus,
+.criar-tour-field input:focus,
+.criar-tour-field textarea:focus,
+.an-filter select:focus,
+.historico-search input:focus,
+.historico-filter select:focus {
+  border-color: rgba(111, 135, 159, 0.38) !important;
+  box-shadow: 0 0 0 4px rgba(143, 166, 190, 0.12) !important;
+  background: rgba(255, 255, 255, 0.98) !important;
+  outline: none !important;
+}
+
+.login-page .login-error,
+.login-page .login-success,
+.ped-page .ped-error,
+.ped-page .ped-feedback,
+.perfil-page .perfil-message {
+  color: var(--theme-neutral-text) !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  border-color: rgba(92, 109, 125, 0.18) !important;
+}
+
+.amb-card--overpaid,
+.ped-card--overpaid,
+.historico-summary-card.is-alert,
+.historico-summary-card.is-highlight,
+.payment-badge--overpaid,
+.pedidos-status.pending,
+.pedidos-status.in_progress,
+.pedidos-status.completed,
+.payment-badge--unpaid,
+.payment-badge--paid,
+.payment-badge--overpaid,
+.an-badge.is-partner,
+.an-badge.is-not-partner,
+.an-chip.is-public,
+.an-chip.is-private,
+.perfil-message--info,
+.perfil-message--success,
+.perfil-message--error,
+.amb-overpaid-badge,
+.ped-sync-chip--warning {
+  border-color: rgba(92, 109, 125, 0.18) !important;
+  box-shadow: var(--theme-neutral-shadow) !important;
+  background: var(--theme-neutral-surface) !important;
+}
+
+.eyebrow,
+.login-eyebrow,
+.login-badge,
+.welcome-eyebrow,
+.welcome-highlight-badge,
+.welcome-point-index,
+.inicio-kicker,
+.inicio-panel-index,
+.inicio-card-index,
+.amb-eyebrow,
+.amb-section-kicker,
+.amb-mini-label,
+.amb-focus-chip,
+.amb-card-badge,
+.amb-overpaid-badge,
+.explorer-hud-label,
+.explorer-pill,
+.explorer-tour-badge,
+.explorer-marker-tooltip__badge,
+.ped-eyebrow,
+.ped-section-kicker,
+.ped-mini-label,
+.ped-summary-label,
+.ped-focus-chip,
+.ped-focus-meta,
+.ped-sync-chip,
+.pedidos-status,
+.payment-badge,
+.perfil-badge,
+.perfil-chip,
+.divulgar-eyebrow,
+.criar-tour-eyebrow,
+.criar-tour-location-badge,
+.historico-kicker,
+.historico-card-tag,
+.historico-summary-label,
+.usuarios-title,
+.usuario-role {
+  border-color: rgba(92, 109, 125, 0.14);
+  background: rgba(255, 255, 255, 0.88);
+  color: rgba(16, 24, 40, 0.8);
+  box-shadow: none;
+}
+
+img {
+  filter: saturate(0.9) contrast(1.03);
+}
+
+img:hover {
+  filter: saturate(0.95) contrast(1.05);
+}
+
+.welcome-header img {
+  opacity: 1;
+  filter: contrast(1.08) brightness(0.6) saturate(0.78);
+}
+
+/* Restores for the cards and buttons that must keep stronger contrast */
+.login-page .login-password-toggle,
+.perfil-page .perfil-toggle-password {
+  background: linear-gradient(180deg, rgba(15, 23, 42, 0.08), rgba(15, 23, 42, 0.04)) !important;
+  color: #0f172a !important;
+  border-color: rgba(15, 23, 42, 0.18) !important;
+  box-shadow: 0 10px 20px rgba(63, 82, 98, 0.14) !important;
+}
+
+.login-page .login-password-toggle svg,
+.perfil-page .perfil-toggle-password svg {
+  color: #0f172a !important;
+}
+
+.amb-page .amb-hero-panel,
+.amb-page .amb-story-card,
+.amb-page .amb-browser,
+.amb-page .amb-modal-box,
+.amb-page .modal-box,
+.ped-page .ped-hero,
+.ped-page .ped-story,
+.ped-page .ped-browser,
+.ped-page .ped-card,
+.ped-page .ped-empty-card,
+.ped-page .ped-inline-state,
+.ped-page .ped-history,
+.ped-page .ped-payment-panel,
+.ped-page .ped-modal-box,
+.ped-page .ped-confirm-box,
+.historico-page .historico-hero,
+.historico-page .historico-toolbar,
+.historico-page .historico-panel,
+.historico-page .historico-card,
+.historico-page .historico-feedback,
+.historico-page .historico-loading-card,
+.an-page .an-hero,
+.an-page .an-hero-panel,
+.an-page .an-summary-card,
+.an-page .an-insight-panel,
+.an-page .an-section-card,
+.an-page .an-empty-state-box {
+  background:
+    linear-gradient(180deg, rgba(236, 241, 246, 0.98), rgba(226, 233, 241, 0.96)) !important;
+  border-color: rgba(92, 109, 125, 0.12) !important;
+  color: var(--theme-neutral-text) !important;
+}
+
+.ped-page .ped-card--overpaid,
+.amb-page .amb-card--overpaid,
+.historico-page .historico-summary-card.is-alert,
+.historico-page .historico-summary-card.is-highlight {
+  background:
+    linear-gradient(180deg, rgba(245, 239, 225, 0.98), rgba(232, 237, 243, 0.96)) !important;
+  border-color: rgba(194, 156, 63, 0.18) !important;
+  box-shadow:
+    0 14px 28px rgba(63, 82, 98, 0.1),
+    0 0 0 1px rgba(194, 156, 63, 0.06) !important;
+}
+
+.ped-page .ped-card--overpaid::before {
+  background: rgba(250, 236, 198, 0.96) !important;
+  border-color: rgba(194, 156, 63, 0.18) !important;
+  color: #6b4f10 !important;
+}
+
+.historico-page .historico-summary-card.is-alert {
+  border-color: rgba(194, 156, 63, 0.16) !important;
+  background:
+    linear-gradient(180deg, rgba(245, 239, 225, 0.98), rgba(235, 239, 244, 0.96)) !important;
+}
+
+.historico-page .historico-summary-card.is-highlight {
+  border-color: rgba(143, 166, 190, 0.18) !important;
+  background:
+    linear-gradient(180deg, rgba(236, 241, 246, 0.98), rgba(228, 235, 242, 0.96)) !important;
+}
+
+.an-page .an-summary-card {
+  background:
+    linear-gradient(180deg, rgba(236, 241, 246, 0.98), rgba(228, 235, 242, 0.96)) !important;
+}
+
+.amb-page .amb-hero-panel,
+.amb-page .amb-story-card,
+.amb-page .amb-browser,
+.amb-page .amb-card,
+.ped-page .ped-hero,
+.ped-page .ped-story,
+.ped-page .ped-browser,
+.ped-page .ped-card,
+.ped-page .ped-empty-card,
+.ped-page .ped-inline-state,
+.ped-page .ped-history,
+.ped-page .ped-payment-panel,
+.ped-page .ped-modal-box,
+.ped-page .ped-confirm-box,
+.historico-page .historico-hero,
+.historico-page .historico-toolbar,
+.historico-page .historico-panel,
+.historico-page .historico-card,
+.historico-page .historico-feedback,
+.historico-page .historico-loading-card,
+.an-page .an-hero,
+.an-page .an-hero-panel,
+.an-page .an-summary-card,
+.an-page .an-insight-panel,
+.an-page .an-section-card,
+.an-page .an-empty-state-box {
+  background:
+    linear-gradient(180deg, rgba(247, 249, 252, 0.99), rgba(241, 245, 249, 0.99)) !important;
+  border-color: rgba(92, 109, 125, 0.14) !important;
+  color: #0f172a !important;
+}
+
+.amb-page .amb-card--overpaid,
+.ped-page .ped-card--overpaid,
+.historico-page .historico-summary-card.is-alert,
+.historico-page .historico-summary-card.is-highlight {
+  background:
+    linear-gradient(180deg, rgba(244, 247, 251, 0.99), rgba(238, 243, 248, 0.99)) !important;
+  border-color: rgba(143, 166, 190, 0.18) !important;
+  box-shadow:
+    0 14px 28px rgba(63, 82, 98, 0.08),
+    0 0 0 1px rgba(143, 166, 190, 0.06) !important;
+}
+
+.amb-page .amb-card :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.amb-page .amb-story-card :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.amb-page .amb-browser :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.amb-page .amb-hero-panel :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.amb-page .amb-card p,
+.amb-page .amb-card span,
+.amb-page .amb-card small,
+.amb-page .amb-card label,
+.amb-page .amb-card strong,
+.amb-page .amb-story-card p,
+.amb-page .amb-story-card span,
+.amb-page .amb-story-card small,
+.amb-page .amb-story-card label,
+.amb-page .amb-story-card strong,
+.amb-page .amb-browser p,
+.amb-page .amb-browser span,
+.amb-page .amb-browser small,
+.amb-page .amb-browser label,
+.amb-page .amb-browser strong,
+.amb-page .amb-hero-panel p,
+.amb-page .amb-hero-panel span,
+.amb-page .amb-hero-panel small,
+.amb-page .amb-hero-panel label,
+.amb-page .amb-hero-panel strong,
+.ped-page .ped-card :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.ped-page .ped-empty-card :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.ped-page .ped-inline-state :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.ped-page .ped-history :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.ped-page .ped-payment-panel :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.ped-page .ped-modal-box :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.ped-page .ped-confirm-box :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.ped-page .ped-story :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.ped-page .ped-browser :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.ped-page .ped-hero :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.historico-page .historico-hero :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.historico-page .historico-panel :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.historico-page .historico-toolbar :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.historico-page .historico-card :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.historico-page .historico-feedback :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.historico-page .historico-loading-card :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.an-page .an-hero :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.an-page .an-hero-panel :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.an-page .an-summary-card :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.an-page .an-insight-panel :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.an-page .an-section-card :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.an-page .an-empty-state-box :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.amb-page .amb-card *,
+.amb-page .amb-story-card *,
+.amb-page .amb-browser *,
+.amb-page .amb-hero-panel *,
+.ped-page .ped-card *,
+.ped-page .ped-empty-card *,
+.ped-page .ped-inline-state *,
+.ped-page .ped-history *,
+.ped-page .ped-payment-panel *,
+.ped-page .ped-modal-box *,
+.ped-page .ped-confirm-box *,
+.ped-page .ped-story *,
+.ped-page .ped-browser *,
+.ped-page .ped-hero *,
+.historico-page .historico-card *,
+.historico-page .historico-toolbar *,
+.historico-page .historico-feedback *,
+.historico-page .historico-panel *,
+.historico-page .historico-loading-card *,
+.historico-page .historico-hero *,
+.an-page .an-section-card *,
+.an-page .an-summary-card *,
+.an-page .an-insight-panel *,
+.an-page .an-hero-panel *,
+.an-page .an-hero *,
+.an-page .an-empty-state-box * {
+  color: var(--theme-neutral-text) !important;
+}
+
+.amb-page .amb-card a,
+.amb-page .amb-modal-box a,
+.ped-page .ped-card a,
+.ped-page .ped-empty-card a,
+.ped-page .ped-inline-state a,
+.ped-page .ped-history a,
+.ped-page .ped-payment-panel a,
+.ped-page .ped-modal-box a,
+.ped-page .ped-confirm-box a,
+.historico-page .historico-card a,
+.historico-page .historico-toolbar a,
+.historico-page .historico-feedback a,
+.an-page .an-summary-card a,
+.an-page .an-section-card a,
+.an-page .an-insight-panel a {
+  color: #0f172a !important;
+}
+
+.amb-page .amb-hero-panel,
+.amb-page .amb-story-card,
+.amb-page .amb-browser,
+.amb-page .amb-modal-box,
+.amb-page .modal-box,
+.amb-page .amb-card,
+.ped-page .ped-hero,
+.ped-page .ped-story,
+.ped-page .ped-browser,
+.ped-page .ped-card,
+.ped-page .ped-empty-card,
+.ped-page .ped-inline-state,
+.ped-page .ped-history,
+.ped-page .ped-payment-panel,
+.ped-page .ped-modal-box,
+.ped-page .ped-confirm-box,
+.historico-page .historico-hero,
+.historico-page .historico-toolbar,
+.historico-page .historico-panel,
+.historico-page .historico-card,
+.historico-page .historico-feedback,
+.historico-page .historico-loading-card,
+.an-page .an-hero,
+.an-page .an-hero-panel,
+.an-page .an-summary-card,
+.an-page .an-insight-panel,
+.an-page .an-section-card,
+.an-page .an-empty-state-box {
+  background:
+    linear-gradient(180deg, rgba(241, 245, 249, 0.98), rgba(234, 239, 245, 0.97)) !important;
+  border-color: rgba(92, 109, 125, 0.14) !important;
+  color: var(--theme-neutral-text) !important;
+}
+
+.amb-page .amb-card,
+.ped-page .ped-card,
+.ped-page .ped-empty-card,
+.ped-page .ped-inline-state,
+.ped-page .ped-history,
+.ped-page .ped-payment-panel,
+.ped-page .ped-modal-box,
+.ped-page .ped-confirm-box,
+.historico-page .historico-card,
+.historico-page .historico-toolbar,
+.historico-page .historico-feedback,
+.an-page .an-section-card,
+.an-page .an-summary-card,
+.an-page .an-insight-panel {
+  background:
+    linear-gradient(180deg, rgba(243, 247, 251, 0.99), rgba(236, 241, 246, 0.98)) !important;
+  border-color: rgba(92, 109, 125, 0.14) !important;
+}
+
+.amb-page .amb-hero-panel :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.amb-page .amb-story-card :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.amb-page .amb-browser :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.amb-page .amb-card :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.amb-page .amb-modal-box :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.amb-page .modal-box :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.ped-page .ped-hero :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.ped-page .ped-story :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.ped-page .ped-browser :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.ped-page .ped-card :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.ped-page .ped-empty-card :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.ped-page .ped-inline-state :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.ped-page .ped-history :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.ped-page .ped-payment-panel :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.ped-page .ped-modal-box :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.ped-page .ped-confirm-box :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.historico-page .historico-hero :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.historico-page .historico-toolbar :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.historico-page .historico-panel :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.historico-page .historico-card :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.historico-page .historico-feedback :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.historico-page .historico-loading-card :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.an-page .an-hero :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.an-page .an-hero-panel :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.an-page .an-summary-card :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.an-page .an-insight-panel :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.an-page .an-section-card :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th),
+.an-page .an-empty-state-box :is(h1, h2, h3, h4, h5, h6, p, span, small, label, strong, li, td, th) {
+  color: var(--theme-neutral-text) !important;
+}
+
+.amb-page .amb-card a,
+.amb-page .amb-modal-box a,
+.ped-page .ped-card a,
+.ped-page .ped-empty-card a,
+.ped-page .ped-inline-state a,
+.ped-page .ped-history a,
+.ped-page .ped-payment-panel a,
+.ped-page .ped-modal-box a,
+.ped-page .ped-confirm-box a,
+.historico-page .historico-card a,
+.historico-page .historico-toolbar a,
+.historico-page .historico-feedback a,
+.an-page .an-summary-card a,
+.an-page .an-section-card a,
+.an-page .an-insight-panel a {
+  color: #0f172a !important;
+}
+
+.amb-page .amb-hero-panel,
+.amb-page .amb-story-card,
+.amb-page .amb-browser,
+.amb-page .amb-modal-box,
+.amb-page .modal-box,
+.amb-page .amb-card,
+.ped-page .ped-hero,
+.ped-page .ped-story,
+.ped-page .ped-browser,
+.ped-page .ped-card,
+.ped-page .ped-empty-card,
+.ped-page .ped-inline-state,
+.ped-page .ped-history,
+.ped-page .ped-payment-panel,
+.ped-page .ped-modal-box,
+.ped-page .ped-confirm-box,
+.historico-page .historico-hero,
+.historico-page .historico-toolbar,
+.historico-page .historico-panel,
+.historico-page .historico-card,
+.historico-page .historico-feedback,
+.historico-page .historico-loading-card,
+.an-page .an-hero,
+.an-page .an-hero-panel,
+.an-page .an-summary-card,
+.an-page .an-insight-panel,
+.an-page .an-section-card,
+.an-page .an-empty-state-box {
+  background:
+    linear-gradient(180deg, rgba(242, 246, 250, 0.99), rgba(233, 238, 244, 0.98)) !important;
+  border-color: rgba(92, 109, 125, 0.14) !important;
+  color: var(--theme-neutral-text) !important;
+}
+
+.amb-page .amb-card,
+.ped-page .ped-card,
+.ped-page .ped-empty-card,
+.ped-page .ped-inline-state,
+.ped-page .ped-history,
+.ped-page .ped-payment-panel,
+.ped-page .ped-modal-box,
+.ped-page .ped-confirm-box,
+.historico-page .historico-card,
+.historico-page .historico-toolbar,
+.historico-page .historico-feedback,
+.an-page .an-section-card,
+.an-page .an-summary-card,
+.an-page .an-insight-panel {
+  background:
+    linear-gradient(180deg, rgba(244, 247, 251, 0.99), rgba(236, 241, 246, 0.98)) !important;
+  border-color: rgba(92, 109, 125, 0.14) !important;
+}
+
+.amb-page .amb-card :is(h1, h2, h3, h4, h5, h6, p, label, small, strong, li, td, th),
+.amb-page .amb-story-card :is(h1, h2, h3, h4, h5, h6, p, label, small, strong, li, td, th),
+.amb-page .amb-browser :is(h1, h2, h3, h4, h5, h6, p, label, small, strong, li, td, th),
+.amb-page .amb-hero-panel :is(h1, h2, h3, h4, h5, h6, p, label, small, strong, li, td, th),
+.ped-page .ped-card :is(h1, h2, h3, h4, h5, h6, p, label, small, strong, li, td, th),
+.ped-page .ped-empty-card :is(h1, h2, h3, h4, h5, h6, p, label, small, strong, li, td, th),
+.ped-page .ped-inline-state :is(h1, h2, h3, h4, h5, h6, p, label, small, strong, li, td, th),
+.ped-page .ped-history :is(h1, h2, h3, h4, h5, h6, p, label, small, strong, li, td, th),
+.ped-page .ped-payment-panel :is(h1, h2, h3, h4, h5, h6, p, label, small, strong, li, td, th),
+.ped-page .ped-modal-box :is(h1, h2, h3, h4, h5, h6, p, label, small, strong, li, td, th),
+.ped-page .ped-confirm-box :is(h1, h2, h3, h4, h5, h6, p, label, small, strong, li, td, th),
+.historico-page .historico-card :is(h1, h2, h3, h4, h5, h6, p, label, small, strong, li, td, th),
+.historico-page .historico-toolbar :is(h1, h2, h3, h4, h5, h6, p, label, small, strong, li, td, th),
+.historico-page .historico-feedback :is(h1, h2, h3, h4, h5, h6, p, label, small, strong, li, td, th),
+.an-page .an-section-card :is(h1, h2, h3, h4, h5, h6, p, label, small, strong, li, td, th),
+.an-page .an-summary-card :is(h1, h2, h3, h4, h5, h6, p, label, small, strong, li, td, th),
+.an-page .an-insight-panel :is(h1, h2, h3, h4, h5, h6, p, label, small, strong, li, td, th) {
+  color: var(--theme-neutral-text) !important;
+}
+
+.amb-page .amb-card a,
+.ped-page .ped-card a,
+.ped-page .ped-empty-card a,
+.ped-page .ped-inline-state a,
+.historico-page .historico-card a,
+.an-page .an-summary-card a,
+.an-page .an-section-card a {
+  color: #0f172a !important;
+}
+
+.amb-page .amb-card,
+.amb-page .amb-story-card,
+.amb-page .amb-browser,
+.amb-page .amb-hero-panel,
+.amb-page .amb-modal-box,
+.amb-page .modal-box,
+.ped-page .ped-card,
+.ped-page .ped-empty-card,
+.ped-page .ped-inline-state,
+.ped-page .ped-history,
+.ped-page .ped-payment-panel,
+.ped-page .ped-modal-box,
+.ped-page .ped-confirm-box,
+.ped-page .ped-story,
+.ped-page .ped-browser,
+.ped-page .ped-hero,
+.historico-page .historico-card,
+.historico-page .historico-toolbar,
+.historico-page .historico-feedback,
+.historico-page .historico-panel,
+.historico-page .historico-loading-card,
+.historico-page .historico-hero,
+.an-page .an-section-card,
+.an-page .an-summary-card,
+.an-page .an-insight-panel,
+.an-page .an-hero-panel,
+.an-page .an-hero,
+.an-page .an-empty-state-box {
+  background: linear-gradient(180deg, rgba(247, 250, 253, 0.99), rgba(238, 243, 248, 0.98)) !important;
+  border-color: rgba(92, 109, 125, 0.14) !important;
+  color: var(--theme-neutral-text) !important;
+}
+
+.amb-page .amb-card *,
+.amb-page .amb-story-card *,
+.amb-page .amb-browser *,
+.amb-page .amb-hero-panel *,
+.amb-page .amb-modal-box *,
+.amb-page .modal-box *,
+.ped-page .ped-card *,
+.ped-page .ped-empty-card *,
+.ped-page .ped-inline-state *,
+.ped-page .ped-history *,
+.ped-page .ped-payment-panel *,
+.ped-page .ped-modal-box *,
+.ped-page .ped-confirm-box *,
+.ped-page .ped-story *,
+.ped-page .ped-browser *,
+.ped-page .ped-hero *,
+.historico-page .historico-card *,
+.historico-page .historico-toolbar *,
+.historico-page .historico-feedback *,
+.historico-page .historico-panel *,
+.historico-page .historico-loading-card *,
+.historico-page .historico-hero *,
+.an-page .an-section-card *,
+.an-page .an-summary-card *,
+.an-page .an-insight-panel *,
+.an-page .an-hero-panel *,
+.an-page .an-hero *,
+.an-page .an-empty-state-box * {
+  color: var(--theme-neutral-text) !important;
+}
+
+.amb-page .amb-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.amb-page .amb-story-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.amb-page .amb-browser :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.amb-page .amb-hero-panel :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.amb-page .amb-modal-box :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.amb-page .modal-box :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-empty-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-inline-state :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-history :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-payment-panel :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-modal-box :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-confirm-box :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-story :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-browser :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-hero :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.historico-page .historico-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.historico-page .historico-toolbar :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.historico-page .historico-feedback :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.historico-page .historico-panel :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.historico-page .historico-loading-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.historico-page .historico-hero :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.an-page .an-section-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.an-page .an-summary-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.an-page .an-insight-panel :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.an-page .an-hero-panel :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.an-page .an-hero :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.an-page .an-empty-state-box :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6) {
+  color: var(--theme-neutral-text) !important;
+}
+
+.amb-page .amb-card a,
+.amb-page .amb-modal-box a,
+.ped-page .ped-card a,
+.ped-page .ped-empty-card a,
+.ped-page .ped-inline-state a,
+.ped-page .ped-history a,
+.ped-page .ped-payment-panel a,
+.ped-page .ped-modal-box a,
+.ped-page .ped-confirm-box a,
+.historico-page .historico-card a,
+.historico-page .historico-toolbar a,
+.historico-page .historico-feedback a,
+.an-page .an-summary-card a,
+.an-page .an-section-card a,
+.an-page .an-insight-panel a {
+  color: #0f172a !important;
+}
+
+.ped-page .ped-browser h1,
+.ped-page .ped-browser h2,
+.ped-page .ped-browser h3,
+.ped-page .ped-card h1,
+.ped-page .ped-card h2,
+.ped-page .ped-card h3,
+.ped-page .ped-empty-card h1,
+.ped-page .ped-empty-card h2,
+.ped-page .ped-empty-card h3,
+.ped-page .ped-inline-state h1,
+.ped-page .ped-inline-state h2,
+.ped-page .ped-inline-state h3,
+.ped-page .ped-history h1,
+.ped-page .ped-history h2,
+.ped-page .ped-history h3,
+.ped-page .ped-payment-panel h1,
+.ped-page .ped-payment-panel h2,
+.ped-page .ped-payment-panel h3,
+.ped-page .ped-modal-box h1,
+.ped-page .ped-modal-box h2,
+.ped-page .ped-modal-box h3,
+.ped-page .ped-confirm-box h1,
+.ped-page .ped-confirm-box h2,
+.ped-page .ped-confirm-box h3,
+.historico-page .historico-hero h1,
+.historico-page .historico-hero h2,
+.historico-page .historico-hero h3,
+.historico-page .historico-panel h1,
+.historico-page .historico-panel h2,
+.historico-page .historico-panel h3,
+.historico-page .historico-toolbar h1,
+.historico-page .historico-toolbar h2,
+.historico-page .historico-toolbar h3,
+.historico-page .historico-card h1,
+.historico-page .historico-card h2,
+.historico-page .historico-card h3,
+.historico-page .historico-feedback h1,
+.historico-page .historico-feedback h2,
+.historico-page .historico-feedback h3,
+.historico-page .historico-loading-card h1,
+.historico-page .historico-loading-card h2,
+.historico-page .historico-loading-card h3,
+.an-page .an-hero h1,
+.an-page .an-hero h2,
+.an-page .an-hero h3,
+.an-page .an-hero-panel h1,
+.an-page .an-hero-panel h2,
+.an-page .an-hero-panel h3,
+.an-page .an-summary-card h1,
+.an-page .an-summary-card h2,
+.an-page .an-summary-card h3,
+.an-page .an-insight-panel h1,
+.an-page .an-insight-panel h2,
+.an-page .an-insight-panel h3,
+.an-page .an-section-card h1,
+.an-page .an-section-card h2,
+.an-page .an-section-card h3,
+.an-page .an-empty-state-box h1,
+.an-page .an-empty-state-box h2,
+.an-page .an-empty-state-box h3 {
+  color: #0f172a !important;
+}
+
+.amb-page .amb-card p,
+.amb-page .amb-card span,
+.amb-page .amb-card small,
+.amb-page .amb-card label,
+.amb-page .amb-card strong,
+.amb-page .amb-story-card p,
+.amb-page .amb-story-card span,
+.amb-page .amb-story-card small,
+.amb-page .amb-story-card label,
+.amb-page .amb-story-card strong,
+.amb-page .amb-browser p,
+.amb-page .amb-browser span,
+.amb-page .amb-browser small,
+.amb-page .amb-browser label,
+.amb-page .amb-browser strong,
+.amb-page .amb-hero-panel p,
+.amb-page .amb-hero-panel span,
+.amb-page .amb-hero-panel small,
+.amb-page .amb-hero-panel label,
+.amb-page .amb-hero-panel strong,
+.ped-page .ped-card p,
+.ped-page .ped-card span,
+.ped-page .ped-card small,
+.ped-page .ped-card label,
+.ped-page .ped-card strong,
+.ped-page .ped-story p,
+.ped-page .ped-story span,
+.ped-page .ped-story small,
+.ped-page .ped-story label,
+.ped-page .ped-story strong,
+.ped-page .ped-browser p,
+.ped-page .ped-browser span,
+.ped-page .ped-browser small,
+.ped-page .ped-browser label,
+.ped-page .ped-browser strong,
+.ped-page .ped-hero p,
+.ped-page .ped-hero span,
+.ped-page .ped-hero small,
+.ped-page .ped-hero label,
+.ped-page .ped-hero strong,
+.ped-page .ped-empty-card p,
+.ped-page .ped-empty-card span,
+.ped-page .ped-empty-card small,
+.ped-page .ped-empty-card label,
+.ped-page .ped-empty-card strong,
+.ped-page .ped-inline-state p,
+.ped-page .ped-inline-state span,
+.ped-page .ped-inline-state small,
+.ped-page .ped-inline-state label,
+.ped-page .ped-inline-state strong,
+.ped-page .ped-history p,
+.ped-page .ped-history span,
+.ped-page .ped-history small,
+.ped-page .ped-history label,
+.ped-page .ped-history strong,
+.ped-page .ped-payment-panel p,
+.ped-page .ped-payment-panel span,
+.ped-page .ped-payment-panel small,
+.ped-page .ped-payment-panel label,
+.ped-page .ped-payment-panel strong,
+.ped-page .ped-modal-box p,
+.ped-page .ped-modal-box span,
+.ped-page .ped-modal-box small,
+.ped-page .ped-modal-box label,
+.ped-page .ped-modal-box strong,
+.ped-page .ped-confirm-box p,
+.ped-page .ped-confirm-box span,
+.ped-page .ped-confirm-box small,
+.ped-page .ped-confirm-box label,
+.ped-page .ped-confirm-box strong,
+.historico-page .historico-card p,
+.historico-page .historico-card span,
+.historico-page .historico-card small,
+.historico-page .historico-card label,
+.historico-page .historico-card strong,
+.historico-page .historico-toolbar p,
+.historico-page .historico-toolbar span,
+.historico-page .historico-toolbar small,
+.historico-page .historico-toolbar label,
+.historico-page .historico-toolbar strong,
+.historico-page .historico-feedback p,
+.historico-page .historico-feedback span,
+.historico-page .historico-feedback small,
+.historico-page .historico-feedback label,
+.historico-page .historico-feedback strong,
+.historico-page .historico-loading-card p,
+.historico-page .historico-loading-card span,
+.historico-page .historico-loading-card small,
+.historico-page .historico-loading-card label,
+.historico-page .historico-loading-card strong,
+.historico-page .historico-hero p,
+.historico-page .historico-hero span,
+.historico-page .historico-hero small,
+.historico-page .historico-hero label,
+.historico-page .historico-hero strong,
+.an-page .an-section-card p,
+.an-page .an-section-card span,
+.an-page .an-section-card small,
+.an-page .an-section-card label,
+.an-page .an-section-card strong,
+.an-page .an-summary-card p,
+.an-page .an-summary-card span,
+.an-page .an-summary-card small,
+.an-page .an-summary-card label,
+.an-page .an-summary-card strong,
+.an-page .an-insight-panel p,
+.an-page .an-insight-panel span,
+.an-page .an-insight-panel small,
+.an-page .an-insight-panel label,
+.an-page .an-insight-panel strong,
+.an-page .an-hero-panel p,
+.an-page .an-hero-panel span,
+.an-page .an-hero-panel small,
+.an-page .an-hero-panel label,
+.an-page .an-hero-panel strong,
+.an-page .an-hero p,
+.an-page .an-hero span,
+.an-page .an-hero small,
+.an-page .an-hero label,
+.an-page .an-hero strong,
+.an-page .an-empty-state-box p,
+.an-page .an-empty-state-box span,
+.an-page .an-empty-state-box small,
+.an-page .an-empty-state-box label,
+.an-page .an-empty-state-box strong {
+  color: #18212b !important;
+}
+
+.amb-page .amb-card a,
+.amb-page .amb-modal-box a,
+.ped-page .ped-card a,
+.ped-page .ped-empty-card a,
+.ped-page .ped-inline-state a,
+.ped-page .ped-history a,
+.ped-page .ped-payment-panel a,
+.ped-page .ped-modal-box a,
+.ped-page .ped-confirm-box a,
+.historico-page .historico-card a,
+.historico-page .historico-toolbar a,
+.historico-page .historico-feedback a,
+.an-page .an-summary-card a,
+.an-page .an-section-card a,
+.an-page .an-insight-panel a {
+  color: #0f172a !important;
+}
+
+.amb-page .amb-card,
+.amb-page .amb-story-card,
+.amb-page .amb-browser,
+.amb-page .amb-hero-panel,
+.amb-page .amb-modal-box,
+.amb-page .modal-box,
+.ped-page .ped-card,
+.ped-page .ped-empty-card,
+.ped-page .ped-inline-state,
+.ped-page .ped-history,
+.ped-page .ped-payment-panel,
+.ped-page .ped-modal-box,
+.ped-page .ped-confirm-box,
+.ped-page .ped-story,
+.ped-page .ped-browser,
+.ped-page .ped-hero,
+.historico-page .historico-card,
+.historico-page .historico-toolbar,
+.historico-page .historico-feedback,
+.historico-page .historico-panel,
+.historico-page .historico-loading-card,
+.historico-page .historico-hero,
+.an-page .an-section-card,
+.an-page .an-summary-card,
+.an-page .an-insight-panel,
+.an-page .an-hero-panel,
+.an-page .an-hero,
+.an-page .an-empty-state-box {
+  background:
+    linear-gradient(180deg, rgba(247, 250, 253, 0.99), rgba(238, 243, 248, 0.98)) !important;
+  border-color: rgba(92, 109, 125, 0.14) !important;
+  color: var(--theme-neutral-text) !important;
+}
+
+.amb-page .amb-card *,
+.amb-page .amb-story-card *,
+.amb-page .amb-browser *,
+.amb-page .amb-hero-panel *,
+.amb-page .amb-modal-box *,
+.amb-page .modal-box *,
+.ped-page .ped-card *,
+.ped-page .ped-empty-card *,
+.ped-page .ped-inline-state *,
+.ped-page .ped-history *,
+.ped-page .ped-payment-panel *,
+.ped-page .ped-modal-box *,
+.ped-page .ped-confirm-box *,
+.ped-page .ped-story *,
+.ped-page .ped-browser *,
+.ped-page .ped-hero *,
+.historico-page .historico-card *,
+.historico-page .historico-toolbar *,
+.historico-page .historico-feedback *,
+.historico-page .historico-panel *,
+.historico-page .historico-loading-card *,
+.historico-page .historico-hero *,
+.an-page .an-section-card *,
+.an-page .an-summary-card *,
+.an-page .an-insight-panel *,
+.an-page .an-hero-panel *,
+.an-page .an-hero *,
+.an-page .an-empty-state-box * {
+  color: var(--theme-neutral-text) !important;
+}
+
+.amb-page .amb-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.amb-page .amb-story-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.amb-page .amb-browser :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.amb-page .amb-hero-panel :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.amb-page .amb-modal-box :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.amb-page .modal-box :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-empty-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-inline-state :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-history :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-payment-panel :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-modal-box :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-confirm-box :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-story :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-browser :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-hero :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.historico-page .historico-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.historico-page .historico-toolbar :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.historico-page .historico-feedback :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.historico-page .historico-panel :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.historico-page .historico-loading-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.historico-page .historico-hero :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.an-page .an-section-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.an-page .an-summary-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.an-page .an-insight-panel :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.an-page .an-hero-panel :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.an-page .an-hero :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.an-page .an-empty-state-box :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6) {
+  color: var(--theme-neutral-text) !important;
+}
+
+.amb-page .amb-card a,
+.amb-page .amb-modal-box a,
+.ped-page .ped-card a,
+.ped-page .ped-empty-card a,
+.ped-page .ped-inline-state a,
+.ped-page .ped-history a,
+.ped-page .ped-payment-panel a,
+.ped-page .ped-modal-box a,
+.ped-page .ped-confirm-box a,
+.historico-page .historico-card a,
+.historico-page .historico-toolbar a,
+.historico-page .historico-feedback a,
+.an-page .an-summary-card a,
+.an-page .an-section-card a,
+.an-page .an-insight-panel a {
+  color: #0f172a !important;
+}
+
+.amb-page .amb-card,
+.amb-page .amb-story-card,
+.amb-page .amb-browser,
+.amb-page .amb-hero-panel,
+.amb-page .amb-modal-box,
+.amb-page .modal-box,
+.ped-page .ped-card,
+.ped-page .ped-empty-card,
+.ped-page .ped-inline-state,
+.ped-page .ped-history,
+.ped-page .ped-payment-panel,
+.ped-page .ped-modal-box,
+.ped-page .ped-confirm-box,
+.ped-page .ped-story,
+.ped-page .ped-browser,
+.ped-page .ped-hero,
+.historico-page .historico-card,
+.historico-page .historico-toolbar,
+.historico-page .historico-feedback,
+.historico-page .historico-panel,
+.historico-page .historico-loading-card,
+.historico-page .historico-hero,
+.an-page .an-section-card,
+.an-page .an-summary-card,
+.an-page .an-insight-panel,
+.an-page .an-hero-panel,
+.an-page .an-hero,
+.an-page .an-empty-state-box {
+  background:
+    linear-gradient(180deg, rgba(246, 249, 252, 0.99), rgba(236, 241, 246, 0.98)) !important;
+  border-color: rgba(92, 109, 125, 0.14) !important;
+  color: var(--theme-neutral-text) !important;
+}
+
+.amb-page .amb-card *,
+.amb-page .amb-story-card *,
+.amb-page .amb-browser *,
+.amb-page .amb-hero-panel *,
+.amb-page .amb-modal-box *,
+.amb-page .modal-box *,
+.ped-page .ped-card *,
+.ped-page .ped-empty-card *,
+.ped-page .ped-inline-state *,
+.ped-page .ped-history *,
+.ped-page .ped-payment-panel *,
+.ped-page .ped-modal-box *,
+.ped-page .ped-confirm-box *,
+.ped-page .ped-story *,
+.ped-page .ped-browser *,
+.ped-page .ped-hero *,
+.historico-page .historico-card *,
+.historico-page .historico-toolbar *,
+.historico-page .historico-feedback *,
+.historico-page .historico-panel *,
+.historico-page .historico-loading-card *,
+.historico-page .historico-hero *,
+.an-page .an-section-card *,
+.an-page .an-summary-card *,
+.an-page .an-insight-panel *,
+.an-page .an-hero-panel *,
+.an-page .an-hero *,
+.an-page .an-empty-state-box * {
+  color: inherit !important;
+}
+
+.amb-page .amb-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.amb-page .amb-story-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.amb-page .amb-browser :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.amb-page .amb-hero-panel :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.amb-page .amb-modal-box :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.amb-page .modal-box :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-empty-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-inline-state :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-history :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-payment-panel :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-modal-box :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-confirm-box :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-story :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-browser :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.ped-page .ped-hero :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.historico-page .historico-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.historico-page .historico-toolbar :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.historico-page .historico-feedback :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.historico-page .historico-panel :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.historico-page .historico-loading-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.historico-page .historico-hero :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.an-page .an-section-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.an-page .an-summary-card :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.an-page .an-insight-panel :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.an-page .an-hero-panel :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.an-page .an-hero :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6),
+.an-page .an-empty-state-box :is(p, span, small, label, strong, li, td, th, h1, h2, h3, h4, h5, h6) {
+  color: var(--theme-neutral-text) !important;
+}
