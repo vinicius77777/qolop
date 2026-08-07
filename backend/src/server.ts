@@ -1,6 +1,7 @@
 import "dotenv/config";
 import express, { type NextFunction, type Request, type Response } from "express";
 import cors from "cors";
+import fs from "fs";
 import path from "path";
 import { initializeEmailTransport } from "./email";
 import { isOriginAllowed } from "./config/env";
@@ -22,6 +23,11 @@ process.on("unhandledRejection", (err) => {
 });
 
 export const app = express();
+
+// Render (e outros provedores) terminam TLS no proxy reverso.
+// Sem isso, o express-rate-limit enxerga o IP do proxy e trata
+// todas as requisições como vindas de um único cliente.
+app.set("trust proxy", 1);
 
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -81,6 +87,10 @@ app.options("*", cors());
 app.use(limiter);
 app.use(express.json());
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
+
+app.get("/health", (_req, res) => {
+  res.json({ status: "ok", uptime: process.uptime() });
+});
 
 app.use((req, _res, next) => {
   if (
@@ -155,6 +165,11 @@ export async function initializeServerServices() {
 }
 
 if (process.env.VERCEL !== "1") {
+  // O multer grava em "uploads/" relativo ao CWD. No Render o diretório de
+  // trabalho é o repositório (backend/), então garantimos que a pasta exista.
+  const uploadsDir = path.join(process.cwd(), "uploads");
+  fs.mkdirSync(uploadsDir, { recursive: true });
+
   const port = Number(process.env.PORT || 3000);
 
   app.listen(port, async () => {

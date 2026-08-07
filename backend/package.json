@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "main": "dist/server.js",
   "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "dev": "ts-node-dev src/server.ts",
-    "build": "tsc",
+    "build": "prisma generate && tsc",
     "typecheck": "tsc --noEmit",
     "start": "node dist/server.js",
     "prisma": "prisma",
@@ -14,6 +17,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.19.2",
+    "@supabase/supabase-js": "^2.112.2",
     "@vercel/node": "^5.3.26",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",

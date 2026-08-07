@@ -573,6 +573,9 @@ export async function me(req: AuthRequest, res: Response) {
       return res.status(404).json({ error: "Usuário não encontrado" });
     }
 
+    const { senha, resetPasswordTokenHash, resetPasswordExpiresAt, ...safe } =
+      usuario;
+
     logAppEvent({
       domain: "auth",
       event: "auth.me.succeeded",
@@ -583,7 +586,7 @@ export async function me(req: AuthRequest, res: Response) {
       meta: withLogDuration(startedAt, withRequestPath(req)),
     });
 
-    res.json(usuario);
+    res.json(safe);
   } catch (error) {
     if (isDatabaseUnavailableError(error)) {
       return sendDatabaseUnavailableResponse(

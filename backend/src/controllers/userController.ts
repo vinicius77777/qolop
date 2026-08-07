@@ -13,6 +13,7 @@ import {
   validateUpdateUsuarioPayload,
   validateUsuarioIdParams,
 } from "../validators/usuarios";
+import { saveUploadedImage } from "../utils/upload";
 
 function sendValidationError(res: Response, details: string[]) {
   return res.status(400).json({
@@ -127,6 +128,10 @@ export async function updateUsuario(req: AuthRequest, res: Response) {
       return res.status(404).json({ error: "Usuário não encontrado" });
     }
 
+    const fotoUrl = req.file
+      ? await saveUploadedImage(req.file)
+      : undefined;
+
     const updated = await prisma.usuario.update({
       where: { id },
       data: {
@@ -139,7 +144,7 @@ export async function updateUsuario(req: AuthRequest, res: Response) {
         ...(bodyValidation.data.senha !== undefined && {
           senha: await bcrypt.hash(bodyValidation.data.senha, 10),
         }),
-        ...(req.file && { foto: `/uploads/${req.file.filename}` }),
+        ...(fotoUrl !== undefined && { foto: fotoUrl }),
       },
       include: { empresa: true },
     });
@@ -163,7 +168,7 @@ export async function updateUsuario(req: AuthRequest, res: Response) {
         nome: bodyValidation.data.nome,
         email: bodyValidation.data.email,
         senha: bodyValidation.data.senha ? "[provided]" : undefined,
-        foto: req.file ? req.file.filename : undefined,
+        foto: req.file ? req.file.originalname : undefined,
       },
     });
 

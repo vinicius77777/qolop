@@ -1,0 +1,46 @@
+# Blueprint do Render para o backend do Qolop
+#
+# Para usar via dashboard:
+#   Render > New > Blueprint > selecionar este repositório
+# O Render detecta este arquivo e cria o serviço com a configuração abaixo.
+#
+# Depois de criar o serviço, configure as variáveis marcadas com "sync: false"
+# (DATABASE_URL, JWT_SECRET, ALLOWED_ORIGINS, SMTP...) no painel do Render.
+
+services:
+  - type: web
+    name: qolop-backend
+    runtime: node
+    rootDir: backend
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    healthCheckPath: /health
+    autoDeploy: true
+    plan: starter
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: DATABASE_URL
+        sync: false
+      - key: DIRECT_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: ALLOWED_ORIGINS
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: SUPABASE_STORAGE_BUCKET
+        sync: false
+      - key: EMAIL_USER
+        sync: false
+      - key: EMAIL_PASS
+        sync: false
+      - key: ALLOWED_UPLOAD_MIME_TYPES
+        sync: false
+      - key: MAX_UPLOAD_FILE_SIZE
+        sync: false

@@ -37,9 +37,11 @@ const ThemeContext = createContext<ThemeContextValue | undefined>(undefined);
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [isDark, setIsDark] = useState<boolean>(() => getStoredTheme());
 
-  // Apply on mount
+  // Apply on mount only — toggleTheme already applies the theme on change,
+  // so isDark must NOT be in the deps (would re-apply after each toggle).
   useEffect(() => {
     applyTheme(isDark);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const toggleTheme = useCallback(() => {

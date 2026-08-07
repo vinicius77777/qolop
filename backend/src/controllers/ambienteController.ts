@@ -8,7 +8,7 @@ import {
   validateNumericId,
   validateUpdateAmbientePayload,
 } from "../validators/ambientes";
-import { createImageUpload } from "../utils/upload";
+import { createImageUpload, saveUploadedImage } from "../utils/upload";
 
 export const uploadAmbienteImagem = createImageUpload();
 
@@ -206,6 +206,10 @@ export async function createAmbiente(req: AuthRequest, res: Response) {
 
   const finalUsuarioId = usuarioCliente?.id ?? req.user!.id;
 
+  const imagemPreview = req.file
+    ? await saveUploadedImage(req.file)
+    : null;
+
   const ambiente = await prisma.ambiente.create({
     data: {
       titulo,
@@ -223,7 +227,7 @@ export async function createAmbiente(req: AuthRequest, res: Response) {
       endereco: endereco ?? null,
       cep: cep ?? null,
       pedidoId: pedidoId ?? null,
-      imagemPreview: req.file ? `/uploads/${req.file.filename}` : null,
+      imagemPreview,
       updatedAt: new Date(),
     },
   });
@@ -257,6 +261,10 @@ export async function updateAmbiente(req: AuthRequest, res: Response) {
   ) {
     return res.status(403).json({ error: "Sem permissão" });
   }
+
+  const imagemPreview = req.file
+    ? await saveUploadedImage(req.file)
+    : undefined;
 
   const atualizado = await prisma.ambiente.update({
     where: { id },
@@ -297,7 +305,7 @@ export async function updateAmbiente(req: AuthRequest, res: Response) {
       ...(validation.data.cep !== undefined && {
         cep: validation.data.cep,
       }),
-      ...(req.file && { imagemPreview: `/uploads/${req.file.filename}` }),
+      ...(imagemPreview !== undefined && { imagemPreview }),
     },
   });
 

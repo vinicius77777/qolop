@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "mysql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model ambiente {
@@ -38,7 +39,7 @@ model ambiente {
   @@index([empresaId], map: "Ambiente_empresaId_idx")
   @@index([pedidoId], map: "Ambiente_pedidoId_idx")
   @@index([publico], map: "Ambiente_publico_idx")
-  @@index([usuarioId], map: "Ambiente_usuarioId_fkey")
+  @@index([usuarioId], map: "Ambiente_usuarioId_idx")
 }
 
 model empresa {

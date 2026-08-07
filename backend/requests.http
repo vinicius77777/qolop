@@ -1,49 +1,44 @@
 @baseUrl = http://localhost:3000
-@token = {{login.response.body.$.token}}
 
-### Criar usuário
-POST {{baseUrl}}/usuarios
+### Cadastro (público)
+# @name register
+POST {{baseUrl}}/auth/register
 Content-Type: application/json
 
 {
-  "nome": "Outro Usuario",
-  "email": "outro@email.com",
-  "senha": "123456",
-  "foto": null
-}
-
-### Login (gera token e salva em @token)
-# @name login
-POST {{baseUrl}}/login
-Content-Type: application/json
-
-{
-  "email": "outro@email.com",
+  "nome": "Usuário Teste",
+  "email": "teste@email.com",
   "senha": "123456"
 }
 
-### Rota protegida - perfil do usuário logado
-GET {{baseUrl}}/me
+### Login (gera o token salvo em @token)
+# @name login
+POST {{baseUrl}}/auth/login
+Content-Type: application/json
+
+{
+  "email": "teste@email.com",
+  "senha": "123456"
+}
+
+@token = {{login.response.body.$.token}}
+
+### Perfil do usuário logado (protegida)
+GET {{baseUrl}}/auth/me
 Authorization: Bearer {{token}}
 
-### Listar todos usuários (protegida)
+### Listar usuários (protegida - somente admin)
 GET {{baseUrl}}/usuarios
 Authorization: Bearer {{token}}
 
-### Buscar usuário por ID
-GET {{baseUrl}}/usuarios/33
-Authorization: Bearer {{token}}
-
-### Atualizar usuário (exemplo)
-PUT {{baseUrl}}/usuarios/33
+### Atualizar usuário (protegida - somente admin)
+# Observação: o backend NÃO expõe GET /usuarios/:id nem DELETE /usuarios/:id.
+# As únicas rotas de usuário existentes são GET /usuarios e PUT /usuarios/:id.
+PUT {{baseUrl}}/usuarios/1
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "nome": "Usuario Atualizado",
+  "nome": "Usuário Atualizado",
   "senha": "novaSenha123"
 }
-
-### Deletar usuário (exemplo)
-DELETE {{baseUrl}}/usuarios/33
-Authorization: Bearer {{token}}
