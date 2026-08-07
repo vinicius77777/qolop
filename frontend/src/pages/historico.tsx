@@ -10,9 +10,8 @@ import {
   getHistoricoPedidos,
   getMe,
 } from "../services/api";
+import { resolveMediaUrl } from "../utils/mediaUrl";
 import "../styles/historico.css";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 type HistoricoTab = "pedidos" | "ambientes";
 type StatusFilter = "todos" | "pago" | "nao_pago" | "pago_a_mais";
@@ -610,11 +609,7 @@ const Historico: React.FC = () => {
                     {a.imagemPreview && (
                       <img
                         className="amb-card-img"
-                        src={
-                          a.imagemPreview.startsWith("http")
-                            ? a.imagemPreview
-                            : `${API_URL}${a.imagemPreview}`
-                        }
+                        src={resolveMediaUrl(a.imagemPreview) ?? undefined}
                         alt={a.titulo}
                       />
                     )}

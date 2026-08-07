@@ -12,6 +12,8 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import { FiEye, FiTrash2, FiEdit, FiSearch, FiLayers, FiGlobe, FiZap, FiTrendingUp, FiClock } from "react-icons/fi";
+import { resolveMediaUrl } from "../utils/mediaUrl";
+import { API_URL } from "../utils/apiConfig";
 import "../styles/ambientes.css";
 
 interface Ambiente {
@@ -34,8 +36,6 @@ interface Ambiente {
     telefone?: string | null;
   } | null;
 }
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 function getPagamentoStatus(ambiente: Ambiente) {
   return ambiente.pedido?.pagamentoStatus || null;
@@ -279,7 +279,7 @@ const Ambientes: React.FC = () => {
     setTitulo(amb.titulo);
     setDescricao(amb.descricao);
     setLinkVR(amb.linkVR);
-    setImagemPreview(amb.imagemPreview ? `${API_URL}${amb.imagemPreview}` : null);
+    setImagemPreview(resolveMediaUrl(amb.imagemPreview));
     setPublico(amb.publico);
     setShowEditModal(true);
   }
@@ -628,7 +628,7 @@ const Ambientes: React.FC = () => {
                   >
                     {ultimoVisto.imagemPreview ? (
                       <img
-                        src={`${API_URL}${ultimoVisto.imagemPreview}`}
+                        src={resolveMediaUrl(ultimoVisto.imagemPreview) ?? undefined}
                         alt={ultimoVisto.titulo}
                         className="amb-quick-last-img"
                       />
@@ -717,7 +717,7 @@ const Ambientes: React.FC = () => {
                 >
                   <div className="amb-card-media">
                     {amb.imagemPreview ? (
-                      <img src={`${API_URL}${amb.imagemPreview}`} className="amb-card-img" />
+                      <img src={resolveMediaUrl(amb.imagemPreview) ?? undefined} className="amb-card-img" alt={amb.titulo} />
                     ) : (
                       <div className="amb-card-placeholder">
                         <span>Sem preview</span>

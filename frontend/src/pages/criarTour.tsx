@@ -3,6 +3,7 @@ import L from "leaflet";
 import { Circle, MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { useLocation } from "react-router-dom";
 import { createAmbiente } from "../services/api";
+import { API_URL } from "../utils/apiConfig";
 import "leaflet/dist/leaflet.css";
 import "../styles/criarTour.css";
 
@@ -48,7 +49,6 @@ interface SelectedLocation {
   radius: number;
 }
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const DEFAULT_COUNTRY = "Brasil";
 const DEFAULT_MAP_CENTER: [number, number] = [-22.2521, -45.7036];
 const DEFAULT_MAP_ZOOM = 15;

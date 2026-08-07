@@ -3,6 +3,7 @@ import L from "leaflet";
 import { Circle, MapContainer, Marker, Popup, TileLayer, Tooltip, useMap } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { getAmbientesExplorer, registrarVisualizacaoAmbiente } from "../services/api";
+import { resolveMediaUrl } from "../utils/mediaUrl";
 import "../styles/explorer.css";
 
 interface Tour {
@@ -38,7 +39,6 @@ interface SearchedLocation {
 
 type LocationMode = "search" | null;
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 const DEFAULT_CENTER: [number, number] = [-15.7801, -47.9292];
 const ADDRESS_SEARCH_TIMEOUT_MS = 4500;
 const SEARCH_INPUT_DEBOUNCE_MS = 450;
@@ -1135,7 +1135,7 @@ export default function Explorer() {
         ) : null}
 
         {toursFiltrados.map((tour) => {
-          const imageUrl = tour.imagemPreview ? `${API_URL}${tour.imagemPreview}` : null;
+          const imageUrl = resolveMediaUrl(tour.imagemPreview);
           const localizacao = formatarLocalizacao(tour);
 
           return (

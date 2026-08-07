@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
+import { resolveMediaUrl } from "../utils/mediaUrl";
+import { API_URL } from "../utils/apiConfig";
 import "../styles/empresa.css";
 
 interface Tour {
@@ -28,8 +30,6 @@ interface EmpresaApiResponse {
   ambientes?: Tour[];
   error?: string;
 }
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 function normalizeEmpresa(data: EmpresaApiResponse): Empresa | null {
   if (!data || typeof data !== "object" || !data.nome) {
@@ -134,7 +134,9 @@ export default function Empresa() {
               empresa.ambientes.map((tour) => (
                 <div key={tour.id} className="empresa-card">
                   <h3>{tour.titulo}</h3>
-                  {tour.imagemPreview && <img src={`${API_URL}${tour.imagemPreview}`} alt={tour.titulo} />}
+                  {tour.imagemPreview && (
+                    <img src={resolveMediaUrl(tour.imagemPreview) ?? undefined} alt={tour.titulo} />
+                  )}
                   <a
                     className="empresa-card-link"
                     href={`/tour/${tour.id}`}

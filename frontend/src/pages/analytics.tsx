@@ -13,6 +13,7 @@ import {
   FiTablet,
   FiTrendingUp,
 } from "react-icons/fi";
+import { API_URL } from "../utils/apiConfig";
 import "../styles/analytics.css";
 
 interface AnalyticsEmpresa {
@@ -63,8 +64,6 @@ interface AnalyticsResponse {
 }
 
 type TipoDispositivo = "computador" | "celular" | "tablet" | "desconhecido";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 const PERIOD_OPTIONS = [
   { value: "7", label: "Últimos 7 dias" },

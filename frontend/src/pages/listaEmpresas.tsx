@@ -2,9 +2,8 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getEmpresas } from "../services/ambienteService";
 import type { EmpresaComAmbiente } from "../services/types";
+import { resolveMediaUrl } from "../utils/mediaUrl";
 import "../styles/listaEmpresas.css";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 export default function ListaEmpresas() {
   const [empresas, setEmpresas] = useState<EmpresaComAmbiente[]>([]);
@@ -80,7 +79,7 @@ export default function ListaEmpresas() {
                 <div className="empresas-card-media">
                   {empresa.logo ? (
                     <img
-                      src={`${API_URL}${empresa.logo}`}
+                      src={resolveMediaUrl(empresa.logo) ?? undefined}
                       alt={empresa.nome}
                       className="empresas-card-logo"
                     />

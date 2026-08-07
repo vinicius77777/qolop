@@ -9,6 +9,9 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint \"src/**/*.{ts,tsx}\" --max-warnings=0"
   },
+  "engines": {
+    "node": ">=20.19.0"
+  },
   "dependencies": {
     "framer-motion": "^12.26.2",
     "leaflet": "^1.9.4",

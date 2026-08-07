@@ -40,7 +40,7 @@ export default function Welcome() {
       <div className="welcome-ambient welcome-ambient--three" />
 
       <header className="welcome-header">
-        <img src="welcome.png" alt="Qolop" />
+        <img src="/welcome.png" alt="Qolop" />
       </header>
 
       <main className="welcome-shell">

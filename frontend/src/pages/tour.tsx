@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { Ambiente, getAmbiente, registrarVisualizacaoAmbiente } from "../services/api";
+import { resolveMediaUrl } from "../utils/mediaUrl";
+import { API_URL } from "../utils/apiConfig";
 import "../styles/tour.css";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 function normalizePhone(value?: string | null) {
   return (value || "").replace(/\D/g, "");
@@ -115,7 +115,7 @@ export default function Tour() {
           <section className="tour-card">
             <img
               className="tour-image"
-              src={`${API_URL}${ambiente.imagemPreview}`}
+              src={resolveMediaUrl(ambiente.imagemPreview) ?? undefined}
               alt={ambiente.titulo}
             />
           </section>

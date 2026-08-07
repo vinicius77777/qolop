@@ -8,9 +8,8 @@ import {
   Ambiente,
   PagamentoStatus,
 } from "../services/api";
+import { resolveMediaUrl } from "../utils/mediaUrl";
 import "../styles/historico.css";
-
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
 
 function normalizePagamentoStatus(
   pagamentoStatus?: PagamentoStatus,
@@ -227,11 +226,7 @@ const HistoricoPublico: React.FC = () => {
                   {a.imagemPreview && (
                     <img
                       className="amb-card-img"
-                      src={
-                        a.imagemPreview.startsWith("http")
-                          ? a.imagemPreview
-                          : `${API_URL}${a.imagemPreview}`
-                      }
+                      src={resolveMediaUrl(a.imagemPreview) ?? undefined}
                       alt={a.titulo}
                     />
                   )}
