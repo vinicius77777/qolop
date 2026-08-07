@@ -12,7 +12,13 @@ services:
     name: qolop-backend
     runtime: node
     rootDir: backend
-    buildCommand: npm install && npm run build
+    # NODE_ENV=production faz o npm pular devDependencies no install.
+    # O build precisa delas (@types, prisma CLI), então forçamos --include=dev.
+    # Também usamos --workspaces=false: sem isso o npm detecta o package.json
+    # da raiz (monorepo), hoista os @types do frontend para a raiz e o tsc
+    # falha com conflito entre @types/express v4 (backend) e v5 (raiz via
+    # @types/multer).
+    buildCommand: npm install --workspaces=false --include=dev && npm run build
     startCommand: npm start
     healthCheckPath: /health
     autoDeploy: true

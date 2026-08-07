@@ -64,7 +64,7 @@ O repositório contém um `render.yaml` na raiz:
 2. Escolha o repositório `qolop`
 3. O Render identifica o `render.yaml` e cria o serviço:
    - Root directory: `backend`
-   - Build: `npm install && npm run build` (roda `prisma generate` + `tsc`)
+   - Build: `npm install --workspaces=false --include=dev && npm run build` (roda `prisma generate` + `tsc`)
    - Start: `npm start` (`node dist/server.js`)
    - Health check: `/health`
 4. **Antes do primeiro deploy**, configure as variáveis de ambiente marcadas com `sync: false` (seção 6) e clique em Deploy.
@@ -76,7 +76,7 @@ O repositório contém um `render.yaml` na raiz:
 3. Configuração:
    - **Root Directory:** `backend`
    - **Runtime:** Node
-   - **Build Command:** `npm install && npm run build`
+   - **Build Command:** `npm install --workspaces=false --include=dev && npm run build`
    - **Start Command:** `npm start`
    - **Health Check Path:** `/health`
    - **Instance Type:** Free ou Starter
