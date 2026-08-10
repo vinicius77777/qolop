@@ -1,7 +1,7 @@
 // src/App.tsx
 
 import React, { Suspense, lazy, useEffect, useState } from "react";
-import { BrowserRouter as Router, Routes, Route, useLocation } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { AnimatePresence, motion, type Variants, useReducedMotion } from "framer-motion";
 import "./animations.css";
 import ProtectedRoute from "./components/protectedroute";
@@ -11,7 +11,6 @@ import "leaflet/dist/leaflet.css";
 import Login from "./pages/login";
 import Register from "./pages/register";
 import ResetPassword from "./pages/resetPassword";
-import Welcome from "./pages/welcome";
 import Tour from "./pages/tour";
 import Empresa from "./pages/empresa";
 import ListaEmpresas from "./pages/listaEmpresas";
@@ -127,7 +126,7 @@ function AppContent() {
   }, [location.pathname, shouldReduceMotion, transitionKey]);
 
   // rotas onde NÃO deve aparecer o menu
-  const rotasSemMenu = ["/", "/login", "/register"];
+  const rotasSemMenu = ["/login", "/register", "/reset-password"];
 
   // mostrar menu em todas as rotas, exceto tours públicos
   const mostrarMenu =
@@ -161,7 +160,7 @@ function AppContent() {
               {/* =====================
                   ROTAS PÚBLICAS
               ===================== */}
-              <Route path="/" element={<Welcome />} />
+              <Route path="/" element={<Navigate to="/inicio" replace />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/reset-password" element={<ResetPassword />} />
@@ -180,14 +179,7 @@ function AppContent() {
               {/* =====================
                   ROTAS PRIVADAS
               ===================== */}
-              <Route
-                path="/inicio"
-                element={
-                  <ProtectedRoute>
-                    <Inicio />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/inicio" element={<Inicio />} />
 
               <Route
                 path="/perfil"
@@ -198,14 +190,7 @@ function AppContent() {
                 }
               />
 
-              <Route
-                path="/explorer"
-                element={
-                  <ProtectedRoute>
-                    <Explorer />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/explorer" element={<Explorer />} />
               
               <Route
                 path="/divulgar-espaco"
@@ -216,14 +201,7 @@ function AppContent() {
                 }
               />
 
-              <Route
-                path="/ambientes"
-                element={
-                  <ProtectedRoute>
-                    <Ambientes />
-                  </ProtectedRoute>
-                }
-              />
+              <Route path="/ambientes" element={<Ambientes />} />
 
               <Route
                 path="/pedidos"

@@ -1,0 +1,11 @@
+[INFO] 14:19:03 ts-node-dev ver. 2.0.0 (using ts-node ver. 10.9.2, typescript ver. 5.9.3)
+[SERVER] listening { port: 3000 }
+[SERVER] email_ready
+{"level":"info","timestamp":"2026-08-10T17:23:00.804Z","domain":"auth","event":"auth.register.succeeded","requestId":null,"actor":{"id":10,"role":"user","empresaId":null},"entityId":10,"empresaId":null,"meta":{"role":"user","path":"/auth/register","durationMs":330},"filters":{"email":"te***@qolop.app"}}
+{"level":"info","timestamp":"2026-08-10T17:23:00.919Z","domain":"auth","event":"auth.login.succeeded","requestId":null,"actor":{"id":10,"role":"user","empresaId":null},"entityId":10,"empresaId":null,"meta":{"role":"user","path":"/auth/login","durationMs":99},"filters":{"email":"te***@qolop.app"}}
+{"level":"info","timestamp":"2026-08-10T17:27:35.346Z","domain":"auth","event":"auth.login.succeeded","requestId":null,"actor":{"id":10,"role":"user","empresaId":null},"entityId":10,"empresaId":null,"meta":{"role":"user","path":"/auth/login","durationMs":237},"filters":{"email":"te***@qolop.app"}}
+{"level":"info","timestamp":"2026-08-10T17:27:35.513Z","domain":"auth","event":"auth.me.succeeded","requestId":null,"actor":{"id":10,"role":"user","empresaId":null},"entityId":10,"empresaId":null,"meta":{"path":"/auth/me","durationMs":53}}
+{"level":"info","timestamp":"2026-08-10T17:27:35.623Z","domain":"auth","event":"auth.me.succeeded","requestId":null,"actor":{"id":10,"role":"user","empresaId":null},"entityId":10,"empresaId":null,"meta":{"path":"/auth/me","durationMs":53}}
+{"level":"info","timestamp":"2026-08-10T17:29:55.964Z","domain":"auth","event":"auth.login.succeeded","requestId":null,"actor":{"id":10,"role":"user","empresaId":null},"entityId":10,"empresaId":null,"meta":{"role":"user","path":"/auth/login","durationMs":139},"filters":{"email":"te***@qolop.app"}}
+{"level":"info","timestamp":"2026-08-10T17:29:56.131Z","domain":"auth","event":"auth.me.succeeded","requestId":null,"actor":{"id":10,"role":"user","empresaId":null},"entityId":10,"empresaId":null,"meta":{"path":"/auth/me","durationMs":54}}
+{"level":"info","timestamp":"2026-08-10T17:29:56.243Z","domain":"auth","event":"auth.me.succeeded","requestId":null,"actor":{"id":10,"role":"user","empresaId":null},"entityId":10,"empresaId":null,"meta":{"path":"/auth/me","durationMs":54}}

@@ -10,6 +10,7 @@ import {
   Usuario,
 } from "../services/api";
 import { useNavigate, useLocation } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 import { motion } from "framer-motion";
 import { FiEye, FiTrash2, FiEdit, FiSearch, FiLayers, FiGlobe, FiZap, FiTrendingUp, FiClock } from "react-icons/fi";
 import { resolveMediaUrl } from "../utils/mediaUrl";
@@ -139,6 +140,7 @@ const heroMessages = [
 ];
 
 const Ambientes: React.FC = () => {
+  const { isAuthenticated } = useAuth();
   const [ambientes, setAmbientes] = useState<Ambiente[]>([]);
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [loading, setLoading] = useState(true);
@@ -170,6 +172,10 @@ const Ambientes: React.FC = () => {
   const location = useLocation();
 
   function salvarUltimoVisto(amb: Ambiente) {
+    if (!isAuthenticated) {
+      return;
+    }
+
     const entry = {
       id: amb.id,
       titulo: amb.titulo,
@@ -181,6 +187,11 @@ const Ambientes: React.FC = () => {
   }
 
   const carregarUltimoVistoLocal = React.useCallback(() => {
+    if (!isAuthenticated) {
+      setUltimoVisto(null);
+      return;
+    }
+
     try {
       const raw = localStorage.getItem("ultimoAmbienteVisto");
       if (!raw) return;
@@ -194,7 +205,7 @@ const Ambientes: React.FC = () => {
       }
     } catch { /* ignora */ }
     setUltimoVisto(null);
-  }, [ambientes]);
+  }, [ambientes, isAuthenticated]);
 
   useEffect(() => {
     async function carregar() {
@@ -243,7 +254,7 @@ const Ambientes: React.FC = () => {
     if (ambientes.length > 0) {
       carregarUltimoVistoLocal();
     }
-  }, [ambientes, carregarUltimoVistoLocal]);
+  }, [ambientes, carregarUltimoVistoLocal, isAuthenticated]);
 
   useEffect(() => {
     if (selected) {
@@ -317,6 +328,10 @@ const Ambientes: React.FC = () => {
   async function handleVisualizarAmbiente(amb: Ambiente) {
     setSelected(amb);
     salvarUltimoVisto(amb);
+
+    if (!isAuthenticated) {
+      return;
+    }
 
     try {
       await registrarVisualizacaoAmbiente(amb.id);
@@ -776,7 +791,7 @@ const Ambientes: React.FC = () => {
                         <button
                           type="button"
                           className="amb-contact-trigger"
-                          onClick={() => setContactTarget(amb)}
+                          onClick={() => (isAuthenticated ? setContactTarget(amb) : navigate("/login"))}
                         >
                           Falar com responsável
                         </button>
@@ -945,7 +960,7 @@ const Ambientes: React.FC = () => {
                   <button
                     type="button"
                     className="amb-contact-trigger"
-                    onClick={() => setContactTarget(selected)}
+                    onClick={() => (isAuthenticated ? setContactTarget(selected) : navigate("/login"))}
                   >
                     Falar com responsável
                   </button>

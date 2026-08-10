@@ -825,3 +825,76 @@ body:not(:has(.menu)) .auth-back-button,
     padding: 0 14px;
   }
 }
+
+/* ============================================================
+   PROTEÇÃO GLOBAL CONTRA OVERFLOW MOBILE
+   ============================================================ */
+html {
+  overflow-x: hidden;
+  overflow-y: auto;
+}
+
+body {
+  overflow-x: hidden;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+#root,
+.app-shell,
+.route-transition-layer,
+.route-transition-shell {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+}
+
+/* qualquer texto longo quebra em vez de empurrar a tela */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p,
+li,
+label,
+strong,
+small,
+a,
+button {
+  overflow-wrap: anywhere;
+}
+
+/* filhos de qualquer grid nunca estouram a largura disponível */
+@supports (display: grid) {
+  [class*="grid"] > *,
+  .menu-shell > *,
+  .login-hero > *,
+  .perfil-hero > *,
+  .perfil-grid > *,
+  .an-hero > *,
+  .ped-hero > *,
+  .amb-hero > *,
+  .welcome-hero > *,
+  .historico-toolbar > *,
+  .historico-overview-grid > *,
+  .historico-summary-grid > *,
+  .inicio-hero-inner > * {
+    min-width: 0;
+  }
+}
+
+@media (max-width: 768px) {
+  #root {
+    overflow-x: hidden;
+  }
+
+  .app-shell {
+    overflow: hidden;
+  }
+
+  .page-container {
+    width: 100%;
+  }
+}

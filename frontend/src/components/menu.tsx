@@ -3,7 +3,7 @@
 import { NavLink, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { FiMail, FiMenu, FiX, FiSun, FiMoon } from "react-icons/fi";
+import { FiMail, FiMenu, FiX, FiSun, FiMoon, FiLogIn } from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { canAccessEmpresaFeatures, isAdminUser } from "../utils/permissions";
@@ -39,6 +39,11 @@ export default function Menu() {
     navigate("/login");
   };
 
+  const abrirLogin = () => {
+    setMenuAberto(false);
+    navigate("/login");
+  };
+
   const isAdmin = isAdminUser(user);
   const canAccessEmpresa = canAccessEmpresaFeatures(user);
   const canAccessPedidos = canAccessEmpresa;
@@ -47,6 +52,16 @@ export default function Menu() {
   const alternarMenu = () => setMenuAberto((valorAtual) => !valorAtual);
 
   const { isDark, toggleTheme } = useTheme();
+
+  function abrirPerfil() {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+
+    fecharMenu();
+    navigate("/perfil");
+  }
 
   return (
     <motion.header
@@ -92,15 +107,11 @@ export default function Menu() {
               </NavLink>
             </motion.div>
 
-            
-
-            {user && (
-              <motion.div {...itemMotion}>
-                <NavLink to="/explorer" className="menu-link" onClick={fecharMenu}>
-                  Explorar
-                </NavLink>
-              </motion.div>
-            )}
+            <motion.div {...itemMotion}>
+              <NavLink to="/explorer" className="menu-link" onClick={fecharMenu}>
+                Explorar
+              </NavLink>
+            </motion.div>
 
             {canAccessPedidos && (
               <motion.div {...itemMotion}>
@@ -140,13 +151,20 @@ export default function Menu() {
               </NavLink>
             </motion.div>
 
-            {user && (
-              <motion.div {...itemMotion}>
-                <NavLink to="/perfil" className="menu-link" onClick={fecharMenu}>
-                  Perfil
-                </NavLink>
-              </motion.div>
-            )}
+            <motion.div {...itemMotion}>
+              <NavLink
+                to={user ? "/perfil" : "/login"}
+                className="menu-link"
+                onClick={(event) => {
+                  if (!user) {
+                    event.preventDefault();
+                  }
+                  abrirPerfil();
+                }}
+              >
+                Perfil
+              </NavLink>
+            </motion.div>
 
             {isAdmin && (
               <motion.div {...itemMotion}>
@@ -181,7 +199,7 @@ export default function Menu() {
                   <span>Contato</span>
                 </motion.a>
 
-              <motion.button
+                <motion.button
                   className="menu-btn menu-arrow-button"
                   onClick={sair}
                   whileHover={{ y: -2, scale: 1.01 }}
@@ -197,6 +215,25 @@ export default function Menu() {
                 </motion.button>
               </>
             )}
+
+            {!user && (
+              <motion.button
+                className="menu-btn menu-login-btn menu-arrow-button"
+                onClick={abrirLogin}
+                whileHover={{ y: -2, scale: 1.01 }}
+                whileTap={{ scale: 0.97 }}
+                transition={{
+                  type: "spring",
+                  stiffness: 420,
+                  damping: 24,
+                  mass: 0.7,
+                }}
+              >
+                <FiLogIn />
+                <span>Entrar</span>
+              </motion.button>
+            )}
+
             <motion.button
               className="menu-theme-toggle"
               onClick={toggleTheme}
@@ -238,12 +275,10 @@ export default function Menu() {
             <NavLink to="/ambientes" className="menu-mobile-link" onClick={fecharMenu}>
               Ambientes
             </NavLink>
-        
-            {user && (
-              <NavLink to="/explorer" className="menu-mobile-link" onClick={fecharMenu}>
-                Explorar
-              </NavLink>
-            )}
+            <NavLink to="/explorer" className="menu-mobile-link" onClick={fecharMenu}>
+              Explorar
+            </NavLink>
+
             {canAccessPedidos && (
               <NavLink to="/pedidos" className="menu-mobile-link" onClick={fecharMenu}>
                 Pedidos
@@ -272,12 +307,20 @@ export default function Menu() {
             <NavLink to="/empresas" className="menu-mobile-link" onClick={fecharMenu}>
               Organizações
             </NavLink>
-            
-            {user && (
-              <NavLink to="/perfil" className="menu-mobile-link" onClick={fecharMenu}>
-                Perfil
-              </NavLink>
-            )}
+
+            <NavLink
+              to={user ? "/perfil" : "/login"}
+              className="menu-mobile-link"
+              onClick={(event) => {
+                if (!user) {
+                  event.preventDefault();
+                }
+                abrirPerfil();
+              }}
+            >
+              Perfil
+            </NavLink>
+
             {isAdmin && (
               <NavLink to="/usuarios" className="menu-mobile-link" onClick={fecharMenu}>
                 Usuários
@@ -296,25 +339,36 @@ export default function Menu() {
               <span>{isDark ? "Modo Claro" : "Modo Escuro"}</span>
             </motion.button>
 
-            <motion.a
-              href={CONTACT_URL}
-              className="menu-mobile-action menu-mobile-action-contact menu-arrow-button"
-              aria-label={`Entrar em contato por email: ${CONTACT_EMAIL}`}
-              target="_blank"
-              rel="noreferrer"
-              whileTap={{ scale: 0.97 }}
-            >
-              <FiMail />
-              <span>Contato</span>
-            </motion.a>
+            {user ? (
+              <>
+                <motion.a
+                  href={CONTACT_URL}
+                  className="menu-mobile-action menu-mobile-action-contact menu-arrow-button"
+                  aria-label={`Entrar em contato por email: ${CONTACT_EMAIL}`}
+                  target="_blank"
+                  rel="noreferrer"
+                  whileTap={{ scale: 0.97 }}
+                >
+                  <FiMail />
+                  <span>Contato</span>
+                </motion.a>
 
-            {user && (
+                <motion.button
+                  className="menu-mobile-action menu-mobile-action-logout menu-arrow-button"
+                  onClick={sair}
+                  whileTap={{ scale: 0.97 }}
+                >
+                  Sair
+                </motion.button>
+              </>
+            ) : (
               <motion.button
-                className="menu-mobile-action menu-mobile-action-logout menu-arrow-button"
-                onClick={sair}
+                className="menu-mobile-action menu-mobile-action-login menu-arrow-button"
+                onClick={abrirLogin}
                 whileTap={{ scale: 0.97 }}
               >
-                Sair
+                <FiLogIn />
+                <span>Entrar</span>
               </motion.button>
             )}
           </div>

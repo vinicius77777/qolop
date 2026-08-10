@@ -5,6 +5,8 @@
   background:
     radial-gradient(circle at top left, rgba(94, 53, 255, 0.18), transparent 32%),
     radial-gradient(circle at top right, rgba(74, 122, 255, 0.14), transparent 28%);
+  overflow-x: hidden;
+  overflow-wrap: anywhere;
 }
 
 .perfil-wrapper {

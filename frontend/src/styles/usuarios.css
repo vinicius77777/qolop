@@ -18,6 +18,8 @@ body {
   width: 100%;
   min-height: 100vh;
   padding: 100px 16px 48px;
+  overflow-x: hidden;
+  overflow-wrap: anywhere;
 }
 
 /* CONTAINER */
@@ -69,7 +71,7 @@ body {
 
 .usuarios-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(260px, 100%), 1fr));
   gap: 18px;
 }
 

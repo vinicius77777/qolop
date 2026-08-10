@@ -115,8 +115,8 @@ const HistoricoPublico: React.FC = () => {
   }
 
   return (
-    <div className="amb-page">
-      <div className="amb-wrapper">
+    <div className="amb-page" style={{ paddingTop: "clamp(5.4rem, 7vw, 7rem)" }}>
+      <div className="amb-shell" style={{ gap: "1.5rem" }}>
         <h1 className="historico-title">Histórico Público</h1>
 
         <div className="historico-tabs">

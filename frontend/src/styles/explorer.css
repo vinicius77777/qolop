@@ -774,6 +774,10 @@
     left: 8px;
     right: 8px;
     gap: 6px;
+    max-height: calc(100vh - 96px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
   }
 
   .explorer-panel-toggle {
@@ -785,6 +789,9 @@
     border-radius: 14px;
     gap: 8px;
     display: none;
+    min-width: 0;
+    width: 100%;
+    max-width: 100%;
   }
 
   .explorer-topbar--expanded .explorer-panel {
@@ -797,6 +804,31 @@
 
   .explorer-panel--location {
     width: 100%;
+  }
+
+  .explorer-filters,
+  .explorer-place-search,
+  .explorer-location-actions {
+    min-width: 0;
+    max-width: 100%;
+  }
+
+  .explorer-search,
+  .explorer-category-select,
+  .explorer-place-search__input {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .explorer-location-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .explorer-location-btn {
+    width: 100%;
+    min-width: 0;
+    white-space: normal;
   }
 
   .explorer-hud-label {

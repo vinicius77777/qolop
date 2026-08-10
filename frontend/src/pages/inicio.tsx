@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { motion, useInView, useScroll, useSpring, useTransform } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { getMe, Usuario } from "../services/api";
+import { useAuth } from "../context/AuthContext";
 import {
   clearNewUserOnboarding,
   getNewUserOnboardingId,
@@ -145,6 +146,7 @@ function OnboardingModal({
 }
 
 export default function Inicio() {
+  const { isAuthenticated } = useAuth();
   const [usuario, setUsuario] = useState<Usuario | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -176,6 +178,12 @@ export default function Inicio() {
   useEffect(() => {
     (async () => {
       try {
+        if (!isAuthenticated) {
+          setUsuario(null);
+          setShowOnboarding(false);
+          return;
+        }
+
         const data = await getMe();
         setUsuario(data);
 
@@ -189,18 +197,22 @@ export default function Inicio() {
 
         setShowOnboarding(shouldOpenOnboarding);
       } catch {
-        setError("Você precisa estar logado.");
-        setTimeout(() => navigate("/login"), 1400);
+        setUsuario(null);
+        setError("");
       } finally {
         setLoading(false);
       }
     })();
-  }, [navigate]);
+  }, [isAuthenticated, navigate]);
 
   const isAdmin = usuario?.role === "admin";
   const isEmpresa = usuario?.role === "empresa";
   const canAccessAdminAreas = isAdmin || isEmpresa;
-  const analyticsRoute = usuario ? "/analytics" : "/login";
+  const analyticsRoute = canAccessAdminAreas
+    ? "/analytics"
+    : isAuthenticated
+    ? "/perfil"
+    : "/login";
 
   const greeting = useMemo(() => {
     if (!usuario?.nome) return "Bem-vindo";
@@ -208,7 +220,8 @@ export default function Inicio() {
   }, [usuario]);
 
   const historyRoute = useMemo(() => {
-    if (usuario?.id && canAccessAdminAreas) return `/historico/${usuario.id}`;
+    if (!usuario?.id) return "/login";
+    if (canAccessAdminAreas) return `/historico/${usuario.id}`;
     return "/perfil";
   }, [canAccessAdminAreas, usuario]);
 
@@ -361,7 +374,39 @@ export default function Inicio() {
                       Ver histórico
                     </motion.button>
                   </>
-                ) : null}
+                ) : isAuthenticated ? (
+                  <motion.button
+                    type="button"
+                    className="inicio-button inicio-button--secondary"
+                    whileHover={{ y: -2 }}
+                    whileTap={{ scale: 0.985 }}
+                    onClick={() => navigate("/perfil")}
+                  >
+                    Ver perfil
+                  </motion.button>
+                ) : (
+                  <>
+                    <motion.button
+                      type="button"
+                      className="inicio-button inicio-button--secondary"
+                      whileHover={{ y: -2 }}
+                      whileTap={{ scale: 0.985 }}
+                      onClick={() => navigate("/login")}
+                    >
+                      Entrar
+                    </motion.button>
+
+                    <motion.button
+                      type="button"
+                      className="inicio-button inicio-button--secondary"
+                      whileHover={{ y: -2 }}
+                      whileTap={{ scale: 0.985 }}
+                      onClick={() => navigate("/register")}
+                    >
+                      Criar conta
+                    </motion.button>
+                  </>
+                )}
               </motion.div>
             </motion.div>
 
@@ -384,7 +429,9 @@ export default function Inicio() {
                 ))}
               </div>
               <div className="inicio-panel-footnote">
-                Sessão ativa{usuario?.email ? ` · ${usuario.email}` : ""}.
+                {usuario?.email
+                  ? `Sessão ativa · ${usuario.email}.`
+                  : "Navegação pública · faça login para personalizar."}
               </div>
             </motion.aside>
           </div>
@@ -452,12 +499,14 @@ export default function Inicio() {
                 whileHover={{ y: -2 }}
                 whileTap={{ scale: 0.985 }}
                 onClick={() =>
-                  navigate("/divulgar-espaco", {
-                    state: {
-                      nome: usuario?.nome,
-                      email: usuario?.email,
-                    },
-                  })
+                  isAuthenticated
+                    ? navigate("/divulgar-espaco", {
+                        state: {
+                          nome: usuario?.nome,
+                          email: usuario?.email,
+                        },
+                      })
+                    : navigate("/login")
                 }
               >
                 Publicar espaço

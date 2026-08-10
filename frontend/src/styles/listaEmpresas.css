@@ -3,6 +3,8 @@
   width: 100%;
   padding: 88px 16px 48px;
   color: #fff;
+  overflow-x: hidden;
+  overflow-wrap: anywhere;
 }
 
 .empresas-wrapper {
@@ -56,7 +58,7 @@
 
 .empresas-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(320px, 100%), 1fr));
   gap: 20px;
 }
 
