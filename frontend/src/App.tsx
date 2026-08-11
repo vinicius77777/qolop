@@ -195,7 +195,7 @@ function AppContent() {
               <Route
                 path="/divulgar-espaco"
                 element={
-                  <ProtectedRoute>
+                  <ProtectedRoute requiresEmpresa>
                     <DivulgarEspaco />
                   </ProtectedRoute>
                 }
@@ -204,28 +204,19 @@ function AppContent() {
               <Route path="/ambientes" element={<Ambientes />} />
 
               <Route
-                path="/pedidos"
-                element={
-                  <ProtectedRoute onlyEmpresa>
-                    <Pedidos />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
-                path="/criar-tour"
-                element={
-                  <ProtectedRoute onlyAdmin>
-                    <CriarTour />
-                  </ProtectedRoute>
-                }
-              />
-
-              <Route
                 path="/criarTour"
                 element={
                   <ProtectedRoute onlyAdmin>
                     <CriarTour />
+                  </ProtectedRoute>
+                }
+              />
+
+              <Route
+                path="/pedidos"
+                element={
+                  <ProtectedRoute>
+                    <Pedidos />
                   </ProtectedRoute>
                 }
               />

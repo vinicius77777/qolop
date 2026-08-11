@@ -100,6 +100,10 @@ export function getAmbientesPopulares(): Promise<Ambiente[]> {
   return request<Ambiente[]>("/ambientes/popular", { method: "GET" }, false);
 }
 
+export function getAmbientesDestaques(): Promise<Ambiente[]> {
+  return request<Ambiente[]>("/ambientes/destaques", { method: "GET" }, Boolean(getStoredToken()));
+}
+
 export function enviarLead(data: Lead) {
   return request("/leads", { method: "POST", body: JSON.stringify(data) });
 }

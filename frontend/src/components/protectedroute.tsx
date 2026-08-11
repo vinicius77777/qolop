@@ -2,18 +2,24 @@ import React from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import type { Usuario } from "../services/types";
-import { canAccessEmpresaFeatures, isAdminUser } from "../utils/permissions";
+import {
+  canAccessEmpresaFeatures,
+  hasEmpresaVinculada,
+  isAdminUser,
+} from "../utils/permissions";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
   onlyAdmin?: boolean;
   onlyEmpresa?: boolean;
+  requiresEmpresa?: boolean;
 }
 
 function hasRequiredAccess(
   usuario: Usuario | null,
   onlyAdmin?: boolean,
-  onlyEmpresa?: boolean
+  onlyEmpresa?: boolean,
+  requiresEmpresa?: boolean
 ) {
   if (onlyAdmin) {
     return isAdminUser(usuario);
@@ -23,6 +29,10 @@ function hasRequiredAccess(
     return canAccessEmpresaFeatures(usuario);
   }
 
+  if (requiresEmpresa) {
+    return isAdminUser(usuario) || hasEmpresaVinculada(usuario);
+  }
+
   return true;
 }
 
@@ -30,6 +40,7 @@ export default function ProtectedRoute({
   children,
   onlyAdmin,
   onlyEmpresa,
+  requiresEmpresa,
 }: ProtectedRouteProps) {
   const { isAuthenticated, isLoading, user } = useAuth();
 
@@ -41,7 +52,7 @@ export default function ProtectedRoute({
     return <Navigate to="/login" replace />;
   }
 
-  if (!hasRequiredAccess(user, onlyAdmin, onlyEmpresa)) {
+  if (!hasRequiredAccess(user, onlyAdmin, onlyEmpresa, requiresEmpresa)) {
     return <Navigate to="/inicio" replace />;
   }
 

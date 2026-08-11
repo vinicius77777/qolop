@@ -1,13 +1,25 @@
+// src/pages/criarTour.tsx
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import L from "leaflet";
 import { Circle, MapContainer, Marker, TileLayer, useMap, useMapEvents } from "react-leaflet";
 import { useLocation } from "react-router-dom";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  FiCheckCircle,
+  FiChevronLeft,
+  FiChevronRight,
+  FiMapPin,
+  FiUploadCloud,
+} from "react-icons/fi";
 import { createAmbiente } from "../services/api";
 import { API_URL } from "../utils/apiConfig";
 import "leaflet/dist/leaflet.css";
 import "../styles/criarTour.css";
 
+const TJ_EASE = [0.22, 1, 0.36, 1] as const;
+
 type LocationStatusTone = "idle" | "loading" | "success" | "warning";
+type StepperStep = "dados" | "local" | "revisao";
 
 interface CriarTourNavigationState {
   clienteNome?: string;
@@ -49,12 +61,16 @@ interface SelectedLocation {
   radius: number;
 }
 
+type ToastState = { tone: "success" | "error"; message: string } | null;
+
 const DEFAULT_COUNTRY = "Brasil";
 const DEFAULT_MAP_CENTER: [number, number] = [-22.2521, -45.7036];
 const DEFAULT_MAP_ZOOM = 15;
 const SELECTED_ZOOM_EXACT = 18;
 const SELECTED_ZOOM_APPROX = 16;
 const SELECTED_ZOOM_MANUAL = 19;
+
+const STEPPER_ORDER: StepperStep[] = ["dados", "local", "revisao"];
 
 const markerIcon = new L.Icon({
   iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
@@ -385,6 +401,7 @@ export default function CriarTour() {
   const [cep, setCep] = useState("");
   const [publico, setPublico] = useState(true);
   const [imagem, setImagem] = useState<File | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const [loading, setLoading] = useState(false);
   const [buscandoSugestoes, setBuscandoSugestoes] = useState(false);
@@ -402,6 +419,9 @@ export default function CriarTour() {
     tone: "idle",
     text: "Preencha os dados, busque o endereço e selecione uma sugestão ou clique no mapa para definir o ponto.",
   });
+
+  const [toast, setToast] = useState<ToastState>(null);
+  const [activeStep, setActiveStep] = useState<StepperStep>("dados");
 
   const prefillInfo = useMemo(() => {
     const partes = [navState.pedidoEmpresaNome, navState.clienteNome].filter(Boolean);
@@ -463,6 +483,21 @@ export default function CriarTour() {
     prefillAppliedRef.current = true;
   }, [prefillInfo]);
 
+  useEffect(() => {
+    if (!toast) return;
+    const timer = window.setTimeout(() => setToast(null), 3600);
+    return () => window.clearTimeout(timer);
+  }, [toast]);
+
+  const stepIndex = STEPPER_ORDER.indexOf(activeStep);
+
+  function getStepState(step: StepperStep): "done" | "active" | "pending" {
+    const index = STEPPER_ORDER.indexOf(step);
+    if (index < stepIndex) return "done";
+    if (index === stepIndex) return "active";
+    return "pending";
+  }
+
   function resetSelectedLocation() {
     setEnderecoSelecionado(null);
     setLocalizacaoConfirmada("");
@@ -495,13 +530,14 @@ export default function CriarTour() {
         ? "Sugestão aproximada selecionada. Se quiser mais precisão, clique no ponto exato no mapa."
         : "Sugestão selecionada com sucesso. Você já pode salvar ou ajustar manualmente no mapa.",
     });
+    setActiveStep("local");
   }
 
   async function handleBuscarEndereco() {
     const hasSearchData = [endereco, cep, cidade, pais].some((value) => value.trim());
 
     if (!hasSearchData) {
-      alert("Preencha endereço, CEP, cidade ou país para buscar.");
+      setToast({ tone: "error", message: "Preencha endereço, CEP, cidade ou país para buscar." });
       return;
     }
 
@@ -547,7 +583,7 @@ export default function CriarTour() {
         tone: "warning",
         text: "Erro ao buscar o endereço. Tente novamente ou marque o ponto manualmente no mapa.",
       });
-      alert(error?.message || "Erro ao buscar o endereço.");
+      setToast({ tone: "error", message: error?.message || "Erro ao buscar o endereço." });
     } finally {
       setBuscandoSugestoes(false);
     }
@@ -574,13 +610,43 @@ export default function CriarTour() {
       tone: "success",
       text: "Ponto manual confirmado. Esse local será enviado ao salvar o tour.",
     });
+    setActiveStep("local");
+  }
+
+  function dadosPreenchidos() {
+    return Boolean(
+      titulo.trim() &&
+        descricao.trim() &&
+        linkVR.trim() &&
+        categoria.trim()
+    );
+  }
+
+  function localConfirmado() {
+    return Boolean(enderecoSelecionado);
+  }
+
+  function irParaLocal() {
+    if (!dadosPreenchidos()) {
+      setToast({ tone: "error", message: "Preencha título, descrição, link VR e categoria para continuar." });
+      return;
+    }
+    setActiveStep("local");
+  }
+
+  function irParaRevisao() {
+    if (!localConfirmado()) {
+      setToast({ tone: "error", message: "Confirme a localização no mapa antes de revisar." });
+      return;
+    }
+    setActiveStep("revisao");
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
 
     if (!enderecoSelecionado) {
-      alert("Busque um endereço e selecione uma sugestão, ou marque o ponto manualmente no mapa antes de salvar.");
+      setToast({ tone: "error", message: "Busque um endereço e selecione uma sugestão, ou marque o ponto manualmente no mapa antes de salvar." });
       return;
     }
 
@@ -618,8 +684,7 @@ export default function CriarTour() {
           ? "Tour criado com localização aproximada selecionada."
           : "Tour criado com localização confirmada.",
       });
-
-      alert(`Tour criado com sucesso!\n\n${localizacaoMsg}`);
+      setToast({ tone: "success", message: "Tour criado com sucesso." });
 
       setTitulo("");
       setDescricao("");
@@ -638,323 +703,531 @@ export default function CriarTour() {
       setLongitudeManual("");
       setMapCenter(DEFAULT_MAP_CENTER);
       setMapZoom(DEFAULT_MAP_ZOOM);
+      setActiveStep("dados");
       setLocationStatus({
         tone: "idle",
         text: "Preencha os dados, busque o endereço e selecione uma sugestão ou clique no mapa para definir o ponto.",
       });
     } catch (err: any) {
       console.error(err);
-      alert(`Erro ao criar tour: ${err.message}`);
+      setToast({ tone: "error", message: `Erro ao criar tour: ${err.message}` });
     } finally {
       setLoading(false);
     }
   }
 
   return (
-    <div className="criar-tour-page">
-      <div className="criar-tour-shell">
-        <div className="criar-tour-hero">
-          <p className="criar-tour-eyebrow">Publicação imersiva</p>
-          <h1>Criar novo tour</h1>
-          <p>
-            Preencha os dados do ambiente, busque o endereço e confirme o ponto no mapa antes de publicar.
-          </p>
-        </div>
+    <div className="tj-crt-page">
+      <div className="tj-crt-bg" aria-hidden="true">
+        <span className="tj-crt-orb tj-crt-orb--one" />
+        <span className="tj-crt-orb tj-crt-orb--two" />
+        <span className="tj-crt-orb tj-crt-orb--three" />
+      </div>
 
-        <form onSubmit={handleSubmit} className="criar-tour-form">
-          {prefillInfo.possuiPrefill ? (
-            <div className="criar-tour-prefill-note">
-              Dados do pedido foram pré-preenchidos automaticamente para acelerar a criação do tour.
-            </div>
-          ) : null}
+      <main className="tj-crt-content">
+        {/* ============ HERO + STEPPER ============ */}
+        <header className="tj-crt-hero">
+          <motion.div
+            className="tj-crt-kicker"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: TJ_EASE, delay: 0.05 }}
+          >
+            <span>Publicação imersiva</span>
+            <span className="tj-crt-dot" />
+            <span>tour 360°</span>
+          </motion.div>
 
-          <div className="criar-tour-field">
-            <label htmlFor="titulo">Título</label>
-            <input
-              id="titulo"
-              placeholder="Ex.: Showroom Qolop Experience"
-              value={titulo}
-              onChange={(e) => setTitulo(e.target.value)}
-              required
-            />
-          </div>
+          <motion.h1
+            className="tj-crt-title"
+            initial={{ opacity: 0, y: 26 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, ease: TJ_EASE, delay: 0.1 }}
+          >
+            Crie um tour
+            <br />
+            em três passos.
+          </motion.h1>
 
-          <div className="criar-tour-field">
-            <label htmlFor="descricao">Descrição</label>
-            <textarea
-              id="descricao"
-              placeholder="Descreva o contexto, os diferenciais e a proposta da experiência."
-              value={descricao}
-              onChange={(e) => setDescricao(e.target.value)}
-              required
-            />
-          </div>
+          <motion.p
+            className="tj-crt-lead"
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: TJ_EASE, delay: 0.18 }}
+          >
+            Preencha os dados, confirme o ponto no mapa e revise antes de publicar.
+            Campos limpos, apenas linhas finas.
+          </motion.p>
 
-          <div className="criar-tour-field">
-            <label htmlFor="linkVR">Link VR</label>
-            <input
-              id="linkVR"
-              placeholder="Cole a URL do tour virtual"
-              value={linkVR}
-              onChange={(e) => setLinkVR(e.target.value)}
-              required
-            />
-          </div>
+          <motion.nav
+            className="tj-crt-stepper"
+            aria-label="Progresso da criação do tour"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: TJ_EASE, delay: 0.26 }}
+          >
+            {STEPPER_ORDER.map((step, index) => {
+              const state = getStepState(step);
+              const label =
+                step === "dados" ? "Dados" : step === "local" ? "Localização" : "Revisão";
 
-          <div className="criar-tour-field">
-            <label htmlFor="siteUrl">Site</label>
-            <input
-              id="siteUrl"
-              type="url"
-              placeholder="https://www.seusite.com.br"
-              value={siteUrl}
-              onChange={(e) => setSiteUrl(e.target.value)}
-            />
-          </div>
+              return (
+                <React.Fragment key={step}>
+                  {index > 0 ? (
+                    <span className={`tj-crt-stepper-line${getStepState(STEPPER_ORDER[index - 1]) === "done" ? " is-done" : ""}`} aria-hidden="true" />
+                  ) : null}
+                  <span className={`tj-crt-stepper-item${state === "active" ? " is-active" : ""}${state === "done" ? " is-done" : ""}`}>
+                    <span className="tj-crt-stepper-num">{state === "done" ? "✓" : index + 1}</span>
+                    {label}
+                  </span>
+                </React.Fragment>
+              );
+            })}
+          </motion.nav>
+        </header>
 
-          <div className="criar-tour-field">
-            <label htmlFor="categoria">Tipo / categoria</label>
-            <input
-              id="categoria"
-              placeholder="Ex.: museu, imóvel, escola"
-              value={categoria}
-              onChange={(e) => setCategoria(e.target.value)}
-              required
-            />
-          </div>
-
-          <div className="criar-tour-grid">
-            <div className="criar-tour-field">
-              <label htmlFor="cidade">Cidade</label>
-              <input
-                id="cidade"
-                placeholder="Cidade"
-                value={cidade}
-                onChange={(e) => {
-                  setCidade(e.target.value);
-                  resetSelectedLocation();
-                }}
-              />
-            </div>
-
-            <div className="criar-tour-field">
-              <label htmlFor="pais">País</label>
-              <input
-                id="pais"
-                placeholder="País"
-                value={pais}
-                onChange={(e) => {
-                  setPais(e.target.value);
-                  resetSelectedLocation();
-                }}
-              />
-            </div>
-          </div>
-
-          <div className="criar-tour-grid-address">
-            <div className="criar-tour-field">
-              <label htmlFor="endereco">Endereço</label>
-              <input
-                id="endereco"
-                placeholder="Rua, número, bairro"
-                value={endereco}
-                onChange={(e) => {
-                  setEndereco(e.target.value);
-                  resetSelectedLocation();
-                }}
-              />
-            </div>
-
-            <div className="criar-tour-field">
-              <label htmlFor="cep">CEP</label>
-              <input
-                id="cep"
-                placeholder="CEP"
-                value={cep}
-                onChange={(e) => {
-                  setCep(e.target.value);
-                  resetSelectedLocation();
-                }}
-              />
-            </div>
-          </div>
-
-          <div className="criar-tour-actions">
-            <button
-              type="button"
-              disabled={buscandoSugestoes}
-              className="criar-tour-submit"
-              onClick={() => void handleBuscarEndereco()}
+        <form onSubmit={handleSubmit} className="tj-crt-form" noValidate>
+          {/* ============ ETAPA 1: DADOS ============ */}
+          {activeStep === "dados" && (
+            <motion.section
+              className="tj-crt-section"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, ease: TJ_EASE }}
             >
-              {buscandoSugestoes ? "Buscando local..." : "Buscar endereço"}
-            </button>
-            <p className="criar-tour-caption">
-              Fluxo recomendado: preencher os campos, buscar o endereço, escolher uma sugestão e, se necessário, ajustar no mapa.
-            </p>
-          </div>
-
-          <div className="criar-tour-location-panel">
-            <div className={`criar-tour-location-status is-${locationStatus.tone}`}>
-              <div>
-                <strong>Status da localização</strong>
-                <p>{locationStatus.text}</p>
+              <div className="tj-crt-section-head">
+                <span className="tj-crt-kicker">Passo 1</span>
+                <h2>Informações do ambiente.</h2>
+                <p>Dados essenciais para identificar o tour no catálogo e no explorer.</p>
               </div>
 
-              {enderecoSelecionado ? (
-                <div className="criar-tour-location-meta">
-                  <span className="criar-tour-location-badge">
-                    {enderecoSelecionado.source === "manual" ? "Manual" : "Busca"}
-                  </span>
-                  <span className="criar-tour-location-badge">
-                    {enderecoSelecionado.isApproximate ? "Aproximada" : "Exata"}
-                  </span>
+              {prefillInfo.possuiPrefill ? (
+                <div className="tj-crt-prefill-note">
+                  Dados do pedido foram pré-preenchidos automaticamente para acelerar a criação do tour.
                 </div>
               ) : null}
-            </div>
 
-            {localizacaoConfirmada ? <p className="criar-tour-caption">{localizacaoConfirmada}</p> : null}
+              <div className="tj-crt-field">
+                <label htmlFor="titulo">Título</label>
+                <input
+                  id="titulo"
+                  placeholder="Ex.: Showroom Qolop Experience"
+                  value={titulo}
+                  onChange={(e) => setTitulo(e.target.value)}
+                  required
+                />
+              </div>
 
-            {sugestoesEndereco.length > 0 ? (
-              <div className="criar-tour-suggestion-list">
-                {sugestoesEndereco.map((sugestao) => (
-                  <button
-                    key={sugestao.id}
-                    type="button"
-                    className={`criar-tour-suggestion-item${
-                      enderecoSelecionado?.id === sugestao.id ? " is-active" : ""
-                    }`}
-                    onClick={() => handleSelecionarSugestao(sugestao)}
-                  >
-                    <div>
-                      <strong>{sugestao.title}</strong>
-                      <span>{sugestao.subtitle}</span>
-                    </div>
-                    <span className="criar-tour-location-badge">
-                      {sugestao.isApproximate ? "Aproximada" : "Exata"}
+              <div className="tj-crt-field">
+                <label htmlFor="descricao">Descrição</label>
+                <textarea
+                  id="descricao"
+                  placeholder="Descreva o contexto, os diferenciais e a proposta da experiência."
+                  value={descricao}
+                  onChange={(e) => setDescricao(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="tj-crt-grid">
+                <div className="tj-crt-field">
+                  <label htmlFor="linkVR">Link VR</label>
+                  <input
+                    id="linkVR"
+                    placeholder="Cole a URL do tour virtual"
+                    value={linkVR}
+                    onChange={(e) => setLinkVR(e.target.value)}
+                    required
+                  />
+                </div>
+
+                <div className="tj-crt-field">
+                  <label htmlFor="siteUrl">Site</label>
+                  <input
+                    id="siteUrl"
+                    type="url"
+                    placeholder="https://www.seusite.com.br"
+                    value={siteUrl}
+                    onChange={(e) => setSiteUrl(e.target.value)}
+                  />
+                </div>
+              </div>
+
+              <div className="tj-crt-field">
+                <label htmlFor="categoria">Tipo / categoria</label>
+                <input
+                  id="categoria"
+                  placeholder="Ex.: museu, imóvel, escola"
+                  value={categoria}
+                  onChange={(e) => setCategoria(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div className="tj-crt-actions">
+                <button
+                  type="button"
+                  className="tj-crt-action tj-crt-action--solid"
+                  onClick={irParaLocal}
+                >
+                  Continuar para localização
+                  <FiChevronRight />
+                </button>
+                <p className="tj-crt-caption">Título, descrição, link VR e categoria são obrigatórios.</p>
+              </div>
+            </motion.section>
+          )}
+
+          {/* ============ ETAPA 2: LOCALIZAÇÃO ============ */}
+          {activeStep === "local" && (
+            <motion.section
+              className="tj-crt-section"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, ease: TJ_EASE }}
+            >
+              <div className="tj-crt-section-head">
+                <span className="tj-crt-kicker">Passo 2</span>
+                <h2>Confirme o ponto no mapa.</h2>
+                <p>Busque o endereço e escolha uma sugestão, ou clique diretamente no mapa.</p>
+              </div>
+
+              <div className="tj-crt-grid-address">
+                <div className="tj-crt-field">
+                  <label htmlFor="endereco">Endereço</label>
+                  <input
+                    id="endereco"
+                    placeholder="Rua, número, bairro"
+                    value={endereco}
+                    onChange={(e) => {
+                      setEndereco(e.target.value);
+                      resetSelectedLocation();
+                    }}
+                  />
+                </div>
+
+                <div className="tj-crt-field">
+                  <label htmlFor="cep">CEP</label>
+                  <input
+                    id="cep"
+                    placeholder="CEP"
+                    value={cep}
+                    onChange={(e) => {
+                      setCep(e.target.value);
+                      resetSelectedLocation();
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="tj-crt-grid">
+                <div className="tj-crt-field">
+                  <label htmlFor="cidade">Cidade</label>
+                  <input
+                    id="cidade"
+                    placeholder="Cidade"
+                    value={cidade}
+                    onChange={(e) => {
+                      setCidade(e.target.value);
+                      resetSelectedLocation();
+                    }}
+                  />
+                </div>
+
+                <div className="tj-crt-field">
+                  <label htmlFor="pais">País</label>
+                  <input
+                    id="pais"
+                    placeholder="País"
+                    value={pais}
+                    onChange={(e) => {
+                      setPais(e.target.value);
+                      resetSelectedLocation();
+                    }}
+                  />
+                </div>
+              </div>
+
+              <div className="tj-crt-actions">
+                <button
+                  type="button"
+                  className="tj-crt-action tj-crt-action--solid"
+                  onClick={() => void handleBuscarEndereco()}
+                  disabled={buscandoSugestoes}
+                >
+                  <FiMapPin />
+                  {buscandoSugestoes ? "Buscando local..." : "Buscar endereço"}
+                </button>
+                <p className="tj-crt-caption">
+                  Fluxo recomendado: preencher os campos, buscar o endereço, escolher uma sugestão e, se necessário, ajustar no mapa.
+                </p>
+              </div>
+
+              <div className={`tj-crt-status is-${locationStatus.tone}`}>
+                <strong>Status da localização</strong>
+                <p>{locationStatus.text}</p>
+
+                {enderecoSelecionado ? (
+                  <div className="tj-crt-status-meta">
+                    <span className="tj-crt-badge">
+                      {enderecoSelecionado.source === "manual" ? "Manual" : "Busca"}
                     </span>
-                  </button>
-                ))}
-              </div>
-            ) : null}
-          </div>
-
-          <div className="criar-tour-manual-panel">
-            <div className="criar-tour-manual-panel__header">
-              <strong>Ajuste manual</strong>
-              <span>
-                Se preferir, clique no mapa para marcar o ponto exato ou informe latitude e longitude manualmente.
-              </span>
-            </div>
-
-            <div className="criar-tour-manual-grid">
-              <div className="criar-tour-field">
-                <label htmlFor="latitudeManual">Latitude</label>
-                <input
-                  id="latitudeManual"
-                  placeholder="Ex.: -22.252100"
-                  inputMode="decimal"
-                  value={latitudeManual}
-                  onChange={(e) => setLatitudeManual(e.target.value)}
-                />
+                    <span className="tj-crt-badge">
+                      {enderecoSelecionado.isApproximate ? "Aproximada" : "Exata"}
+                    </span>
+                  </div>
+                ) : null}
               </div>
 
-              <div className="criar-tour-field">
-                <label htmlFor="longitudeManual">Longitude</label>
-                <input
-                  id="longitudeManual"
-                  placeholder="Ex.: -45.703600"
-                  inputMode="decimal"
-                  value={longitudeManual}
-                  onChange={(e) => setLongitudeManual(e.target.value)}
-                />
-              </div>
-            </div>
+              {localizacaoConfirmada ? <p className="tj-crt-caption">{localizacaoConfirmada}</p> : null}
 
-            <div className="criar-tour-actions criar-tour-actions--compact">
-              <button
-                type="button"
-                className="criar-tour-submit criar-tour-submit--secondary"
-                onClick={() => {
-                  const latitude = Number(latitudeManual.replace(",", "."));
-                  const longitude = Number(longitudeManual.replace(",", "."));
-
-                  if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
-                    alert("Informe latitude e longitude válidas.");
-                    return;
-                  }
-
-                  aplicarCoordenadasManuais(latitude, longitude, "manual");
-                }}
-              >
-                Aplicar latitude / longitude
-              </button>
-
-              <p className="criar-tour-caption">Clique diretamente no mapa para definir o ponto exato.</p>
-            </div>
-          </div>
-
-          <div className="criar-tour-map-frame">
-            <MapContainer center={mapCenter} zoom={mapZoom} style={{ width: "100%", height: "320px" }} scrollWheelZoom>
-              <MapViewportController center={mapCenter} zoom={mapZoom} />
-              <TileLayer
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                attribution="&copy; OpenStreetMap contributors"
-              />
-              {enderecoSelecionado?.isApproximate && enderecoSelecionado.radius > 0 ? (
-                <Circle
-                  center={[enderecoSelecionado.latitude, enderecoSelecionado.longitude]}
-                  radius={enderecoSelecionado.radius}
-                  pathOptions={{
-                    color: "#fbbf24",
-                    fillColor: "#fbbf24",
-                    fillOpacity: 0.12,
-                    weight: 2,
-                  }}
-                />
+              {sugestoesEndereco.length > 0 ? (
+                <div className="tj-crt-suggestions">
+                  {sugestoesEndereco.map((sugestao) => (
+                    <button
+                      key={sugestao.id}
+                      type="button"
+                      className={`tj-crt-suggestion${enderecoSelecionado?.id === sugestao.id ? " is-active" : ""}`}
+                      onClick={() => handleSelecionarSugestao(sugestao)}
+                    >
+                      <div>
+                        <strong>{sugestao.title}</strong>
+                        <span>{sugestao.subtitle}</span>
+                      </div>
+                      <span className="tj-crt-badge">
+                        {sugestao.isApproximate ? "Aproximada" : "Exata"}
+                      </span>
+                    </button>
+                  ))}
+                </div>
               ) : null}
-              <SelecionadorMapa
-                position={
-                  enderecoSelecionado ? [enderecoSelecionado.latitude, enderecoSelecionado.longitude] : null
-                }
-                onSelect={({ latitude, longitude }) => {
-                  aplicarCoordenadasManuais(latitude, longitude, "map");
-                }}
-              />
-            </MapContainer>
-          </div>
 
-          <div className="criar-tour-switch-row">
-            <label className="criar-tour-switch">
-              <span className="criar-tour-switch-copy">
-                <strong>Tornar público</strong>
-                <span>Permita que este tour apareça no catálogo e no explorer.</span>
-              </span>
-              <input
-                type="checkbox"
-                checked={publico}
-                onChange={(e) => setPublico(e.target.checked)}
-              />
-            </label>
+              <div className="tj-crt-field tj-crt-manual">
+                <div className="tj-crt-manual-head">
+                  <strong>Ajuste manual</strong>
+                  <span>Clique no mapa para marcar o ponto exato ou informe latitude e longitude.</span>
+                </div>
 
-            <div className="criar-tour-upload">
-              <span>Imagem de preview</span>
-              <input
-                type="file"
-                onChange={(e) => e.target.files && setImagem(e.target.files[0])}
-              />
-            </div>
-          </div>
+                <div className="tj-crt-manual-grid">
+                  <div className="tj-crt-field">
+                    <label htmlFor="latitudeManual">Latitude</label>
+                    <input
+                      id="latitudeManual"
+                      placeholder="Ex.: -22.252100"
+                      inputMode="decimal"
+                      value={latitudeManual}
+                      onChange={(e) => setLatitudeManual(e.target.value)}
+                    />
+                  </div>
 
-          <div className="criar-tour-actions">
-            <button type="submit" disabled={loading} className="criar-tour-submit">
-              {loading ? "Criando..." : "Criar tour"}
-            </button>
-            <p className="criar-tour-caption">
-              O envio permanece compatível com o backend atual, incluindo imagem, visibilidade e coordenadas obrigatórias.
-            </p>
-          </div>
+                  <div className="tj-crt-field">
+                    <label htmlFor="longitudeManual">Longitude</label>
+                    <input
+                      id="longitudeManual"
+                      placeholder="Ex.: -45.703600"
+                      inputMode="decimal"
+                      value={longitudeManual}
+                      onChange={(e) => setLongitudeManual(e.target.value)}
+                    />
+                  </div>
+                </div>
+
+                <div className="tj-crt-actions">
+                  <button
+                    type="button"
+                    className="tj-crt-action tj-crt-action--secondary"
+                    onClick={() => {
+                      const latitude = Number(latitudeManual.replace(",", "."));
+                      const longitude = Number(longitudeManual.replace(",", "."));
+
+                      if (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {
+                        setToast({ tone: "error", message: "Informe latitude e longitude válidas." });
+                        return;
+                      }
+
+                      aplicarCoordenadasManuais(latitude, longitude, "manual");
+                    }}
+                  >
+                    Aplicar latitude / longitude
+                  </button>
+                  <p className="tj-crt-caption">Clique diretamente no mapa para definir o ponto exato.</p>
+                </div>
+              </div>
+
+              <div className="tj-crt-map-frame">
+                <MapContainer center={mapCenter} zoom={mapZoom} style={{ width: "100%", height: "320px" }} scrollWheelZoom>
+                  <MapViewportController center={mapCenter} zoom={mapZoom} />
+                  <TileLayer
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    attribution="&copy; OpenStreetMap contributors"
+                  />
+                  {enderecoSelecionado?.isApproximate && enderecoSelecionado.radius > 0 ? (
+                    <Circle
+                      center={[enderecoSelecionado.latitude, enderecoSelecionado.longitude]}
+                      radius={enderecoSelecionado.radius}
+                      pathOptions={{
+                        color: "#ffd58a",
+                        fillColor: "#ffd58a",
+                        fillOpacity: 0.12,
+                        weight: 2,
+                      }}
+                    />
+                  ) : null}
+                  <SelecionadorMapa
+                    position={
+                      enderecoSelecionado ? [enderecoSelecionado.latitude, enderecoSelecionado.longitude] : null
+                    }
+                    onSelect={({ latitude, longitude }) => {
+                      aplicarCoordenadasManuais(latitude, longitude, "map");
+                    }}
+                  />
+                </MapContainer>
+              </div>
+
+              <div className="tj-crt-actions">
+                <button
+                  type="button"
+                  className="tj-crt-action"
+                  onClick={() => setActiveStep("dados")}
+                >
+                  <FiChevronLeft />
+                  Voltar
+                </button>
+                <button
+                  type="button"
+                  className="tj-crt-action tj-crt-action--solid"
+                  onClick={irParaRevisao}
+                >
+                  Revisar e publicar
+                  <FiChevronRight />
+                </button>
+              </div>
+            </motion.section>
+          )}
+
+          {/* ============ ETAPA 3: REVISÃO ============ */}
+          {activeStep === "revisao" && (
+            <motion.section
+              className="tj-crt-section"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.55, ease: TJ_EASE }}
+            >
+              <div className="tj-crt-section-head">
+                <span className="tj-crt-kicker">Passo 3</span>
+                <h2>Revise antes de publicar.</h2>
+                <p>Visibilidade, imagem de preview e resumo do tour.</p>
+              </div>
+
+              <div className="tj-crt-status is-success">
+                <strong>Resumo</strong>
+                <p>
+                  {titulo || "Sem título"} · {categoria || "Sem categoria"}
+                  {enderecoSelecionado ? ` · ${enderecoSelecionado.label}` : ""}
+                </p>
+              </div>
+
+              <div className="tj-crt-switch-row">
+                <label className="tj-crt-switch">
+                  <span className="tj-crt-switch-copy">
+                    <strong>Tornar público</strong>
+                    <span>Permita que este tour apareça no catálogo e no explorer.</span>
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={publico}
+                    onChange={(e) => setPublico(e.target.checked)}
+                  />
+                </label>
+              </div>
+
+              <div className="tj-crt-field">
+                <label>Imagem de preview</label>
+                <label className={`tj-crt-drop${isDragging ? " is-dragging" : ""}`}>
+                  <span className="tj-crt-drop-icon">
+                    <FiUploadCloud />
+                  </span>
+                  <span>
+                    <strong>{imagem ? imagem.name : "Arraste uma imagem ou clique para escolher"}</strong>
+                    {!imagem ? <span>PNG, JPG ou WebP · opcional</span> : null}
+                  </span>
+                  <input
+                    type="file"
+                    accept="image/png,image/jpeg,image/webp"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0] ?? null;
+                      setImagem(file);
+                      setIsDragging(false);
+                    }}
+                    onDragEnter={(e) => {
+                      e.preventDefault();
+                      setIsDragging(true);
+                    }}
+                    onDragOver={(e) => e.preventDefault()}
+                    onDragLeave={() => setIsDragging(false)}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setIsDragging(false);
+                      const file = e.dataTransfer.files?.[0] ?? null;
+                      setImagem(file);
+                    }}
+                  />
+                </label>
+                {imagem ? <span className="tj-crt-file-chip">Pronto para envio</span> : null}
+              </div>
+
+              <div className="tj-crt-actions">
+                <button
+                  type="button"
+                  className="tj-crt-action"
+                  onClick={() => setActiveStep("local")}
+                >
+                  <FiChevronLeft />
+                  Voltar
+                </button>
+                <button type="submit" disabled={loading} className="tj-crt-action tj-crt-action--solid">
+                  {loading ? "Criando..." : "Criar tour"}
+                </button>
+                <p className="tj-crt-caption">
+                  O envio permanece compatível com o backend atual, incluindo imagem, visibilidade e coordenadas obrigatórias.
+                </p>
+              </div>
+            </motion.section>
+          )}
         </form>
-      </div>
+      </main>
+
+      {/* ============ TOAST INLINE ============ */}
+      <AnimatePresence>
+        {toast ? (
+          <motion.div
+            className="tj-crt-toast"
+            role={toast.tone === "error" ? "alert" : "status"}
+            aria-live={toast.tone === "error" ? "assertive" : "polite"}
+            initial={{ opacity: 0, y: 16, scale: 0.94 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 12, scale: 0.94 }}
+            transition={{ duration: 0.4, ease: TJ_EASE }}
+            style={{
+              position: "fixed",
+              bottom: "1.5rem",
+              left: "50%",
+              transform: "translateX(-50%)",
+              zIndex: 9999,
+              borderColor:
+                toast.tone === "error" ? "rgba(253, 164, 175, 0.4)" : "rgba(110, 231, 183, 0.4)",
+              background:
+                toast.tone === "error"
+                  ? "rgba(80, 24, 34, 0.92)"
+                  : "rgba(8, 32, 24, 0.92)",
+              color: toast.tone === "error" ? "#ffb4bc" : "#a7f3d0",
+            }}
+          >
+            {toast.tone === "success" ? <FiCheckCircle /> : null}
+            {toast.message}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </div>
   );
 }

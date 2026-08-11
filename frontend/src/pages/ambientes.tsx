@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   getAmbientes,
@@ -12,10 +12,22 @@ import {
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { motion } from "framer-motion";
-import { FiEye, FiTrash2, FiEdit, FiSearch, FiLayers, FiGlobe, FiZap, FiTrendingUp, FiClock } from "react-icons/fi";
+import {
+  FiArrowUpRight,
+  FiChevronDown,
+  FiClock,
+  FiEdit,
+  FiEye,
+  FiSearch,
+  FiTrash2,
+  FiTrendingUp,
+} from "react-icons/fi";
 import { resolveMediaUrl } from "../utils/mediaUrl";
 import { API_URL } from "../utils/apiConfig";
+import TajimaCursor from "../components/tajimaCursor";
 import "../styles/ambientes.css";
+
+const TJ_EASE = [0.22, 1, 0.36, 1] as const;
 
 interface Ambiente {
   id: number;
@@ -132,13 +144,6 @@ function openAmbienteLink(ambiente: Ambiente) {
   window.open(link, "_blank", "noopener,noreferrer");
 }
 
-const heroMessages = [
-  "Explore ambientes com rapidez",
-  "Entre no espaço antes da visita",
-  "Visual direto, foco no tour",
-  "Menos ruído, mais descoberta",
-];
-
 const Ambientes: React.FC = () => {
   const { isAuthenticated } = useAuth();
   const [ambientes, setAmbientes] = useState<Ambiente[]>([]);
@@ -164,9 +169,17 @@ const Ambientes: React.FC = () => {
 
   const [search, setSearch] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("todos");
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const categoriesRef = useRef<HTMLDivElement | null>(null);
 
   const [populares, setPopulares] = useState<Ambiente[]>([]);
   const [ultimoVisto, setUltimoVisto] = useState<Ambiente | null>(null);
+
+  const [hasFinePointer] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(pointer: fine)").matches
+  );
+
+  const isTouch = !hasFinePointer;
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -267,6 +280,28 @@ const Ambientes: React.FC = () => {
       return () => clearTimeout(timer);
     }
   }, [selected]);
+
+  useEffect(() => {
+    function handlePointerDownOutside(event: PointerEvent) {
+      if (categoriesRef.current && !categoriesRef.current.contains(event.target as Node)) {
+        setCategoriesOpen(false);
+      }
+    }
+
+    function handleKeyDownEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setCategoriesOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDownOutside);
+    document.addEventListener("keydown", handleKeyDownEscape);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDownOutside);
+      document.removeEventListener("keydown", handleKeyDownEscape);
+    };
+  }, []);
 
   function handleImagemChange(e: React.ChangeEvent<HTMLInputElement>) {
     if (!e.target.files?.[0]) return;
@@ -412,439 +447,378 @@ const Ambientes: React.FC = () => {
 
   const totalAmbientes = ambientesFiltrados.length;
   const ambientesPublicos = ambientesFiltrados.filter((amb) => amb.publico).length;
-  const premiumAmbientes = ambientesFiltrados.filter((amb) => isPagoAMais(amb)).length;
   const categoriasAtivas = new Set(
     ambientesFiltrados.map((amb) => normalizeCategoria(amb.categoria)).filter(Boolean)
   ).size;
 
-  const ambienteDestaque = ambientesFiltrados[0] || null;
-  const recenteCategoria =
-    ambienteDestaque?.categoria || ambientesFiltrados.find((amb) => amb.categoria)?.categoria;
-
-  const heroStats = [
-    {
-      value: totalAmbientes.toString().padStart(2, "0"),
-      label: "ambientes visíveis agora",
-    },
-    {
-      value: categoriasAtivas.toString().padStart(2, "0"),
-      label: "camadas de exploração",
-    },
-    {
-      value: ambientesPublicos.toString().padStart(2, "0"),
-      label: "experiências públicas ativas",
-    },
-  ];
-
-  const spotlightCards = [
-    {
-      icon: <FiLayers />,
-      title: "Leitura rápida",
-      body: "Cards mais diretos para a pessoa bater o olho e decidir se quer abrir o tour.",
-    },
-    {
-      icon: <FiGlobe />,
-      title: "Busca simples",
-      body: "Filtro por categoria e busca por texto para achar o ambiente sem excesso de informação.",
-    },
-    {
-      icon: <FiZap />,
-      title: "Ação imediata",
-      body: "Preview, status e botão de ver ficam em evidência para acelerar a navegação.",
-    },
-  ];
-
   if (loading) {
     return (
-      <div className="amb-loading-screen">
+      <div className="tj-amb-page tj-amb-loading">
         <motion.div
-          className="amb-loading-card"
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
+          className="tj-amb-loading-mark"
+          animate={{ opacity: [0.35, 1, 0.35] }}
+          transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
         >
-          Carregando a experiência dos ambientes...
+          AMBIENTES
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="amb-page">
-      <div className="amb-noise" />
-      <div className="amb-ambient amb-ambient--one" />
-      <div className="amb-ambient amb-ambient--two" />
-      <div className="amb-ambient amb-ambient--three" />
+    <div className={`tj-amb-page${hasFinePointer ? " tj-amb-page--cursor" : ""}`}>
+      <div className="tj-amb-bg" aria-hidden="true">
+        <span className="tj-amb-orb tj-amb-orb--one" />
+        <span className="tj-amb-orb tj-amb-orb--two" />
+        <span className="tj-amb-orb tj-amb-orb--three" />
+      </div>
 
-      <main className="amb-shell">
-        <section className="amb-hero">
+      {hasFinePointer && <TajimaCursor />}
+
+      <main className="tj-amb-content">
+        {/* ============ HERO MINIMALISTA ============ */}
+        <header className="tj-amb-hero">
           <motion.div
-            className="amb-hero-copy"
+            className="tj-amb-kicker"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: TJ_EASE, delay: 0.05 }}
+          >
+            <span>Ambientes</span>
+            <span className="tj-amb-dot" />
+            <span>{usuario?.nome ? usuario.nome.split(" ")[0] : "exploração ativa"}</span>
+          </motion.div>
+
+          <motion.h1
+            className="tj-amb-title"
             initial={{ opacity: 0, y: 26 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
+            transition={{ duration: 0.85, ease: TJ_EASE, delay: 0.1 }}
           >
-            <span className="amb-eyebrow">
-              Ambientes · {usuario?.nome ? usuario.nome.split(" ")[0] : "exploração ativa"}
-            </span>
+            Escolha um ambiente
+            <br />
+            e abra o tour.
+          </motion.h1>
 
-            <h1 className="amb-title">
-              Escolha um ambiente e abra o tour com facilidade.
-            </h1>
-
-            <p className="amb-lead">
-              Tudo foi organizado para ficar simples: encontre o ambiente, clique em
-              ver e entre no tour.
-            </p>
-
-            <div className="amb-hero-actions">
-              <button
-                type="button"
-                className="amb-hero-btn amb-hero-btn--primary"
-                onClick={() => {
-                  const grid = document.getElementById("amb-grid");
-                  grid?.scrollIntoView({ behavior: "smooth", block: "start" });
-                }}
-              >
-                Explorar ambientes
-              </button>
-
-              <button
-                type="button"
-                className="amb-hero-btn amb-hero-btn--secondary"
-                onClick={() => navigate("/inicio", { state: { from: location.pathname } })}
-              >
-                Voltar ao início
-              </button>
-            </div>
-
-            <div className="amb-scroll-indicator">Role para ver os ambientes</div>
-          </motion.div>
+          <motion.p
+            className="tj-amb-lead"
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: TJ_EASE, delay: 0.18 }}
+          >
+            Encontre o ambiente, clique em ver e entre no tour. Sem etapas, sem ruído.
+          </motion.p>
 
           <motion.div
-            className="amb-hero-panel"
-            initial={{ opacity: 0, y: 32, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.12 }}
+            className="tj-amb-hero-actions"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: TJ_EASE, delay: 0.26 }}
           >
-            <div className="amb-panel-top">
-              <div className="amb-window-controls">
-                <span />
-                <span />
-                <span />
-              </div>
-              <div className="amb-panel-label">Scene / immersive browser</div>
-            </div>
+            <a
+              href="#tj-amb-grid"
+              className="tj-amb-action tj-amb-action--solid"
+              onClick={(e) => {
+                e.preventDefault();
+                document.getElementById("tj-amb-grid")?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+            >
+              Explorar ambientes
+              <FiArrowUpRight />
+            </a>
 
-            <div className="amb-hero-marquee">
-              <motion.div
-                className="amb-hero-marquee-track"
-                animate={{ x: ["0%", "-50%"] }}
-                transition={{ duration: 16, ease: "linear", repeat: Infinity }}
-              >
-                {heroMessages.concat(heroMessages).map((item, index) => (
-                  <span key={`${item}-${index}`}>{item}</span>
-                ))}
-              </motion.div>
-            </div>
-
-            <div className="amb-stats">
-              {heroStats.map((item, index) => (
-                <motion.div
-                  key={item.label}
-                  className="amb-stat"
-                  initial={{ opacity: 0, y: 18 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.2 + index * 0.08 }}
-                  whileHover={{ y: -4 }}
-                >
-                  <strong>{item.value}</strong>
-                  <span>{item.label}</span>
-                </motion.div>
-              ))}
-            </div>
-
-            <div className="amb-hero-focus">
-              <div>
-                <span className="amb-mini-label">Ambiente em destaque</span>
-                <h3>{ambienteDestaque?.titulo || "Nenhum ambiente encontrado"}</h3>
-                <p>
-                  {ambienteDestaque?.descricao?.slice(0, 110) ||
-                    "Ajuste os filtros para revelar novos ambientes."}
-                </p>
-              </div>
-
-              <div className="amb-focus-side">
-                <span className="amb-focus-chip">
-                  {formatCategoriaLabel(recenteCategoria)}
-                </span>
-                <span className="amb-focus-meta">
-                  {premiumAmbientes} premium / {ambientesPublicos} públicos
-                </span>
-              </div>
-            </div>
+            <button
+              type="button"
+              className="tj-amb-action"
+              onClick={() => navigate("/inicio", { state: { from: location.pathname } })}
+            >
+              Voltar ao início
+            </button>
           </motion.div>
-        </section>
 
-        <section className="amb-story">
-          <div className="amb-story-grid">
-            {spotlightCards.map((card, index) => (
-              <motion.article
-                key={card.title}
-                className="amb-story-card"
-                initial={{ opacity: 0, y: 22 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
-                transition={{ duration: 0.55, delay: index * 0.08 }}
-                whileHover={{ y: -6 }}
-              >
-                <div className="amb-story-icon">{card.icon}</div>
-                <span className="amb-story-index">{String(index + 1).padStart(2, "0")}</span>
-                <h3>{card.title}</h3>
-                <p>{card.body}</p>
-              </motion.article>
-            ))}
-          </div>
-        </section>
-
-        {(populares.length > 0 || ultimoVisto) && (
-          <section className="amb-quick-section">
-            <div className="amb-quick-grid">
-              {populares.length > 0 && (
-                <div className="amb-quick-panel">
-                  <div className="amb-quick-header">
-                    <FiTrendingUp className="amb-quick-icon" />
-                    <span>Mais vistos</span>
-                  </div>
-                  <div className="amb-quick-list">
-                    {populares.slice(0, 4).map((amb) => (
-                      <button
-                        key={`pop-${amb.id}`}
-                        className="amb-quick-chip"
-                        onClick={() => handleVisualizarAmbiente(amb)}
-                      >
-                        <span className="amb-quick-chip-title">{amb.titulo}</span>
-                        <span className="amb-quick-chip-cat">{formatCategoriaLabel(amb.categoria)}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {ultimoVisto && (
-                <div className="amb-quick-panel amb-quick-panel--last">
-                  <div className="amb-quick-header">
-                    <FiClock className="amb-quick-icon" />
-                    <span>Seu último visto</span>
-                  </div>
-                  <button
-                    className="amb-quick-last"
-                    onClick={() => handleVisualizarAmbiente(ultimoVisto)}
-                  >
-                    {ultimoVisto.imagemPreview ? (
-                      <img
-                        src={resolveMediaUrl(ultimoVisto.imagemPreview) ?? undefined}
-                        alt={ultimoVisto.titulo}
-                        className="amb-quick-last-img"
-                      />
-                    ) : (
-                      <div className="amb-quick-last-placeholder" />
-                    )}
-                    <div className="amb-quick-last-info">
-                      <strong>{ultimoVisto.titulo}</strong>
-                      <span>{formatCategoriaLabel(ultimoVisto.categoria)}</span>
-                    </div>
-                  </button>
-                </div>
-              )}
+          {/* ============ NÚMEROS GIGANTES ============ */}
+          <div className="tj-amb-stats">
+            <div className="tj-amb-stat">
+              <strong>{String(totalAmbientes).padStart(2, "0")}</strong>
+              <span>Ambientes visíveis</span>
             </div>
+            <div className="tj-amb-stat">
+              <strong>{String(categoriasAtivas).padStart(2, "0")}</strong>
+              <span>Camadas de exploração</span>
+            </div>
+            <div className="tj-amb-stat">
+              <strong>{String(ambientesPublicos).padStart(2, "0")}</strong>
+              <span>Tours públicos</span>
+            </div>
+          </div>
+        </header>
+
+        {/* ============ QUICK ACCESS — sem caixas, tipografia limpa ============ */}
+        {(populares.length > 0 || ultimoVisto) && (
+          <section className="tj-amb-quick">
+            {populares.length > 0 && (
+              <div className="tj-amb-quick-block">
+                <span className="tj-amb-eyebrow">
+                  <FiTrendingUp /> Mais vistos
+                </span>
+                <div className="tj-amb-quick-list">
+                  {populares.slice(0, 4).map((amb, index) => (
+                    <button
+                      key={`pop-${amb.id}`}
+                      type="button"
+                      className="tj-amb-quick-item"
+                      onClick={() => handleVisualizarAmbiente(amb)}
+                    >
+                      <span className="tj-amb-quick-index">{String(index + 1).padStart(2, "0")}</span>
+                      <span className="tj-amb-quick-title">{amb.titulo}</span>
+                      <span className="tj-amb-quick-cat">{formatCategoriaLabel(amb.categoria)}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {ultimoVisto && (
+              <div className="tj-amb-quick-block">
+                <span className="tj-amb-eyebrow">
+                  <FiClock /> Seu último visto
+                </span>
+                <button
+                  type="button"
+                  className="tj-amb-quick-item tj-amb-quick-item--last"
+                  onClick={() => handleVisualizarAmbiente(ultimoVisto)}
+                >
+                  <span className="tj-amb-quick-index">★</span>
+                  <span className="tj-amb-quick-title">{ultimoVisto.titulo}</span>
+                  <span className="tj-amb-quick-cat">{formatCategoriaLabel(ultimoVisto.categoria)}</span>
+                </button>
+              </div>
+            )}
           </section>
         )}
 
-        <section className="amb-browser" id="amb-grid">
-          <div className="amb-browser-top">
-            <div className="amb-browser-copy">
-              <span className="amb-section-kicker">Ambientes disponíveis</span>
+        {/* ============ GALERIA ============ */}
+        <section className="tj-amb-browser" id="tj-amb-grid">
+          <div className="tj-amb-browser-head">
+            <div className="tj-amb-browser-copy">
+              <span className="tj-amb-eyebrow">Ambientes disponíveis</span>
               <h2>Veja os ambientes de forma simples e direta.</h2>
-              <p>
-                Use a busca ou o filtro e abra o tour que quiser visitar.
-              </p>
             </div>
 
-            <div className="amb-controls">
-              <div className="amb-search-shell">
-                <FiSearch className="amb-search-icon" />
+            <div className="tj-amb-controls">
+              <label className="tj-amb-search">
+                <FiSearch className="tj-amb-search-icon" />
                 <input
                   type="text"
-                  className="amb-search"
+                  className="tj-amb-search-input"
                   placeholder="Buscar ambiente"
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                 />
-              </div>
+              </label>
 
-              <select
-                className="amb-category-select"
-                value={categoryFilter}
-                onChange={(e) => setCategoryFilter(e.target.value)}
-              >
-                <option value="todos">Todas as categorias</option>
-                {categoriasDisponiveis.map((categoria) => (
-                  <option key={categoria} value={categoria}>
-                    {formatCategoriaLabel(categoria)}
-                  </option>
-                ))}
-              </select>
+              <div className="tj-amb-catselect" ref={categoriesRef}>
+                <button
+                  type="button"
+                  className={`tj-amb-catselect__trigger${categoriesOpen ? " is-open" : ""}${
+                    categoryFilter !== "todos" ? " has-value" : ""
+                  }`}
+                  aria-haspopup="listbox"
+                  aria-expanded={categoriesOpen}
+                  onClick={() => setCategoriesOpen((prev) => !prev)}
+                >
+                  <span className="tj-amb-glow" aria-hidden="true" />
+                  <span className="tj-amb-catselect__label">
+                    {categoryFilter === "todos"
+                      ? "Todas as categorias"
+                      : formatCategoriaLabel(categoryFilter)}
+                  </span>
+                  <FiChevronDown className="tj-amb-catselect__chevron" aria-hidden="true" />
+                </button>
+
+                {categoriesOpen ? (
+                  <div className="tj-amb-catselect__menu" role="listbox" aria-label="Filtrar por categoria">
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={categoryFilter === "todos"}
+                      className={`tj-amb-cat${categoryFilter === "todos" ? " is-active" : ""}`}
+                      onClick={() => {
+                        setCategoryFilter("todos");
+                        setCategoriesOpen(false);
+                      }}
+                    >
+                      <span className="tj-amb-glow" aria-hidden="true" />
+                      Todas as categorias
+                    </button>
+                    {categoriasDisponiveis.map((categoria) => (
+                      <button
+                        key={categoria}
+                        type="button"
+                        role="option"
+                        aria-selected={categoryFilter === categoria}
+                        className={`tj-amb-cat${categoryFilter === categoria ? " is-active" : ""}`}
+                        onClick={() => {
+                          setCategoryFilter(categoria);
+                          setCategoriesOpen(false);
+                        }}
+                      >
+                        <span className="tj-amb-glow" aria-hidden="true" />
+                        {formatCategoriaLabel(categoria)}
+                      </button>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
             </div>
           </div>
 
-          <div className="amb-marquee" aria-label="mensagem contínua da experiência">
-            <motion.div
-              className="amb-marquee-track"
-              animate={{ x: ["0%", "-50%"] }}
-              transition={{ duration: 18, ease: "linear", repeat: Infinity }}
-            >
-              <span>Explorar com profundidade</span>
-              <span>Ambientes com identidade</span>
-              <span>Visual mais sensorial</span>
-              <span>Navegação cinematográfica</span>
-              <span>Explorar com profundidade</span>
-              <span>Ambientes com identidade</span>
-              <span>Visual mais sensorial</span>
-              <span>Navegação cinematográfica</span>
-            </motion.div>
-          </div>
+          {isTouch && (
+            <p className="tj-amb-touch-note">Toque em um ambiente para ver as ações.</p>
+          )}
 
-          <div className="amb-grid">
+          <div className="tj-amb-grid">
             {ambientesFiltrados.map((amb, index) => {
-              const pagamentoStatus = getPagamentoStatus(amb);
-              const pagoAMais = pagamentoStatus === "pago_a_mais";
+              const pagoAMais = isPagoAMais(amb);
+              const imageUrl = resolveMediaUrl(amb.imagemPreview);
 
               return (
-                <motion.article
+                <motion.figure
                   key={amb.id}
-                  className={`amb-card${pagoAMais ? " amb-card--overpaid" : ""}`}
-                  initial={{ opacity: 0, y: 24 }}
+                  className={`tj-amb-card${pagoAMais ? " tj-amb-card--gold" : ""}`}
+                  initial={{ opacity: 0, y: 28 }}
                   whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
-                  transition={{ duration: 0.5, delay: index % 6 * 0.04 }}
-                  whileHover={{ y: -8 }}
+                  viewport={{ once: true, margin: "-8% 0px -8% 0px" }}
+                  transition={{ duration: 0.65, ease: TJ_EASE, delay: (index % 6) * 0.05 }}
                 >
-                  <div className="amb-card-media">
-                    {amb.imagemPreview ? (
-                      <img src={resolveMediaUrl(amb.imagemPreview) ?? undefined} className="amb-card-img" alt={amb.titulo} />
+                  <div className="tj-amb-card-media">
+                    {imageUrl ? (
+                      <img src={imageUrl} className="tj-amb-card-img" alt={amb.titulo} loading="lazy" />
                     ) : (
-                      <div className="amb-card-placeholder">
+                      <div className="tj-amb-card-placeholder">
                         <span>Sem preview</span>
                       </div>
                     )}
 
-                    <div className="amb-card-overlay">
-                      <span className="amb-card-badge">
-                        {formatCategoriaLabel(amb.categoria)}
-                      </span>
-                      {pagoAMais && <span className="amb-overpaid-badge">Destaque</span>}
+                    <div className="tj-amb-card-veil" />
+
+                    <div className="tj-amb-card-badges">
+                      {amb.categoria ? (
+                        <span className="tj-amb-card-badge">{formatCategoriaLabel(amb.categoria)}</span>
+                      ) : null}
+                      {pagoAMais && <span className="tj-amb-card-badge tj-amb-card-badge--gold">Destaque</span>}
                     </div>
+
+                    <button
+                      type="button"
+                      className="tj-amb-card-cta"
+                      onClick={() => void handleVisualizarAmbiente(amb)}
+                    >
+                      <FiEye />
+                      Ver tour
+                    </button>
                   </div>
 
-                  <div className="amb-card-body">
-                    <div className="amb-card-header">
-                      <div>
-                        <span className="amb-card-index">
-                          {String(index + 1).padStart(2, "0")}
+                  <figcaption className="tj-amb-card-caption">
+                    <div className="tj-amb-card-line">
+                      <span className="tj-amb-card-index">{String(index + 1).padStart(2, "0")}</span>
+                      {amb.empresa?.nome || amb.empresaPedido?.nome ? (
+                        <span className="tj-amb-card-owner">
+                          {amb.empresa?.nome || amb.empresaPedido?.nome}
                         </span>
-                        <h3>{amb.titulo}</h3>
-                      </div>
+                      ) : null}
+                      {!amb.publico ? <span className="tj-amb-card-visibility">Restrito</span> : null}
                     </div>
 
-                    <p className="amb-card-description">
-                      {amb.descricao?.slice(0, 120)}
-                      {amb.descricao && amb.descricao.length > 120 ? "..." : ""}
-                    </p>
-
-                    <div className="amb-card-meta">
-                      <p>
-                        <strong>Empresa:</strong>{" "}
-                        {amb.empresa?.nome || amb.empresaPedido?.nome || "Não informada"}
+                    <h3>{amb.titulo}</h3>
+                    {amb.descricao ? (
+                      <p className="tj-amb-card-desc">
+                        {amb.descricao.slice(0, 110)}
+                        {amb.descricao.length > 110 ? "…" : ""}
                       </p>
-                      <p>
-                        <strong>Visibilidade:</strong> {amb.publico ? "Público" : "Restrito"}
-                      </p>
-                    </div>
+                    ) : null}
 
-                    <div className="amb-card-actions">
-                      <button className="amb-view-btn" onClick={() => void handleVisualizarAmbiente(amb)}>
-                        <FiEye /> Ver
-                      </button>
-
+                    <div className="tj-amb-card-links">
                       {(amb.siteUrl?.trim() || amb.linkVR?.trim()) ? (
-                        <button
-                          type="button"
-                          className="amb-contact-trigger"
-                          onClick={() => openAmbienteLink(amb)}
-                        >
+                        <button type="button" className="tj-amb-link" onClick={() => openAmbienteLink(amb)}>
                           Abrir no site
                         </button>
                       ) : null}
-
                       {hasContatoDisponivel(amb) ? (
                         <button
                           type="button"
-                          className="amb-contact-trigger"
+                          className="tj-amb-link"
                           onClick={() => (isAuthenticated ? setContactTarget(amb) : navigate("/login"))}
                         >
                           Falar com responsável
                         </button>
                       ) : null}
-
                       {usuario?.role === "admin" && (
                         <>
-                          <button className="amb-edit-btn" onClick={() => abrirEdicao(amb)}>
+                          <button type="button" className="tj-amb-link tj-amb-link--danger" onClick={() => abrirEdicao(amb)}>
                             <FiEdit /> Editar
                           </button>
-                          <button className="amb-delete-btn" onClick={() => handleExcluir(amb.id)}>
+                          <button type="button" className="tj-amb-link tj-amb-link--danger" onClick={() => handleExcluir(amb.id)}>
                             <FiTrash2 /> Excluir
                           </button>
                         </>
                       )}
                     </div>
-                  </div>
-                </motion.article>
+                  </figcaption>
+                </motion.figure>
               );
             })}
           </div>
+
+          {ambientesFiltrados.length === 0 && (
+            <div className="tj-amb-empty">
+              <p>Nenhum ambiente encontrado para esses filtros.</p>
+              <button
+                type="button"
+                className="tj-amb-action"
+                onClick={() => {
+                  setSearch("");
+                  setCategoryFilter("todos");
+                }}
+              >
+                Limpar filtros
+              </button>
+            </div>
+          )}
         </section>
       </main>
 
+      {/* ============ MODAL EDITAR ============ */}
       {showEditModal &&
         createPortal(
-          <div className="amb-modal-overlay amb-modal-overlay--scroll" onClick={() => setShowEditModal(false)}>
+          <div className="tj-amb-modal-overlay" onClick={() => setShowEditModal(false)}>
             <motion.div
-              className="amb-modal-box amb-modal-box--offset"
-              initial={{ scale: 0.9, opacity: 0 }}
+              className="tj-amb-modal"
+              initial={{ scale: 0.94, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.3, ease: TJ_EASE }}
               onClick={(e) => e.stopPropagation()}
             >
               <h2>Editar Ambiente</h2>
-              <form onSubmit={handleEditar} className="amb-form">
-                <input value={titulo} onChange={(e) => setTitulo(e.target.value)} />
-                <textarea rows={4} value={descricao} onChange={(e) => setDescricao(e.target.value)} />
-                <input value={linkVR} onChange={(e) => setLinkVR(e.target.value)} />
+              <form onSubmit={handleEditar} className="tj-amb-form">
+                <input value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Título" />
+                <textarea rows={4} value={descricao} onChange={(e) => setDescricao(e.target.value)} placeholder="Descrição" />
+                <input value={linkVR} onChange={(e) => setLinkVR(e.target.value)} placeholder="Link VR" />
 
-                <div className="checkbox-wrapper">
-                  <input type="checkbox" checked={publico} onChange={(e) => setPublico(e.target.checked)} id="amb-publico-edit" />
-                  <label htmlFor="amb-publico-edit">Público</label>
-                </div>
+                <label className="tj-amb-form-check">
+                  <input type="checkbox" checked={publico} onChange={(e) => setPublico(e.target.checked)} />
+                  <span>Público</span>
+                </label>
 
-                <label className="amb-file-label">
+                <label className="tj-amb-file-label">
                   Alterar imagem
                   <input type="file" onChange={handleImagemChange} />
                 </label>
-                {imagemPreview && <img src={imagemPreview} className="amb-preview-img" />}
+                {imagemPreview && <img src={imagemPreview} className="tj-amb-preview-img" alt="Preview do ambiente" />}
 
-                <div className="amb-form-actions">
-                  <button className="amb-submit-btn">Salvar</button>
-                  <button type="button" className="amb-cancel-btn" onClick={() => setShowEditModal(false)}>Cancelar</button>
+                <div className="tj-amb-form-actions">
+                  <button type="submit" className="tj-amb-action tj-amb-action--solid">Salvar</button>
+                  <button type="button" className="tj-amb-action" onClick={() => setShowEditModal(false)}>Cancelar</button>
                 </div>
               </form>
             </motion.div>
@@ -852,121 +826,114 @@ const Ambientes: React.FC = () => {
           document.body
         )}
 
+      {/* ============ MODAL CONTATO ============ */}
       {contactTarget &&
         createPortal(
-          <div className="amb-modal-overlay" onClick={() => setContactTarget(null)}>
-            <div
-              className="modal-box"
+          <div className="tj-amb-modal-overlay" onClick={() => setContactTarget(null)}>
+            <motion.div
+              className="tj-amb-modal tj-amb-modal--sm"
+              initial={{ scale: 0.94, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.3, ease: TJ_EASE }}
               onClick={(e) => e.stopPropagation()}
-              style={{ maxWidth: "520px" }}
             >
-              <p style={{ marginTop: 0, marginBottom: 16, fontSize: "1.05rem", fontWeight: 700 }}>
-                Escolha como deseja falar com o responsável
-              </p>
-              <div className="modal-actions" style={{ justifyContent: "stretch" }}>
+              <h2>Falar com o responsável</h2>
+              <div className="tj-amb-form-actions">
                 {getContatoEmail(contactTarget) ? (
-                  <button
-                    type="button"
-                    className="amb-contact-option amb-contact-option--email"
-                    style={{ width: "100%" }}
-                    onClick={() => openEmailContato(contactTarget)}
-                  >
+                  <button type="button" className="tj-amb-action" onClick={() => openEmailContato(contactTarget)}>
                     Enviar email
                   </button>
                 ) : null}
                 {getContatoTelefone(contactTarget) ? (
-                  <button
-                    type="button"
-                    className="amb-contact-option amb-contact-option--phone"
-                    style={{ width: "100%" }}
-                    onClick={() => openPhoneContato(contactTarget)}
-                  >
+                  <button type="button" className="tj-amb-action" onClick={() => openPhoneContato(contactTarget)}>
                     Falar no celular
                   </button>
                 ) : null}
                 {!getContatoEmail(contactTarget) && !getContatoTelefone(contactTarget) ? (
-                  <div
-                    style={{
-                      width: "100%",
-                      padding: "12px 14px",
-                      borderRadius: "12px",
-                      background: "rgba(255,255,255,0.06)",
-                      color: "#fff",
-                      textAlign: "center",
-                    }}
-                  >
+                  <p className="tj-amb-modal-note">
                     Responsável:{" "}
                     {contactTarget.empresa?.nome ||
                       contactTarget.empresaPedido?.nome ||
                       contactTarget.usuario?.nome ||
                       "Não informado"}
-                  </div>
+                  </p>
                 ) : null}
-                <button
-                  type="button"
-                  className="amb-cancel-btn"
-                  style={{ width: "100%" }}
-                  onClick={() => setContactTarget(null)}
-                >
+                <button type="button" className="tj-amb-action" onClick={() => setContactTarget(null)}>
                   Fechar
                 </button>
               </div>
-            </div>
+            </motion.div>
           </div>,
           document.body
         )}
 
+      {/* ============ MODAL CONFIRMAR EXCLUSÃO ============ */}
       {confirmExcluir.open &&
         createPortal(
-          <div className="amb-modal-overlay">
-            <div className="modal-box">
-              <p>Deseja realmente excluir este ambiente?</p>
-              <div className="modal-actions">
-                <button onClick={handleExcluirConfirmado} style={{ background: "#e53935", color: "#fff" }}>Excluir</button>
-                <button onClick={() => setConfirmExcluir({ id: 0, open: false })} style={{ background: "#444", color: "#fff" }}>Cancelar</button>
+          <div className="tj-amb-modal-overlay">
+            <motion.div
+              className="tj-amb-modal tj-amb-modal--sm"
+              initial={{ scale: 0.94, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.3, ease: TJ_EASE }}
+            >
+              <h2>Excluir ambiente?</h2>
+              <p className="tj-amb-modal-note">Esta ação não pode ser desfeita.</p>
+              <div className="tj-amb-form-actions">
+                <button type="button" className="tj-amb-action tj-amb-action--danger" onClick={handleExcluirConfirmado}>
+                  Excluir
+                </button>
+                <button type="button" className="tj-amb-action" onClick={() => setConfirmExcluir({ id: 0, open: false })}>
+                  Cancelar
+                </button>
               </div>
-            </div>
+            </motion.div>
           </div>,
           document.body
         )}
 
+      {/* ============ MODAL VR ============ */}
       {selected &&
         createPortal(
-          <div className="amb-modal-overlay" onClick={() => setSelected(null)}>
-            <motion.div className="amb-vr-container" onClick={(e) => e.stopPropagation()}>
+          <div className="tj-amb-modal-overlay tj-amb-modal-overlay--vr" onClick={() => setSelected(null)}>
+            <motion.div
+              className="tj-amb-vr"
+              initial={{ scale: 0.96, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.35, ease: TJ_EASE }}
+              onClick={(e) => e.stopPropagation()}
+            >
               {showVRLoading && (
-                <div className={`amb-vr-loading ${fadeOut ? "fade-out" : ""}`}>
-                  <div className="amb-vr-arrow"></div>
+                <div className={`tj-amb-vr-loading${fadeOut ? " is-done" : ""}`}>
+                  <div className="tj-amb-vr-bar" />
                 </div>
               )}
               <iframe
                 src={`${selected.linkVR}${selected.linkVR.includes("?") ? "&" : "?"}play=1`}
-                className="amb-vr-frame"
+                className="tj-amb-vr-frame"
                 allow="autoplay; fullscreen; xr-spatial-tracking; camera *; microphone *"
                 allowFullScreen
                 title={selected.titulo}
               />
-              <div className="amb-card-actions" style={{ padding: "12px 16px 0" }}>
+              <div className="tj-amb-vr-footer">
                 {(selected.siteUrl?.trim() || selected.linkVR?.trim()) ? (
-                  <button
-                    type="button"
-                    className="amb-contact-trigger"
-                    onClick={() => openAmbienteLink(selected)}
-                  >
+                  <button type="button" className="tj-amb-link" onClick={() => openAmbienteLink(selected)}>
                     Abrir no site
                   </button>
                 ) : null}
                 {hasContatoDisponivel(selected) ? (
                   <button
                     type="button"
-                    className="amb-contact-trigger"
+                    className="tj-amb-link"
                     onClick={() => (isAuthenticated ? setContactTarget(selected) : navigate("/login"))}
                   >
                     Falar com responsável
                   </button>
                 ) : null}
               </div>
-              <button className="amb-close-vr" onClick={() => setSelected(null)}>Fechar</button>
+              <button className="tj-amb-vr-close" onClick={() => setSelected(null)}>
+                Fechar
+              </button>
             </motion.div>
           </div>,
           document.body

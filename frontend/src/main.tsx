@@ -6,6 +6,7 @@ import { ThemeProvider } from "./context/ThemeContext";
 import "./main.css";
 import "./theme.css";
 import "./styles/dark-mode.css";
+import "./styles/unified.css";
 
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>

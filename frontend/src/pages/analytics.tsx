@@ -2,7 +2,6 @@ import React, { useEffect, useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import {
   FiActivity,
-  FiArrowUpRight,
   FiClock,
   FiEye,
   FiGlobe,
@@ -15,6 +14,8 @@ import {
 } from "react-icons/fi";
 import { API_URL } from "../utils/apiConfig";
 import "../styles/analytics.css";
+
+const TJ_EASE = [0.22, 1, 0.36, 1] as const;
 
 interface AnalyticsEmpresa {
   id: number;
@@ -167,25 +168,16 @@ function formatarUserAgent(userAgent?: string) {
   return `${browser} • ${platform} • ${isMobile ? "Mobile" : "Desktop"}`;
 }
 
-function formatarIp(ip?: string) {
-  if (!ip) return "Não informado";
-  if (ip === "127.0.0.1" || ip === "::1") return "Acesso local";
-  return ip;
-}
-
 function detectarDispositivo(userAgent?: string): TipoDispositivo {
   if (!userAgent) return "desconhecido";
 
   const ua = userAgent.toLowerCase();
 
-  // Tablet: iPad or Android tablet (Android without "mobile" in UA)
   if (/ipad/.test(ua)) return "tablet";
   if (/android/.test(ua) && !/mobile/.test(ua)) return "tablet";
 
-  // Celular: common mobile indicators
   if (/iphone|ipod|android|mobile|blackberry|webos/.test(ua)) return "celular";
 
-  // Computador: everything else with a known OS/browser
   if (/windows|mac os|linux|cros/.test(ua)) return "computador";
 
   return "desconhecido";
@@ -203,6 +195,124 @@ function formatPercent(value: number) {
   const rounded = Math.round(value);
   if (rounded > 0) return `+${rounded}%`;
   return `${rounded}%`;
+}
+
+function buildDailyTrend(
+  acessos: AnalyticsAcessoRecente[],
+  period: PeriodValue
+): number[] {
+  const days = Number(period);
+  const buckets = new Array<number>(days).fill(0);
+  const startMs = getStartDate(period).getTime();
+
+  acessos.forEach((acesso) => {
+    const createdAt = new Date(acesso.createdAt);
+
+    if (Number.isNaN(createdAt.getTime())) {
+      return;
+    }
+
+    const dayIndex = Math.floor(
+      (createdAt.getTime() - startMs) / (24 * 60 * 60 * 1000)
+    );
+
+    if (dayIndex >= 0 && dayIndex < days) {
+      buckets[dayIndex] += 1;
+    }
+  });
+
+  return buckets;
+}
+
+/** Sparkline SVG — linha contínua neon, sem eixos visíveis. */
+function Sparkline({
+  values,
+  width = 320,
+  height = 76,
+}: {
+  values: number[];
+  width?: number;
+  height?: number;
+}) {
+  const linePath = useMemo(() => {
+    if (values.length === 0) {
+      return "";
+    }
+
+    const max = Math.max(...values, 1);
+    const stepX = width / Math.max(values.length - 1, 1);
+    const stepY = (height - 8) / Math.max(max, 1);
+
+    return values
+      .map((value, index) => {
+        const x = (index * stepX).toFixed(2);
+        const y = (height - 4 - value * stepY).toFixed(2);
+        return `${index === 0 ? "M" : "L"}${x} ${y}`;
+      })
+      .join(" ");
+  }, [values, width, height]);
+
+  const areaPath = useMemo(() => {
+    if (!linePath) return "";
+    const firstX = 0;
+    const lastX = width;
+    const baseY = height;
+    return `${linePath} L${lastX.toFixed(2)} ${baseY} L${firstX.toFixed(2)} ${baseY} Z`;
+  }, [linePath, width, height]);
+
+  if (values.length === 0) {
+    return (
+      <svg
+        className="tj-an-spark"
+        viewBox={`0 0 ${width} ${height}`}
+        width="100%"
+        height={height}
+        aria-hidden="true"
+      >
+        <line
+          x1="0"
+          y1={height / 2}
+          x2={width}
+          y2={height / 2}
+          className="tj-an-spark-flat"
+        />
+      </svg>
+    );
+  }
+
+  return (
+    <svg
+      className="tj-an-spark"
+      viewBox={`0 0 ${width} ${height}`}
+      width="100%"
+      height={height}
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <defs>
+        <linearGradient id="tj-an-spark-fill" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="currentColor" stopOpacity="0.22" />
+          <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={areaPath} fill="url(#tj-an-spark-fill)" />
+      <path
+        d={linePath}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2.25"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle
+        cx={width}
+        cy={height - 4 - values[values.length - 1] * ((height - 8) / Math.max(Math.max(...values, 1), 1))}
+        r="4"
+        fill="currentColor"
+        className="tj-an-spark-dot"
+      />
+    </svg>
+  );
 }
 
 const Analytics: React.FC = () => {
@@ -238,6 +348,11 @@ const Analytics: React.FC = () => {
       return !Number.isNaN(createdAt.getTime()) && createdAt >= startDate;
     });
   }, [analytics, period]);
+
+  const trendValues = useMemo(
+    () => (analytics ? buildDailyTrend(analytics.acessosRecentes, period) : []),
+    [analytics, period]
+  );
 
   const previousFilteredAcessos = useMemo(() => {
     if (!analytics) return [];
@@ -335,7 +450,6 @@ const Analytics: React.FC = () => {
       .sort((a, b) => b.count - a.count)
       .slice(0, 5);
 
-    // Device distribution
     const dispositivoMap = new Map<TipoDispositivo, number>();
     const DISPOSITIVO_ORDER: TipoDispositivo[] = ["celular", "computador", "tablet", "desconhecido"];
 
@@ -359,7 +473,6 @@ const Analytics: React.FC = () => {
           <FiMonitor />,
       }));
 
-    // Device insight
     let dispositivoInsight = "Ainda não há dados de dispositivo para gerar uma análise.";
     if (dispositivos.length > 0) {
       const topDevice = dispositivos[0];
@@ -456,29 +569,25 @@ const Analytics: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="an-page">
-        <div className="an-loading-shell">
-          <motion.div
-            className="an-loading-card"
-            initial={{ opacity: 0, y: 18 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
-            Carregando estatísticas...
-          </motion.div>
-        </div>
+      <div className="tj-an-page tj-an-loading">
+        <motion.div
+          className="tj-an-loading-mark"
+          animate={{ opacity: [0.35, 1, 0.35] }}
+          transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
+        >
+          ANALYTICS
+        </motion.div>
       </div>
     );
   }
 
   if (error || !analytics) {
     return (
-      <div className="an-page">
-        <div className="an-shell">
-          <section className="an-empty-state-box">
-            <h2>Analytics indisponível</h2>
+      <div className="tj-an-page">
+        <div className="tj-an-content">
+          <div className="tj-an-empty">
             <p>{error || "Nenhum dado disponível."}</p>
-          </section>
+          </div>
         </div>
       </div>
     );
@@ -490,120 +599,131 @@ const Analytics: React.FC = () => {
       value: analyticsView.visualizacoesPeriodo,
       meta: `${formatPercent(analyticsView.crescimentoVisualizacoes)} vs período anterior`,
       icon: <FiEye />,
+      values: trendValues,
+      tone: "cyan" as const,
     },
     {
       label: "Ambientes ativos",
       value: analytics.resumo.totalAmbientes,
       meta: `${analytics.resumo.totalToursPublicos} públicos disponíveis`,
       icon: <FiLayers />,
+      values: analyticsView.topAmbientes.map((ambiente) => ambiente.visualizacoes).slice(0, 30),
+      tone: "violet" as const,
     },
     {
       label: "Visitas da empresa",
       value: analyticsView.visitasEmpresaPeriodo,
       meta: `Última atividade ${analyticsView.latestAccessLabel}`,
       icon: <FiActivity />,
+      values: trendValues.map((value) => Math.max(value, 1)),
+      tone: "mint" as const,
     },
     {
       label: "Alcance geográfico",
       value: analyticsView.activeCountries,
       meta: "origens com maior presença recente",
       icon: <FiGlobe />,
+      values: analyticsView.locationRanking.map((item) => item.count).slice(0, 30),
+      tone: "gold" as const,
     },
   ];
 
   return (
-    <div className="an-page">
-      <div className="an-noise" />
-      <div className="an-ambient an-ambient--one" />
-      <div className="an-ambient an-ambient--two" />
-      <div className="an-ambient an-ambient--three" />
+    <div className="tj-an-page">
+      <div className="tj-an-bg" aria-hidden="true">
+        <span className="tj-an-orb tj-an-orb--one" />
+        <span className="tj-an-orb tj-an-orb--two" />
+        <span className="tj-an-orb tj-an-orb--three" />
+      </div>
 
-      <main className="an-shell">
-        <section className="an-hero">
+      <main className="tj-an-content">
+        {/* ============ HERO MINIMALISTA ============ */}
+        <header className="tj-an-hero">
           <motion.div
-            className="an-hero-copy"
+            className="tj-an-kicker"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: TJ_EASE, delay: 0.05 }}
+          >
+            <span>Estatísticas</span>
+            <span className="tj-an-dot" />
+            <span>{analytics.empresa?.nome || "visão geral"}</span>
+          </motion.div>
+
+          <motion.h1
+            className="tj-an-title"
             initial={{ opacity: 0, y: 26 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
+            transition={{ duration: 0.85, ease: TJ_EASE, delay: 0.1 }}
           >
-            <span className="an-eyebrow">Estatísticas · visão geral</span>
-            <h1 className="an-title">Acompanhe o desempenho dos seus ambientes.</h1>
-            <div className="an-toolbar">
-              <label className="an-filter">
-                <span>Recorte</span>
-                <select value={period} onChange={(e) => setPeriod(e.target.value as PeriodValue)}>
-                  {PERIOD_OPTIONS.map((option) => (
-                    <option key={option.value} value={option.value}>
-                      {option.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
+            Onde está a atenção
+            <br />
+            dos seus visitantes.
+          </motion.h1>
 
-              <span className={`an-badge ${analytics.parceiro ? "is-partner" : "is-not-partner"}`}>
-                {analytics.parceiro ? "Parceiro ativo" : "Aguardando primeiro ambiente"}
-              </span>
-            </div>
-          </motion.div>
+          <motion.p
+            className="tj-an-lead"
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: TJ_EASE, delay: 0.18 }}
+          >
+            Acompanhe o desempenho dos ambientes em linhas de tendência contínuas —
+            sem eixos, sem tabelas, sem ruído.
+          </motion.p>
 
           <motion.div
-            className="an-hero-panel"
-            initial={{ opacity: 0, y: 32, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.12 }}
+            className="tj-an-toolbar"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: TJ_EASE, delay: 0.26 }}
           >
-            <div className="an-panel-top">
-              <span className="an-panel-kicker">Resumo</span>
-              <span className="an-panel-period">
-                {PERIOD_OPTIONS.find((option) => option.value === period)?.label}
-              </span>
-            </div>
+            <label className="tj-an-filter">
+              <span>Recorte</span>
+              <select value={period} onChange={(e) => setPeriod(e.target.value as PeriodValue)}>
+                {PERIOD_OPTIONS.map((option) => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </label>
 
-            <div className="an-highlight">
-              <div>
-                <span className="an-mini-label">Destaque</span>
-                <h3>{analyticsView.topAmbiente?.titulo || "Sem ambiente líder definido"}</h3>
-                <p>{analyticsView.insightText}</p>
-              </div>
-
-              <div className="an-trend-badge">
-                <FiTrendingUp />
-                <span>{formatPercent(analyticsView.crescimentoVisualizacoes)}</span>
-              </div>
-            </div>
-
-            <div className="an-alert-card">
-              <FiArrowUpRight />
-              <div>
-                <span className="an-mini-label">Fique de olho</span>
-                <p>{analyticsView.alertText}</p>
-              </div>
-            </div>
+            <span className={`tj-an-badge${analytics.parceiro ? " is-partner" : " is-not-partner"}`}>
+              <span className="tj-an-glow-dot" />
+              {analytics.parceiro ? "Parceiro ativo" : "Aguardando primeiro ambiente"}
+            </span>
           </motion.div>
-        </section>
+        </header>
 
-        <section className="an-summary-grid">
+        {/* ============ NÚMEROS GIGANTES COM SPARKLINES ============ */}
+        <section className="tj-an-meter-grid">
           {summaryCards.map((card, index) => (
             <motion.article
               key={card.label}
-              className="an-summary-card"
-              initial={{ opacity: 0, y: 18 }}
+              className={`tj-an-meter tj-an-meter--${card.tone}`}
+              initial={{ opacity: 0, y: 24 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.45, delay: index * 0.06 }}
-              whileHover={{ y: -5 }}
+              transition={{ duration: 0.65, ease: TJ_EASE, delay: 0.1 + index * 0.07 }}
             >
-              <div className="an-summary-top">
-                <span className="an-summary-icon">{card.icon}</span>
-                <span className="an-summary-label">{card.label}</span>
+              <div className="tj-an-meter-top">
+                <span className="tj-an-meter-label">{card.label}</span>
+                <span className="tj-an-meter-icon">{card.icon}</span>
               </div>
-              <strong className="an-summary-value">{card.value}</strong>
-              <p className="an-summary-meta">{card.meta}</p>
+
+              <strong className="tj-an-meter-value">{card.value}</strong>
+
+              <div className="tj-an-meter-spark">
+                <Sparkline values={card.values} width={300} height={64} />
+              </div>
+
+              <p className="tj-an-meter-meta">{card.meta}</p>
             </motion.article>
           ))}
         </section>
 
         {!analytics.parceiro ? (
-          <section className="an-empty-state-box">
+          <section className="tj-an-empty">
+            <span className="tj-an-eyebrow">Aguardando ativação</span>
             <h2>Sua empresa ainda não é parceira</h2>
             <p>
               A empresa se torna parceira quando possui pelo menos um ambiente cadastrado e efetuou o pagamento.
@@ -612,29 +732,105 @@ const Analytics: React.FC = () => {
           </section>
         ) : (
           <>
-            <section className="an-insights-grid">
-              <article className="an-section-card">
-                <div className="an-section-head">
-                  <div>
-                    <span className="an-section-kicker">Dispositivos utilizados</span>
-                    <h2>Distribuição entre celular, computador e tablet</h2>
-                  </div>
-                  <span className="an-section-note">
-                    {analyticsView.dispositivos.length > 0
-                      ? `${analyticsView.filteredAcessos.length} acessos analisados`
-                      : "Sem dados de dispositivo no período"}
-                  </span>
+            {/* ============ DESTAQUE ============ */}
+            <section className="tj-an-focus">
+              <motion.div
+                className="tj-an-focus-main"
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, ease: TJ_EASE, delay: 0.15 }}
+              >
+                <span className="tj-an-eyebrow">Destaque</span>
+                <h2>{analyticsView.topAmbiente?.titulo || "Sem ambiente líder definido"}</h2>
+                <p>{analyticsView.insightText}</p>
+              </motion.div>
+
+              <motion.div
+                className="tj-an-focus-side"
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.7, ease: TJ_EASE, delay: 0.22 }}
+              >
+                <span className="tj-an-trend">
+                  <FiTrendingUp />
+                  {formatPercent(analyticsView.crescimentoVisualizacoes)}
+                </span>
+                <span className="tj-an-focus-note">{analyticsView.alertText}</span>
+              </motion.div>
+            </section>
+
+            {/* ============ RANKINGS TIPOGRÁFICOS ============ */}
+            <section className="tj-an-sections">
+              <article className="tj-an-block">
+                <div className="tj-an-block-head">
+                  <span className="tj-an-eyebrow">Mais acessados</span>
+                  <h2>Ambientes que chamam atenção</h2>
+                </div>
+
+                <div className="tj-an-rank-list">
+                  {analyticsView.topAmbientes.slice(0, 5).map((ambiente, index) => (
+                    <div key={ambiente.id} className="tj-an-rank">
+                      <span className="tj-an-rank-index">{String(index + 1).padStart(2, "0")}</span>
+                      <div className="tj-an-rank-main">
+                        <strong>{ambiente.titulo}</strong>
+                        <span className="tj-an-rank-meta">
+                          {ambiente.recentViews} no período · {ambiente.visualizacoes} totais
+                        </span>
+                      </div>
+                      <span className={`tj-an-glow-dot tj-an-glow-dot--${ambiente.publico ? "public" : "private"}`} />
+                      <span className="tj-an-rank-value">{Math.round(ambiente.share)}%</span>
+                    </div>
+                  ))}
+                </div>
+              </article>
+
+              <article className="tj-an-block">
+                <div className="tj-an-block-head">
+                  <span className="tj-an-eyebrow">De onde acessam</span>
+                  <h2>Locais com mais visitas recentes</h2>
+                </div>
+
+                <div className="tj-an-rank-list">
+                  {analyticsView.locationRanking.length === 0 ? (
+                    <p className="tj-an-empty-text">Ainda não há acessos suficientes para montar o ranking.</p>
+                  ) : (
+                    analyticsView.locationRanking.map((item, index) => (
+                      <div key={item.label} className="tj-an-rank">
+                        <span className="tj-an-rank-index">{String(index + 1).padStart(2, "0")}</span>
+                        <div className="tj-an-rank-main">
+                          <strong>
+                            <FiMapPin /> {item.label}
+                          </strong>
+                          <span className="tj-an-rank-meta">{item.count} acessos no período</span>
+                        </div>
+                        <span className="tj-an-progress">
+                          <span style={{ width: `${Math.max(item.percentage, 4)}%` }} />
+                        </span>
+                        <span className="tj-an-rank-value">{Math.round(item.percentage)}%</span>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </article>
+            </section>
+
+            {/* ============ DISPOSITIVOS + PERMANÊNCIA ============ */}
+            <section className="tj-an-sections">
+              <article className="tj-an-block">
+                <div className="tj-an-block-head">
+                  <span className="tj-an-eyebrow">Dispositivos</span>
+                  <h2>Distribuição entre celular, computador e tablet</h2>
                 </div>
 
                 {analyticsView.dispositivos.length === 0 ? (
-                  <p className="an-empty-text">Ainda não há acessos registrados para calcular a distribuição de dispositivos.</p>
+                  <p className="tj-an-empty-text">Ainda não há acessos registrados para calcular a distribuição.</p>
                 ) : (
-                  <div className="an-device-list">
+                  <div className="tj-an-device-list">
                     {analyticsView.dispositivos.map((dispositivo) => (
-                      <div key={dispositivo.tipo} className="an-device-item">
-                        <div className="an-device-top">
-                          <span className="an-device-label">
-                            <span className="an-device-icon">{dispositivo.icon}</span>
+                      <div key={dispositivo.tipo} className="tj-an-device">
+                        <div className="tj-an-device-top">
+                          <span className="tj-an-device-label">
+                            <span className="tj-an-device-icon">{dispositivo.icon}</span>
                             {dispositivo.tipo === "celular"
                               ? "Celular"
                               : dispositivo.tipo === "computador"
@@ -645,9 +841,9 @@ const Analytics: React.FC = () => {
                           </span>
                           <strong>{dispositivo.count}</strong>
                         </div>
-                        <div className="an-device-bar">
-                          <span style={{ width: `${Math.max(dispositivo.percentage, 6)}%` }} />
-                        </div>
+                        <span className="tj-an-progress">
+                          <span style={{ width: `${Math.max(dispositivo.percentage, 4)}%` }} />
+                        </span>
                         <small>{Math.round(dispositivo.percentage)}% dos acessos</small>
                       </div>
                     ))}
@@ -655,225 +851,107 @@ const Analytics: React.FC = () => {
                 )}
 
                 {analyticsView.dispositivoInsight && (
-                  <div className="an-device-insight">
-                    <FiArrowUpRight />
-                    <p>{analyticsView.dispositivoInsight}</p>
-                  </div>
+                  <p className="tj-an-insight">{analyticsView.dispositivoInsight}</p>
                 )}
               </article>
 
-              <article className="an-insight-panel">
-                <div className="an-section-head">
-                  <div>
-                    <span className="an-section-kicker">De onde acessam</span>
-                    <h2>Locais com mais visitas recentes</h2>
-                  </div>
-                </div>
-
-                {analyticsView.locationRanking.length === 0 ? (
-                  <p className="an-empty-text">Ainda não há acessos suficientes para montar o ranking.</p>
-                ) : (
-                  <div className="an-location-list">
-                    {analyticsView.locationRanking.map((item) => (
-                      <div key={item.label} className="an-location-item">
-                        <div className="an-location-top">
-                          <span>
-                            <FiMapPin /> {item.label}
-                          </span>
-                          <strong>{item.count}</strong>
-                        </div>
-                        <div className="an-location-bar">
-                          <span style={{ width: `${Math.max(item.percentage, 8)}%` }} />
-                        </div>
-                        <small>{Math.round(item.percentage)}% do volume recente</small>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </article>
-            </section>
-
-            <section className="an-insights-grid">
-              <article className="an-insight-panel">
-                <div className="an-section-head">
-                  <div>
-                    <span className="an-section-kicker">Mais acessados</span>
-                    <h2>Ambientes que mais chamam atenção</h2>
-                  </div>
-                </div>
-
-                {analyticsView.topAmbientes.length === 0 ? (
-                  <p className="an-empty-text">Nenhum ambiente encontrado para esta empresa.</p>
-                ) : (
-                  <div className="an-top-list">
-                    {analyticsView.topAmbientes.slice(0, 4).map((ambiente, index) => (
-                      <div key={ambiente.id} className="an-top-item">
-                        <div className="an-top-rank">{String(index + 1).padStart(2, "0")}</div>
-                        <div className="an-top-content">
-                          <div className="an-top-title-row">
-                            <strong>{ambiente.titulo}</strong>
-                            <span className={`an-chip ${ambiente.publico ? "is-public" : "is-private"}`}>
-                              {ambiente.publico ? "Público" : "Privado"}
-                            </span>
-                          </div>
-
-                          <div className="an-top-metrics">
-                            <span>{ambiente.visualizacoes} views totais</span>
-                            <span>{ambiente.recentViews} no período</span>
-                            <span>Último acesso {formatarDataRelativa(ambiente.lastAccess)}</span>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </article>
-
-              <article className="an-section-card">
-                <div className="an-section-head">
-                  <div>
-                    <span className="an-section-kicker">Tempo de permanência</span>
-                    <h2>Tempo médio dos visitantes em cada ambiente</h2>
-                  </div>
-                  <span className="an-section-note">
-                    Baseado na mediana (descarta cliques com menos de 5s)
-                  </span>
+              <article className="tj-an-block">
+                <div className="tj-an-block-head">
+                  <span className="tj-an-eyebrow">Tempo de permanência</span>
+                  <h2>Tempo médio dos visitantes em cada ambiente</h2>
                 </div>
 
                 {analytics.ambientes.length === 0 ? (
-                  <p className="an-empty-text">Nenhum ambiente encontrado para esta empresa.</p>
+                  <p className="tj-an-empty-text">Nenhum ambiente encontrado para esta empresa.</p>
                 ) : (
-                  <div className="an-top-list">
-                    {analytics.ambientes.map((ambiente) => {
+                  <div className="tj-an-rank-list">
+                    {analytics.ambientes.map((ambiente, index) => {
                       const permanencia = analytics.tempoPermanencia[ambiente.id];
                       const hasData = permanencia && permanencia.mediana !== null;
 
-                      const interpretacaoClass =
-                        permanencia?.interpretacao === "Baixa permanência"
-                          ? "an-dwell-low"
-                          : permanencia?.interpretacao === "Permanência moderada"
-                          ? "an-dwell-moderate"
-                          : permanencia?.interpretacao === "Boa permanência"
-                          ? "an-dwell-good"
-                          : permanencia?.interpretacao === "Excelente permanência"
-                          ? "an-dwell-excellent"
-                          : "an-dwell-none";
-
                       return (
-                        <div key={ambiente.id} className="an-top-item">
-                          <div className="an-top-rank">
-                            <FiClock />
+                        <div key={ambiente.id} className="tj-an-rank">
+                          <span className="tj-an-rank-index">{String(index + 1).padStart(2, "0")}</span>
+                          <div className="tj-an-rank-main">
+                            <strong>{ambiente.titulo}</strong>
+                            <span className="tj-an-rank-meta">
+                              {hasData
+                                ? `${permanencia.mediana}s (mediana)`
+                                : permanencia?.interpretacao || "Aguardando dados"}
+                            </span>
                           </div>
-                          <div className="an-top-content">
-                            <div className="an-top-title-row">
-                              <strong>{ambiente.titulo}</strong>
-                              <span className={`an-chip ${interpretacaoClass}`}>
-                                {hasData ? permanencia.interpretacao : "Aguardando dados"}
-                              </span>
-                            </div>
-
-                            <div className="an-top-metrics">
-                              {hasData ? (
-                                <>
-                                  <span>
-                                    {permanencia.mediana}s (mediana)
-                                  </span>
-                                  <span>
-                                    {permanencia.amostrasValidas} visita{permanencia.amostrasValidas !== 1 ? "s" : ""} válida{permanencia.amostrasValidas !== 1 ? "s" : ""}
-                                  </span>
-                                </>
-                              ) : (
-                                <span>
-                                  {permanencia?.interpretacao || "Sem dados suficientes"}
-                                </span>
-                              )}
-                            </div>
-
-                            {hasData && permanencia.recomendacao && (
-                              <div className="an-dwell-recommendation">
-                                <FiArrowUpRight />
-                                <span>{permanencia.recomendacao}</span>
-                              </div>
-                            )}
-                          </div>
+                          <span
+                            className={`tj-an-glow-dot tj-an-glow-dot--${
+                              hasData
+                                ? permanencia.interpretacao === "Baixa permanência"
+                                  ? "low"
+                                  : permanencia.interpretacao === "Permanência moderada"
+                                  ? "mid"
+                                  : permanencia.interpretacao === "Boa permanência"
+                                  ? "good"
+                                  : "great"
+                                : "neutral"
+                            }`}
+                          />
+                          <span className="tj-an-rank-value">
+                            <FiClock /> {hasData ? `${permanencia.mediana}s` : "—"}
+                          </span>
                         </div>
                       );
                     })}
                   </div>
                 )}
+
+                {analytics.ambientes.some((ambiente) => {
+                  const permanencia = analytics.tempoPermanencia[ambiente.id];
+                  return permanencia?.recomendacao;
+                }) ? (
+                  <div className="tj-an-tips">
+                    {analytics.ambientes.map((ambiente) => {
+                      const permanencia = analytics.tempoPermanencia[ambiente.id];
+                      if (!permanencia?.recomendacao) return null;
+                      return (
+                        <p key={ambiente.id} className="tj-an-tip">
+                          <strong>{ambiente.titulo}:</strong> {permanencia.recomendacao}
+                        </p>
+                      );
+                    })}
+                  </div>
+                ) : null}
               </article>
             </section>
 
-            <section className="an-data-grid">
-              <article className="an-section-card">
-                <div className="an-section-head">
-                  <div>
-                    <span className="an-section-kicker">Visão completa</span>
-                    <h2>Todos os ambientes</h2>
-                  </div>
-                  <span className="an-section-note">Ordenados por visualizações totais</span>
+            {/* ============ ATIVIDADE RECENTE — LISTA TIPOGRÁFICA ============ */}
+            <section className="tj-an-block">
+              <div className="tj-an-block-head">
+                <div>
+                  <span className="tj-an-eyebrow">Atividade recente</span>
+                  <h2>Acessos mais recentes</h2>
                 </div>
+                <span className="tj-an-note">
+                  {filteredAcessos.length} registros no período selecionado
+                </span>
+              </div>
 
-                {analytics.ambientes.length === 0 ? (
-                  <p className="an-empty-text">Nenhum ambiente encontrado para esta empresa.</p>
-                ) : (
-                  <div className="an-table">
-                    <div className="an-table-head an-table-row">
-                      <span>#</span>
-                      <span>Ambiente</span>
-                      <span>Status</span>
-                      <span>Views</span>
-                      <span>No período</span>
-                      <span>Criado em</span>
+              {analytics.acessosRecentes.length === 0 ? (
+                <p className="tj-an-empty-text">Ainda não há acessos registrados para os ambientes.</p>
+              ) : (
+                <div className="tj-an-timeline">
+                  {analytics.acessosRecentes.slice(0, 14).map((acesso) => (
+                    <div key={acesso.id} className="tj-an-timeline-row">
+                      <span className="tj-an-timeline-dot" />
+                      <div className="tj-an-timeline-main">
+                        <strong>{acesso.ambienteTitulo}</strong>
+                        <span>{formatarUserAgent(acesso.userAgent)}</span>
+                      </div>
+                      <div className="tj-an-timeline-meta">
+                        <span>{formatarLocalizacao(acesso.cidade, acesso.pais)}</span>
+                        <span>{formatarDataRelativa(acesso.createdAt)}</span>
+                      </div>
                     </div>
-
-                    {analyticsView.topAmbientes.map((ambiente, index) => (
-                      <div key={ambiente.id} className="an-table-row">
-                        <span>{index + 1}</span>
-                        <span>{ambiente.titulo}</span>
-                        <span>{ambiente.publico ? "Público" : "Privado"}</span>
-                        <span>{ambiente.visualizacoes}</span>
-                        <span>{ambiente.recentViews}</span>
-                        <span>{formatarData(ambiente.createdAt)}</span>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </article>
-
-              <article className="an-section-card">
-                <div className="an-section-head">
-                  <div>
-                    <span className="an-section-kicker">Atividade recente</span>
-                    <h2>Acessos mais recentes</h2>
-                  </div>
-                  <span className="an-section-note">
-                    {filteredAcessos.length} registros no período selecionado
-                  </span>
+                  ))}
                 </div>
-
-                {analytics.acessosRecentes.length === 0 ? (
-                  <p className="an-empty-text">Ainda não há acessos registrados para os ambientes.</p>
-                ) : (
-                  <div className="an-access-list">
-                    {analytics.acessosRecentes.slice(0, 20).map((acesso) => (
-                      <div key={acesso.id} className="an-access-item">
-                        <div className="an-access-top">
-                          <strong>{acesso.ambienteTitulo}</strong>
-                          <span>{formatarData(acesso.createdAt)}</span>
-                        </div>
-
-                        <div className="an-access-meta">
-                          <span>IP: {formatarIp(acesso.ip)}</span>
-                          <span>{formatarLocalizacao(acesso.cidade, acesso.pais)}</span>
-                        </div>
-
-                        <p className="an-access-user-agent">{formatarUserAgent(acesso.userAgent)}</p>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </article>
+              )}
             </section>
           </>
         )}

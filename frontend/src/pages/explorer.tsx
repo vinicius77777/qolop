@@ -4,7 +4,9 @@ import { Circle, MapContainer, Marker, Popup, TileLayer, Tooltip, useMap } from 
 import "leaflet/dist/leaflet.css";
 import { getAmbientesExplorer, registrarVisualizacaoAmbiente } from "../services/api";
 import { resolveMediaUrl } from "../utils/mediaUrl";
+import { FiChevronDown } from "react-icons/fi";
 import "../styles/explorer.css";
+import "../styles/explorer-tajima.css";
 
 interface Tour {
   id: number;
@@ -948,12 +950,42 @@ export default function Explorer() {
   const [panelExpanded, setPanelExpanded] = useState(false);
   const togglePanel = useCallback(() => setPanelExpanded((prev) => !prev), []);
 
+  const [categoriesOpen, setCategoriesOpen] = useState(false);
+  const categoriesRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    function handlePointerDownOutside(event: PointerEvent) {
+      if (categoriesRef.current && !categoriesRef.current.contains(event.target as Node)) {
+        setCategoriesOpen(false);
+      }
+    }
+
+    function handleKeyDownEscape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setCategoriesOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDownOutside);
+    document.addEventListener("keydown", handleKeyDownEscape);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDownOutside);
+      document.removeEventListener("keydown", handleKeyDownEscape);
+    };
+  }, []);
+
+  const selectedCategoryLabel =
+    categoryFilter === "todos"
+      ? "Todas as categorias"
+      : categoryFilter.charAt(0).toUpperCase() + categoryFilter.slice(1);
+
   return (
-    <div className="explorer-page">
-      <div className={`explorer-topbar ${panelExpanded ? "explorer-topbar--expanded" : ""}`}>
+    <div className="explorer-page tj-exp-page">
+      <div className={`explorer-topbar tj-exp-topbar ${panelExpanded ? "explorer-topbar--expanded tj-exp-topbar--expanded" : ""}`}>
         <button
           type="button"
-          className="explorer-panel-toggle"
+          className="explorer-panel-toggle tj-exp-toggle"
           onClick={togglePanel}
           aria-label={panelExpanded ? "Recolher painéis" : "Expandir painéis"}
           title={panelExpanded ? "Recolher" : "Expandir"}
@@ -971,18 +1003,56 @@ export default function Explorer() {
               value={search}
               onChange={(event) => setSearch(event.target.value)}
             />
-            <select
-              className="explorer-category-select"
-              value={categoryFilter}
-              onChange={(event) => setCategoryFilter(event.target.value)}
-            >
-              <option value="todos">Todas as categorias</option>
-              {categoriasDisponiveis.map((categoria) => (
-                <option key={categoria} value={categoria}>
-                  {categoria.charAt(0).toUpperCase() + categoria.slice(1)}
-                </option>
-              ))}
-            </select>
+
+            <div className="tj-exp-catselect" ref={categoriesRef}>
+              <button
+                type="button"
+                className={`tj-exp-catselect__trigger${categoriesOpen ? " is-open" : ""}${
+                  categoryFilter !== "todos" ? " has-value" : ""
+                }`}
+                aria-haspopup="listbox"
+                aria-expanded={categoriesOpen}
+                onClick={() => setCategoriesOpen((prev) => !prev)}
+              >
+                <span className="tj-exp-glow" aria-hidden="true" />
+                <span className="tj-exp-catselect__label">{selectedCategoryLabel}</span>
+                <FiChevronDown className="tj-exp-catselect__chevron" aria-hidden="true" />
+              </button>
+
+              {categoriesOpen ? (
+                <div className="tj-exp-catselect__menu" role="listbox" aria-label="Filtrar por categoria">
+                  <button
+                    type="button"
+                    role="option"
+                    aria-selected={categoryFilter === "todos"}
+                    className={`tj-exp-cat${categoryFilter === "todos" ? " is-active" : ""}`}
+                    onClick={() => {
+                      setCategoryFilter("todos");
+                      setCategoriesOpen(false);
+                    }}
+                  >
+                    <span className="tj-exp-glow" aria-hidden="true" />
+                    Todas as categorias
+                  </button>
+                  {categoriasDisponiveis.map((categoria) => (
+                    <button
+                      key={categoria}
+                      type="button"
+                      role="option"
+                      aria-selected={categoryFilter === categoria}
+                      className={`tj-exp-cat${categoryFilter === categoria ? " is-active" : ""}`}
+                      onClick={() => {
+                        setCategoryFilter(categoria);
+                        setCategoriesOpen(false);
+                      }}
+                    >
+                      <span className="tj-exp-glow" aria-hidden="true" />
+                      {categoria.charAt(0).toUpperCase() + categoria.slice(1)}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
           </div>
         </div>
 

@@ -1,136 +1,224 @@
-.empresa-page {
-  min-height: 100vh;
-  width: 100%;
-  padding: 32px 16px 48px;
-  color: #fff;
-}
+/* ============================================================
+   EMPRESA (/empresa/:slug) — Estética Tao Tajima (parte 6b)
+   Reutiliza a base tj-org (organizações) e adiciona a lista
+   tipográfica de tours da organização.
+   Prefixo: tj-org (isolamento de estilos)
+   ============================================================ */
 
-.empresa-wrapper {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 24px;
-  border-radius: 24px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)),
-    rgba(14, 22, 38, 0.72);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(20px);
-  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
-}
+@import "./listaEmpresas.css";
 
-.empresa-loading {
-  min-height: 100vh;
-  display: grid;
-  place-items: center;
-  padding: 24px;
-  color: #fff;
-  background:
-    radial-gradient(circle at top, rgba(94, 53, 255, 0.18), transparent 28%),
-    linear-gradient(180deg, rgba(6, 10, 22, 0.98), rgba(3, 5, 12, 1));
-}
-
-.empresa-header {
-  display: grid;
-  gap: 12px;
-  margin-bottom: 24px;
-}
-
-.empresa-title {
-  margin: 0;
-  font-size: clamp(2rem, 4vw, 3rem);
-  line-height: 1.1;
-}
-
-.empresa-description {
-  margin: 0;
-  color: rgba(226, 233, 248, 0.78);
-  line-height: 1.7;
-  word-break: break-word;
-}
-
-.empresa-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-bottom: 28px;
-}
-
-.empresa-meta-item {
-  padding: 12px 16px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: rgba(240, 244, 255, 0.92);
-  word-break: break-word;
-}
-
-.empresa-section-title {
-  margin: 0 0 16px;
-  font-size: clamp(1.3rem, 3vw, 1.8rem);
-}
-
-.empresa-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr));
-  gap: 18px;
-}
-
-.empresa-card {
-  padding: 18px;
-  border-radius: 20px;
-  background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.035));
-  border: 1px solid rgba(255,255,255,0.08);
-  box-shadow: 0 14px 34px rgba(0,0,0,0.18);
+/* ============================================================
+   SEÇÕES DA PÁGINA DE EMPRESA
+   ============================================================ */
+.tj-org-block {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 1.6rem;
+  min-width: 0;
 }
 
-.empresa-card h3 {
+.tj-org-block-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.tj-org-block-head h2 {
   margin: 0;
-  font-size: 1.05rem;
+  font-size: clamp(1.5rem, 2.8vw, 2.2rem);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  color: var(--tj-org-text);
 }
 
-.empresa-card img {
-  width: 100%;
-  height: 180px;
-  object-fit: cover;
-  border-radius: 16px;
+.tj-org-empty-text {
+  margin: 0;
+  color: var(--tj-org-text-soft);
+  line-height: 1.75;
+  text-wrap: pretty;
 }
 
-.empresa-card-link {
-  margin-top: auto;
+.tj-org-link {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
+  gap: 0.4rem;
   min-height: 44px;
-  padding: 0 16px;
-  border-radius: 12px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--tj-org-text-soft);
+  font-size: 0.9rem;
+  font-weight: 600;
   text-decoration: none;
-  background: linear-gradient(135deg, #5e35ff, #4a7aff);
-  color: #fff;
-  font-weight: 700;
+  cursor: pointer;
+  border-bottom: 1px solid var(--tj-org-line);
+  transition: color 240ms var(--tj-org-ease), border-color 240ms var(--tj-org-ease);
 }
 
-@media (max-width: 768px) {
-  .empresa-page {
-    padding: 16px 12px 32px;
+.tj-org-link:hover {
+  color: var(--tj-org-accent);
+  border-color: var(--tj-org-line-strong);
+}
+
+/* ============================================================
+   LISTA DE TOURS — linhas tipográficas com preview
+   ============================================================ */
+.tj-org-tour-list {
+  display: grid;
+}
+
+.tj-org-tour {
+  display: grid;
+  grid-template-columns: 120px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 1.1rem;
+  width: 100%;
+  min-height: 6rem;
+  padding: 0.9rem 0.6rem;
+  border: 0;
+  border-bottom: 1px solid var(--tj-org-line);
+  background: transparent;
+  color: var(--tj-org-text);
+  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color 260ms var(--tj-org-ease),
+    padding-left 260ms var(--tj-org-ease),
+    border-color 260ms var(--tj-org-ease);
+}
+
+.tj-org-tour:hover {
+  background: rgba(158, 177, 199, 0.05);
+  padding-left: 1rem;
+}
+
+.tj-org-tour-media {
+  display: block;
+  width: 120px;
+  height: 72px;
+  border-radius: 14px;
+  overflow: hidden;
+  border: 1px solid var(--tj-org-line);
+  background: rgba(12, 20, 32, 0.5);
+  flex-shrink: 0;
+}
+
+.tj-org-tour-media--empty {
+  display: grid;
+  place-items: center;
+  color: var(--tj-org-text-muted);
+  font-size: 0.72rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.tj-org-tour-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.tj-org-tour-main {
+  display: grid;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.tj-org-tour-main strong {
+  color: var(--tj-org-text);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  overflow-wrap: anywhere;
+  transition: color 260ms var(--tj-org-ease);
+}
+
+.tj-org-tour:hover .tj-org-tour-main strong {
+  color: var(--tj-org-accent);
+}
+
+.tj-org-tour-main span {
+  color: var(--tj-org-text-muted);
+  font-size: 0.84rem;
+  line-height: 1.5;
+}
+
+.tj-org-tour-arrow {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: 1px solid var(--tj-org-line);
+  color: var(--tj-org-text-muted);
+  font-size: 1.05rem;
+  flex-shrink: 0;
+  transition:
+    color 240ms var(--tj-org-ease),
+    border-color 240ms var(--tj-org-ease),
+    transform 240ms var(--tj-org-ease);
+}
+
+.tj-org-tour:hover .tj-org-tour-arrow {
+  color: var(--tj-org-accent);
+  border-color: var(--tj-org-line-strong);
+  transform: translate(2px, -2px);
+}
+
+/* ============================================================
+   MODO CLARO
+   ============================================================ */
+html[data-theme="light"] .tj-org-tour-media,
+html[data-theme="light"] .tj-org-tour-arrow {
+  background: rgba(255, 255, 255, 0.82);
+  color: var(--tj-org-text-soft);
+}
+
+html[data-theme="light"] .tj-org-tour:hover {
+  background: rgba(74, 144, 226, 0.06);
+}
+
+/* ============================================================
+   RESPONSIVO
+   ============================================================ */
+@media (max-width: 560px) {
+  .tj-org-tour {
+    grid-template-columns: 84px minmax(0, 1fr);
+    gap: 0.8rem;
   }
 
-  .empresa-wrapper {
-    padding: 18px;
-    border-radius: 18px;
+  .tj-org-tour-media {
+    width: 84px;
+    height: 56px;
   }
 
-  .empresa-meta {
-    flex-direction: column;
+  .tj-org-tour-arrow {
+    display: none;
   }
+}
 
-  .empresa-card {
-    padding: 16px;
-  }
+/* ============================================================
+   ISOLAMENTO CONTRA CSS GLOBAL
+   ============================================================ */
+.tj-org-page .tj-org-tour {
+  background: transparent !important;
+  box-shadow: none !important;
+  border: 0 !important;
+  border-bottom: 1px solid var(--tj-org-line) !important;
+}
 
-  .empresa-card img {
-    height: 160px;
-  }
+.tj-org-page .tj-org-tour:hover {
+  background: rgba(158, 177, 199, 0.05) !important;
+}
+
+.tj-org-page .tj-org-tour-arrow,
+.tj-org-page .tj-org-tour-media {
+  box-shadow: none !important;
+}
+
+html[data-theme="light"] .tj-org-page .tj-org-tour:hover {
+  background: rgba(74, 144, 226, 0.06) !important;
 }

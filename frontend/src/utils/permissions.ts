@@ -28,3 +28,9 @@ export function canAccessEmpresaFeatures(usuario?: Pick<Usuario, "role"> | null)
 
   return role === "admin" || role === "empresa";
 }
+
+export function hasEmpresaVinculada(
+  usuario?: Pick<Usuario, "empresa"> | null
+): boolean {
+  return Boolean(usuario?.empresa?.id);
+}

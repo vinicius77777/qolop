@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { FiArrowUpRight, FiEye, FiPhone } from "react-icons/fi";
 import { resolveMediaUrl } from "../utils/mediaUrl";
 import { API_URL } from "../utils/apiConfig";
 import "../styles/empresa.css";
+
+const TJ_EASE = [0.22, 1, 0.36, 1] as const;
 
 interface Tour {
   id: number;
@@ -96,63 +100,162 @@ export default function Empresa() {
     };
   }, [slug]);
 
-  if (isLoading) return <div className="empresa-loading">Carregando...</div>;
+  if (isLoading) {
+    return (
+      <div className="tj-org-page tj-org-loading">
+        <motion.div
+          className="tj-org-loading-mark"
+          animate={{ opacity: [0.35, 1, 0.35] }}
+          transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
+        >
+          ORGANIZAÇÃO
+        </motion.div>
+      </div>
+    );
+  }
 
   if (error || !empresa) {
     return (
-      <div className="empresa-page">
-        <div className="empresa-wrapper">
-          <div className="empresa-loading">{error || "Empresa não encontrada"}</div>
-        </div>
+      <div className="tj-org-page">
+        <main className="tj-org-content">
+          <div className="tj-org-empty">
+            <span className="tj-org-eyebrow">Indisponível</span>
+            <h2>Organização indisponível</h2>
+            <p>{error || "Empresa não encontrada."}</p>
+            <Link className="tj-org-link" to="/empresas">
+              ← Voltar para organizações
+            </Link>
+          </div>
+        </main>
       </div>
     );
   }
 
   return (
-    <div className="empresa-page">
-      <div className="empresa-wrapper">
-        <header className="empresa-header">
-          <h1 className="empresa-title">{empresa.nome}</h1>
-          <p className="empresa-description">{empresa.descricao}</p>
+    <div className="tj-org-page">
+      <div className="tj-org-bg" aria-hidden="true">
+        <span className="tj-org-orb tj-org-orb--one" />
+        <span className="tj-org-orb tj-org-orb--two" />
+        <span className="tj-org-orb tj-org-orb--three" />
+      </div>
+
+      <main className="tj-org-content">
+        {/* ============ HERO MINIMALISTA ============ */}
+        <header className="tj-org-hero">
+          <motion.div
+            className="tj-org-kicker"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: TJ_EASE, delay: 0.05 }}
+          >
+            <span>Organização</span>
+            <span className="tj-org-dot" />
+            <span>perfil público</span>
+          </motion.div>
+
+          <motion.h1
+            className="tj-org-title"
+            initial={{ opacity: 0, y: 26 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, ease: TJ_EASE, delay: 0.1 }}
+          >
+            {empresa.nome}
+          </motion.h1>
+
+          <motion.p
+            className="tj-org-lead"
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: TJ_EASE, delay: 0.18 }}
+          >
+            {empresa.descricao || "Empresa parceira com ambientes disponíveis."}
+          </motion.p>
+
+          <motion.div
+            className="tj-org-hero-actions"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: TJ_EASE, delay: 0.26 }}
+          >
+            {empresa.whatsapp && (
+              <a
+                className="tj-org-count"
+                href={`https://wa.me/${empresa.whatsapp.replace(/\D/g, "")}`}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <FiPhone /> WhatsApp
+              </a>
+            )}
+            {empresa.telefone && (
+              <span className="tj-org-count">{empresa.telefone}</span>
+            )}
+            <span className="tj-org-count">
+              <FiEye /> {empresa.visualizacoes}{" "}
+              {empresa.visualizacoes === 1 ? "visualização" : "visualizações"}
+            </span>
+          </motion.div>
         </header>
 
-        <div className="empresa-meta">
-          {empresa.telefone && (
-            <div className="empresa-meta-item">Telefone: {empresa.telefone}</div>
-          )}
-          {empresa.whatsapp && (
-            <div className="empresa-meta-item">WhatsApp: {empresa.whatsapp}</div>
-          )}
-          <div className="empresa-meta-item">Visualizações: {empresa.visualizacoes}</div>
-        </div>
+        {/* ============ TOURS ============ */}
+        <section className="tj-org-block">
+          <div className="tj-org-block-head">
+            <div>
+              <span className="tj-org-eyebrow">Tours públicos</span>
+              <h2>Ambientes desta organização.</h2>
+            </div>
+            <span className="tj-org-count">
+              {empresa.ambientes.length === 1
+                ? "1 ambiente"
+                : `${empresa.ambientes.length} ambientes`}
+            </span>
+          </div>
 
-        <section>
-          <h2 className="empresa-section-title">Tours Públicos</h2>
+          {empresa.ambientes.length === 0 ? (
+            <p className="tj-org-empty-text">
+              Nenhum tour público disponível para esta organização.
+            </p>
+          ) : (
+            <div className="tj-org-tour-list">
+              {empresa.ambientes.map((tour, index) => {
+                const imageUrl = resolveMediaUrl(tour.imagemPreview);
 
-          <div className="empresa-grid">
-            {empresa.ambientes.length > 0 ? (
-              empresa.ambientes.map((tour) => (
-                <div key={tour.id} className="empresa-card">
-                  <h3>{tour.titulo}</h3>
-                  {tour.imagemPreview && (
-                    <img src={resolveMediaUrl(tour.imagemPreview) ?? undefined} alt={tour.titulo} />
-                  )}
-                  <a
-                    className="empresa-card-link"
+                return (
+                  <motion.a
+                    key={tour.id}
+                    className="tj-org-tour"
                     href={`/tour/${tour.id}`}
                     target="_blank"
                     rel="noreferrer"
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, ease: TJ_EASE, delay: (index % 8) * 0.05 }}
                   >
-                    Ver tour VR
-                  </a>
-                </div>
-              ))
-            ) : (
-              <div className="empresa-loading">Nenhum tour público disponível.</div>
-            )}
-          </div>
+                    {imageUrl ? (
+                      <span className="tj-org-tour-media">
+                        <img src={imageUrl} alt="" className="tj-org-tour-img" />
+                      </span>
+                    ) : (
+                      <span className="tj-org-tour-media tj-org-tour-media--empty">
+                        Sem preview
+                      </span>
+                    )}
+
+                    <span className="tj-org-tour-main">
+                      <strong>{tour.titulo}</strong>
+                      <span>Tour #{tour.id}</span>
+                    </span>
+
+                    <span className="tj-org-tour-arrow">
+                      <FiArrowUpRight />
+                    </span>
+                  </motion.a>
+                );
+              })}
+            </div>
+          )}
         </section>
-      </div>
+      </main>
     </div>
   );
 }

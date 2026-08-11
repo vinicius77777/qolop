@@ -39,7 +39,6 @@ export async function listEmpresaAmbientes(
       ? {}
       : {
           OR: [
-            { publico: true },
             { empresaId },
             {
               usuario: {

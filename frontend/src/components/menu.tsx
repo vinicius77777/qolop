@@ -1,379 +1,332 @@
 // src/components/menu.tsx
+// Navegação global "botão animado":
+// Estado fechado = botão circular flutuante (logo + anel pulsante).
+// Ao clicar, o próprio botão faz um morph (layoutId) e vira a barra
+// completa com TODAS as opções, no mesmo local, via spring.
 
-import { NavLink, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
-import { FiMail, FiMenu, FiX, FiSun, FiMoon, FiLogIn } from "react-icons/fi";
+import { NavLink, useLocation, useNavigate } from "react-router-dom";
+import {
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type ReactNode,
+} from "react";
+import { AnimatePresence, motion, type Transition } from "framer-motion";
+import {
+  FiBriefcase,
+  FiClock,
+  FiCompass,
+  FiGrid,
+  FiHome,
+  FiLayers,
+  FiLogIn,
+  FiLogOut,
+  FiMail,
+  FiMoon,
+  FiPlusCircle,
+  FiSun,
+  FiTrendingUp,
+  FiUser,
+  FiUsers,
+  FiX,
+} from "react-icons/fi";
 import { useAuth } from "../context/AuthContext";
 import { useTheme } from "../context/ThemeContext";
 import { canAccessEmpresaFeatures, isAdminUser } from "../utils/permissions";
 import "../styles/menu.css";
 
-const itemMotion = {
-  whileHover: { y: -2, scale: 1.01 },
-  whileTap: { scale: 0.98, y: 0 },
-  transition: {
-    type: "spring" as const,
-    stiffness: 380,
-    damping: 26,
-    mass: 0.7,
-  },
-};
+const TJ_EASE = [0.22, 1, 0.36, 1] as const;
 
 const CONTACT_EMAIL = "qolop.ie@gmail.com";
 const CONTACT_URL = `https://mail.google.com/mail/?view=cm&fs=1&to=${encodeURIComponent(
   CONTACT_EMAIL
 )}`;
 
+interface MenuLinkDef {
+  to: string;
+  label: string;
+  icon: ReactNode;
+}
+
+/** Atraso de entrada escalonado para cada item da barra aberta. */
+function itemStyle(index: number): CSSProperties {
+  return { animationDelay: `${120 + index * 36}ms` };
+}
+
 export default function Menu() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuth();
-  const [menuAberto, setMenuAberto] = useState(false);
-
-  useEffect(() => {
-    setMenuAberto(false);
-  }, [user]);
-
-  const sair = () => {
-    logout();
-    navigate("/login");
-  };
-
-  const abrirLogin = () => {
-    setMenuAberto(false);
-    navigate("/login");
-  };
+  const { isDark, toggleTheme } = useTheme();
+  const [open, setOpen] = useState(false);
+  const dockRef = useRef<HTMLDivElement | null>(null);
 
   const isAdmin = isAdminUser(user);
   const canAccessEmpresa = canAccessEmpresaFeatures(user);
-  const canAccessPedidos = canAccessEmpresa;
-  const canAccessAnalytics = canAccessEmpresa;
-  const fecharMenu = () => setMenuAberto(false);
-  const alternarMenu = () => setMenuAberto((valorAtual) => !valorAtual);
 
-  const { isDark, toggleTheme } = useTheme();
+  // fecha a barra ao trocar de rota
+  useEffect(() => {
+    setOpen(false);
+  }, [location.pathname]);
 
-  function abrirPerfil() {
-    if (!user) {
-      navigate("/login");
-      return;
+  // fecha com Escape ou clique fora
+  useEffect(() => {
+    function handlePointerDown(event: PointerEvent) {
+      if (dockRef.current && !dockRef.current.contains(event.target as Node)) {
+        setOpen(false);
+      }
     }
 
-    fecharMenu();
-    navigate("/perfil");
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("pointerdown", handlePointerDown);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, []);
+
+  const linksPrincipais = useMemo<MenuLinkDef[]>(
+    () => [
+      { to: "/inicio", label: "Início", icon: <FiHome /> },
+      { to: "/ambientes", label: "Ambientes", icon: <FiGrid /> },
+      { to: "/explorer", label: "Explorar", icon: <FiCompass /> },
+      ...(canAccessEmpresa
+        ? [{ to: "/analytics", label: "Analytics", icon: <FiTrendingUp /> }]
+        : []),
+    ],
+    [canAccessEmpresa]
+  );
+
+  const linksSecundarios = useMemo<MenuLinkDef[]>(
+    () => [
+      ...(canAccessEmpresa
+        ? [
+            { to: "/divulgar-espaco", label: "Divulgar espaço", icon: <FiLayers /> },
+            { to: "/pedidos", label: "Pedidos", icon: <FiBriefcase /> },
+            ...(user
+              ? [
+                  {
+                    to: `/historico/${user.id}`,
+                    label: "Histórico",
+                    icon: <FiClock />,
+                  },
+                ]
+              : []),
+          ]
+        : []),
+      ...(isAdmin
+        ? [{ to: "/criarTour", label: "Gerar Ambiente", icon: <FiPlusCircle /> }]
+        : []),
+      { to: "/empresas", label: "Organizações", icon: <FiBriefcase /> },
+      ...(isAdmin
+        ? [{ to: "/usuarios", label: "Usuários", icon: <FiUsers /> }]
+        : []),
+    ],
+    [canAccessEmpresa, isAdmin, user]
+  );
+
+  function sair() {
+    setOpen(false);
+    logout();
+    navigate("/login");
   }
 
+  function entrar() {
+    setOpen(false);
+    navigate("/login");
+  }
+
+  function abrirPerfil() {
+    setOpen(false);
+    navigate(user ? "/perfil" : "/login");
+  }
+
+  const dockTransition: Transition = {
+    type: "spring",
+    stiffness: 340,
+    damping: 28,
+  };
+
   return (
-    <motion.header
-      className={`menu ${menuAberto ? "menu-open" : ""}`}
-      initial={{ opacity: 0, y: -16, scale: 0.985 }}
+    <motion.nav
+      ref={dockRef}
+      className={`menu${open ? " menu--open" : ""}`}
+      aria-label="Navegação principal"
+      initial={{ opacity: 0, y: 22, scale: 0.92 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.55, ease: [0.22, 1, 0.36, 1] }}
+      transition={{ duration: 0.55, ease: TJ_EASE }}
     >
-      <div className="menu-shell">
-        <div className="menu-side menu-side-left">
-          <NavLink to="/inicio" className="menu-logo" aria-label="QOLOP" onClick={fecharMenu}>
-            <img src="/menu.png" alt="QOLOP" className="menu-logo-image" />
-          </NavLink>
-        </div>
-
-        <div className="menu-center-wrap">
-          <button
-            type="button"
-            className="menu-toggle"
-            aria-label={menuAberto ? "Fechar menu" : "Abrir menu"}
-            aria-expanded={menuAberto}
-            aria-controls="menu-principal"
-            onClick={alternarMenu}
+      <AnimatePresence initial={false}>
+        {open ? (
+          <motion.div
+            key="menu-bar"
+            layoutId="menu-dock"
+            className="menu-bar"
+            role="menu"
+            aria-label="Menu completo"
+            initial={{ opacity: 0, scale: 0.55, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.55, y: 16 }}
+            transition={dockTransition}
           >
-            {menuAberto ? <FiX className="menu-toggle-icon" /> : <FiMenu className="menu-toggle-icon" />}
-            <span className="menu-toggle-label">{menuAberto ? "Fechar" : "Menu"}</span>
-          </button>
-
-          <nav
-            id="menu-principal"
-            className={`menu-center ${menuAberto ? "open" : ""}`}
-            aria-label="Navegação principal"
-          >
-            <motion.div {...itemMotion}>
-              <NavLink to="/inicio" className="menu-link" onClick={fecharMenu}>
-                Início
-              </NavLink>
-            </motion.div>
-
-            <motion.div {...itemMotion}>
-              <NavLink to="/ambientes" className="menu-link" onClick={fecharMenu}>
-                Ambientes
-              </NavLink>
-            </motion.div>
-
-            <motion.div {...itemMotion}>
-              <NavLink to="/explorer" className="menu-link" onClick={fecharMenu}>
-                Explorar
-              </NavLink>
-            </motion.div>
-
-            {canAccessPedidos && (
-              <motion.div {...itemMotion}>
-                <NavLink to="/pedidos" className="menu-link" onClick={fecharMenu}>
-                  Pedidos
-                </NavLink>
-              </motion.div>
-            )}
-
-            {isAdmin && (
-              <motion.div {...itemMotion}>
-                <NavLink to="/criar-tour" className="menu-link" onClick={fecharMenu}>
-                  Gerar Ambiente
-                </NavLink>
-              </motion.div>
-            )}
-
-            {canAccessPedidos && user && (
-              <motion.div {...itemMotion}>
-                <NavLink to={`/historico/${user.id}`} className="menu-link" onClick={fecharMenu}>
-                  Histórico
-                </NavLink>
-              </motion.div>
-            )}
-
-            {canAccessAnalytics && (
-              <motion.div {...itemMotion}>
-                <NavLink to="/analytics" className="menu-link" onClick={fecharMenu}>
-                  Analytics
-                </NavLink>
-              </motion.div>
-            )}
-
-            <motion.div {...itemMotion}>
-              <NavLink to="/empresas" className="menu-link" onClick={fecharMenu}>
-                Organizações
-              </NavLink>
-            </motion.div>
-
-            <motion.div {...itemMotion}>
-              <NavLink
-                to={user ? "/perfil" : "/login"}
-                className="menu-link"
-                onClick={(event) => {
-                  if (!user) {
-                    event.preventDefault();
-                  }
-                  abrirPerfil();
-                }}
-              >
-                Perfil
-              </NavLink>
-            </motion.div>
-
-            {isAdmin && (
-              <motion.div {...itemMotion}>
-                <NavLink to="/usuarios" className="menu-link" onClick={fecharMenu}>
-                  Usuários
-                </NavLink>
-              </motion.div>
-            )}
-          </nav>
-        </div>
-
-        <div className="menu-side menu-side-right">
-          <div className="menu-right">
-            {user && (
-              <>
-                <motion.a
-                  href={CONTACT_URL}
-                  className="menu-contact-link menu-arrow-button"
-                  aria-label={`Entrar em contato por email: ${CONTACT_EMAIL}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  whileHover={{ y: -2, scale: 1.01 }}
-                  whileTap={{ scale: 0.97 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 420,
-                    damping: 24,
-                    mass: 0.7,
-                  }}
-                >
-                  <FiMail />
-                  <span>Contato</span>
-                </motion.a>
-
-                <motion.button
-                  className="menu-btn menu-arrow-button"
-                  onClick={sair}
-                  whileHover={{ y: -2, scale: 1.01 }}
-                  whileTap={{ scale: 0.97 }}
-                  transition={{
-                    type: "spring",
-                    stiffness: 420,
-                    damping: 24,
-                    mass: 0.7,
-                  }}
-                >
-                  Sair
-                </motion.button>
-              </>
-            )}
-
-            {!user && (
-              <motion.button
-                className="menu-btn menu-login-btn menu-arrow-button"
-                onClick={abrirLogin}
-                whileHover={{ y: -2, scale: 1.01 }}
-                whileTap={{ scale: 0.97 }}
-                transition={{
-                  type: "spring",
-                  stiffness: 420,
-                  damping: 24,
-                  mass: 0.7,
-                }}
-              >
-                <FiLogIn />
-                <span>Entrar</span>
-              </motion.button>
-            )}
-
-            <motion.button
-              className="menu-theme-toggle"
-              onClick={toggleTheme}
-              aria-label={isDark ? "Ativar modo claro" : "Ativar modo escuro"}
-              title={isDark ? "Modo claro" : "Modo escuro"}
-              whileHover={{ y: -2, scale: 1.01 }}
-              whileTap={{ scale: 0.97 }}
-              transition={{
-                type: "spring",
-                stiffness: 420,
-                damping: 24,
-                mass: 0.7,
-              }}
-            >
-              {isDark ? <FiSun /> : <FiMoon />}
-            </motion.button>
-          </div>
-        </div>
-      </div>
-
-      <aside className={`menu-mobile-drawer ${menuAberto ? "open" : ""}`} aria-hidden={!menuAberto}>
-        <div className="menu-mobile-drawer-panel">
-          <div className="menu-mobile-drawer-header">
-            <span className="menu-mobile-drawer-title">Menu</span>
-            <button
-              type="button"
-              className="menu-mobile-close"
-              onClick={fecharMenu}
-              aria-label="Fechar menu"
-            >
-              <FiX />
-            </button>
-          </div>
-
-          <nav className="menu-mobile-nav" aria-label="Navegação mobile">
-            <NavLink to="/inicio" className="menu-mobile-link" onClick={fecharMenu}>
-              Início
-            </NavLink>
-            <NavLink to="/ambientes" className="menu-mobile-link" onClick={fecharMenu}>
-              Ambientes
-            </NavLink>
-            <NavLink to="/explorer" className="menu-mobile-link" onClick={fecharMenu}>
-              Explorar
-            </NavLink>
-
-            {canAccessPedidos && (
-              <NavLink to="/pedidos" className="menu-mobile-link" onClick={fecharMenu}>
-                Pedidos
-              </NavLink>
-            )}
-            {isAdmin && (
-              <NavLink to="/criar-tour" className="menu-mobile-link" onClick={fecharMenu}>
-                Gerar Ambiente
-              </NavLink>
-            )}
-            {canAccessPedidos && user && (
-              <NavLink
-                to={`/historico/${user.id}`}
-                className="menu-mobile-link"
-                onClick={fecharMenu}
-              >
-                Histórico
-              </NavLink>
-            )}
-            {canAccessAnalytics && (
-              <NavLink to="/analytics" className="menu-mobile-link" onClick={fecharMenu}>
-                Analytics
-              </NavLink>
-            )}
-
-            <NavLink to="/empresas" className="menu-mobile-link" onClick={fecharMenu}>
-              Organizações
-            </NavLink>
-
+            {/* Logo */}
             <NavLink
-              to={user ? "/perfil" : "/login"}
-              className="menu-mobile-link"
-              onClick={(event) => {
-                if (!user) {
-                  event.preventDefault();
-                }
-                abrirPerfil();
-              }}
+              to="/inicio"
+              className="menu-bar-item menu-logo-mini"
+              aria-label="QOLOP — Início"
+              style={itemStyle(0)}
             >
-              Perfil
+              <img src="/menu.png" alt="QOLOP" className="menu-logo-image" />
             </NavLink>
 
-            {isAdmin && (
-              <NavLink to="/usuarios" className="menu-mobile-link" onClick={fecharMenu}>
-                Usuários
-              </NavLink>
-            )}
-          </nav>
+            <span className="menu-divider" style={itemStyle(1)} aria-hidden="true" />
 
-          <div className="menu-mobile-actions">
-            <motion.button
-              className="menu-mobile-action menu-mobile-action-theme"
-              onClick={() => { toggleTheme(); fecharMenu(); }}
-              whileTap={{ scale: 0.97 }}
-              aria-label={isDark ? "Ativar modo claro" : "Ativar modo escuro"}
-            >
-              {isDark ? <FiSun /> : <FiMoon />}
-              <span>{isDark ? "Modo Claro" : "Modo Escuro"}</span>
-            </motion.button>
-
-            {user ? (
-              <>
-                <motion.a
-                  href={CONTACT_URL}
-                  className="menu-mobile-action menu-mobile-action-contact menu-arrow-button"
-                  aria-label={`Entrar em contato por email: ${CONTACT_EMAIL}`}
-                  target="_blank"
-                  rel="noreferrer"
-                  whileTap={{ scale: 0.97 }}
-                >
-                  <FiMail />
-                  <span>Contato</span>
-                </motion.a>
-
-                <motion.button
-                  className="menu-mobile-action menu-mobile-action-logout menu-arrow-button"
-                  onClick={sair}
-                  whileTap={{ scale: 0.97 }}
-                >
-                  Sair
-                </motion.button>
-              </>
-            ) : (
-              <motion.button
-                className="menu-mobile-action menu-mobile-action-login menu-arrow-button"
-                onClick={abrirLogin}
-                whileTap={{ scale: 0.97 }}
+            {/* Links principais */}
+            {linksPrincipais.map((link, i) => (
+              <NavLink
+                key={link.label}
+                to={link.to}
+                role="menuitem"
+                className={({ isActive }) =>
+                  `menu-bar-item${isActive ? " active" : ""}`
+                }
+                style={itemStyle(i + 2)}
+                onClick={() => setOpen(false)}
               >
-                <FiLogIn />
-                <span>Entrar</span>
-              </motion.button>
-            )}
-          </div>
-        </div>
-      </aside>
-    </motion.header>
+                <span className="menu-bar-icon">{link.icon}</span>
+                <span className="menu-bar-label">{link.label}</span>
+              </NavLink>
+            ))}
+
+            <span
+              className="menu-divider"
+              style={itemStyle(linksPrincipais.length + 2)}
+              aria-hidden="true"
+            />
+
+            {/* Links secundários */}
+            {linksSecundarios.map((link, i) => (
+              <NavLink
+                key={link.label}
+                to={link.to}
+                role="menuitem"
+                className={({ isActive }) =>
+                  `menu-bar-item${isActive ? " active" : ""}`
+                }
+                style={itemStyle(linksPrincipais.length + i + 3)}
+                onClick={() => setOpen(false)}
+              >
+                <span className="menu-bar-icon">{link.icon}</span>
+                <span className="menu-bar-label">{link.label}</span>
+              </NavLink>
+            ))}
+
+            <span
+              className="menu-divider"
+              style={itemStyle(linksPrincipais.length + linksSecundarios.length + 3)}
+              aria-hidden="true"
+            />
+
+            {/* Ações: contato, tema, conta */}
+            <div
+              className="menu-actions"
+              style={itemStyle(linksPrincipais.length + linksSecundarios.length + 4)}
+            >
+              <button
+                type="button"
+                className="menu-action"
+                aria-label="Contato por email"
+                title="Contato"
+                onClick={() => window.open(CONTACT_URL, "_blank", "noreferrer")}
+              >
+                <FiMail />
+              </button>
+
+              <button
+                type="button"
+                className="menu-action"
+                aria-label={isDark ? "Ativar modo claro" : "Ativar modo escuro"}
+                title={isDark ? "Modo claro" : "Modo escuro"}
+                onClick={toggleTheme}
+              >
+                {isDark ? <FiSun /> : <FiMoon />}
+              </button>
+
+              <button
+                type="button"
+                className="menu-action"
+                aria-label="Perfil"
+                title="Perfil"
+                onClick={abrirPerfil}
+              >
+                <FiUser />
+              </button>
+
+              {user ? (
+                <button
+                  type="button"
+                  className="menu-action menu-action--logout"
+                  aria-label="Sair"
+                  title="Sair"
+                  onClick={sair}
+                >
+                  <FiLogOut />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  className="menu-action"
+                  aria-label="Entrar"
+                  title="Entrar"
+                  onClick={entrar}
+                >
+                  <FiLogIn />
+                </button>
+              )}
+
+              <button
+                type="button"
+                className="menu-action menu-action--close"
+                aria-label="Fechar menu"
+                title="Fechar"
+                onClick={() => setOpen(false)}
+              >
+                <FiX />
+              </button>
+            </div>
+          </motion.div>
+        ) : (
+          <motion.button
+            key="menu-fab"
+            layoutId="menu-dock"
+            type="button"
+            className="menu-fab"
+            aria-label="Abrir menu"
+            aria-expanded={false}
+            aria-haspopup="menu"
+            onClick={() => setOpen(true)}
+            initial={{ opacity: 0, scale: 0.55, y: 16 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.55, y: 16 }}
+            transition={dockTransition}
+            whileHover={{ scale: 1.07, y: -2 }}
+            whileTap={{ scale: 0.93 }}
+          >
+            <span className="menu-fab-ring" aria-hidden="true" />
+            <span className="menu-fab-dot" aria-hidden="true" />
+            <img src="/menu.png" alt="" className="menu-fab-logo" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+    </motion.nav>
   );
 }

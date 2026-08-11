@@ -76,6 +76,7 @@ app.use(
       if (isOriginAllowed(origin)) {
         return callback(null, true);
       }
+      console.warn("[SECURITY] cors_origin_rejected", { origin });
       return callback(new Error("Origem não permitida pelo CORS"));
     },
     credentials: true,

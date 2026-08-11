@@ -1,0 +1,149 @@
+// src/components/Sparkline.tsx
+// Micro-gráfico de tendência ultra-limpo (estética Tao Tajima):
+// sem eixos X/Y, apenas uma linha fluida com gradiente sutil e glow.
+
+import { useId, useRef } from "react";
+import { motion, useInView } from "framer-motion";
+
+interface SparklineProps {
+  values: number[];
+  width?: number;
+  height?: number;
+  strokeWidth?: number;
+  accent?: string;
+  className?: string;
+  id?: string;
+}
+
+function buildSmoothPath(
+  values: number[],
+  width: number,
+  height: number,
+  padding: number
+): string {
+  const count = values.length;
+
+  if (count === 0) {
+    return "";
+  }
+
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const span = max - min || 1;
+
+  const points = values.map((value, index) => {
+    const x =
+      count === 1
+        ? width / 2
+        : padding + (index / (count - 1)) * (width - padding * 2);
+    const y = padding + (1 - (value - min) / span) * (height - padding * 2);
+    return { x, y };
+  });
+
+  if (points.length === 1) {
+    return `M ${points[0].x} ${points[0].y}`;
+  }
+
+  let path = `M ${points[0].x} ${points[0].y}`;
+
+  for (let i = 0; i < points.length - 1; i += 1) {
+    const current = points[i];
+    const next = points[i + 1];
+    const midX = (current.x + next.x) / 2;
+    path += ` C ${midX} ${current.y}, ${midX} ${next.y}, ${next.x} ${next.y}`;
+  }
+
+  return path;
+}
+
+export default function Sparkline({
+  values,
+  width = 120,
+  height = 36,
+  strokeWidth = 2,
+  accent = "#8ee6ff",
+  className = "",
+  id,
+}: SparklineProps) {
+  const generatedId = useId();
+  const gradientId = id || `sparkline-gradient-${generatedId.replace(/:/g, "")}`;
+  const glowId = `${gradientId}-glow`;
+
+  const ref = useRef<SVGSVGElement | null>(null);
+  const isInView = useInView(ref, { once: true, margin: "-12% 0px -12% 0px" });
+
+  const padding = Math.max(strokeWidth + 2, 4);
+  const path = buildSmoothPath(values, width, height, padding);
+
+  if (values.length === 0) {
+    return (
+      <svg
+        ref={ref}
+        className={`sparkline ${className}`}
+        width={width}
+        height={height}
+        viewBox={`0 0 ${width} ${height}`}
+        aria-hidden="true"
+      >
+        <line
+          x1={padding}
+          y1={height / 2}
+          x2={width - padding}
+          y2={height / 2}
+          stroke="currentColor"
+          strokeOpacity={0.12}
+          strokeWidth={1}
+          strokeDasharray="3 5"
+        />
+      </svg>
+    );
+  }
+
+  const areaPath = `${path} L ${width - padding} ${height} L ${padding} ${height} Z`;
+
+  return (
+    <svg
+      ref={ref}
+      className={`sparkline ${className}`}
+      width={width}
+      height={height}
+      viewBox={`0 0 ${width} ${height}`}
+      role="img"
+      aria-label="Gráfico de tendência"
+    >
+      <defs>
+        <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stopColor={accent} stopOpacity={0.25} />
+          <stop offset="55%" stopColor={accent} stopOpacity={0.7} />
+          <stop offset="100%" stopColor={accent} stopOpacity={1} />
+        </linearGradient>
+
+        <linearGradient id={glowId} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={accent} stopOpacity={0.22} />
+          <stop offset="100%" stopColor={accent} stopOpacity={0} />
+        </linearGradient>
+      </defs>
+
+      <motion.path
+        d={areaPath}
+        fill={`url(#${glowId})`}
+        initial={{ opacity: 0 }}
+        animate={isInView ? { opacity: 1 } : undefined}
+        transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
+      />
+
+      <motion.path
+        d={path}
+        fill="none"
+        stroke={`url(#${gradientId})`}
+        strokeWidth={strokeWidth}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        initial={{ pathLength: 0 }}
+        animate={isInView ? { pathLength: 1 } : undefined}
+        transition={{ duration: 1.15, ease: "easeInOut" }}
+        style={{ filter: `drop-shadow(0 2px 6px ${accent}66)` }}
+      />
+    </svg>
+  );
+}

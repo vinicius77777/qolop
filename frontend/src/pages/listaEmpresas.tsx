@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
+import { FiArrowUpRight, FiMail, FiPhone } from "react-icons/fi";
 import { getEmpresas } from "../services/ambienteService";
 import type { EmpresaComAmbiente } from "../services/types";
 import { resolveMediaUrl } from "../utils/mediaUrl";
 import "../styles/listaEmpresas.css";
+
+const TJ_EASE = [0.22, 1, 0.36, 1] as const;
 
 export default function ListaEmpresas() {
   const [empresas, setEmpresas] = useState<EmpresaComAmbiente[]>([]);
@@ -41,94 +45,162 @@ export default function ListaEmpresas() {
   }, []);
 
   if (isLoading) {
-    return <div className="empresas-loading">Carregando empresas...</div>;
+    return (
+      <div className="tj-org-page tj-org-loading">
+        <motion.div
+          className="tj-org-loading-mark"
+          animate={{ opacity: [0.35, 1, 0.35] }}
+          transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
+        >
+          ORGANIZAÇÕES
+        </motion.div>
+      </div>
+    );
   }
 
   if (error) {
     return (
-      <div className="empresas-page">
-        <div className="empresas-wrapper">
-          <div className="empresas-loading">{error}</div>
-        </div>
+      <div className="tj-org-page">
+        <main className="tj-org-content">
+          <div className="tj-org-empty">
+            <span className="tj-org-eyebrow">Indisponível</span>
+            <h2>Organizações indisponíveis</h2>
+            <p>{error}</p>
+          </div>
+        </main>
       </div>
     );
   }
 
   return (
-    <div className="empresas-page">
-      <div className="empresas-wrapper">
-        <header className="empresas-header">
-          <h1 className="empresas-title">Empresas Parceiras</h1>
-          <p className="empresas-description">
+    <div className="tj-org-page">
+      <div className="tj-org-bg" aria-hidden="true">
+        <span className="tj-org-orb tj-org-orb--one" />
+        <span className="tj-org-orb tj-org-orb--two" />
+        <span className="tj-org-orb tj-org-orb--three" />
+      </div>
+
+      <main className="tj-org-content">
+        {/* ============ HERO MINIMALISTA ============ */}
+        <header className="tj-org-hero">
+          <motion.div
+            className="tj-org-kicker"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: TJ_EASE, delay: 0.05 }}
+          >
+            <span>Organizações</span>
+            <span className="tj-org-dot" />
+            <span>parceiras ativas</span>
+          </motion.div>
+
+          <motion.h1
+            className="tj-org-title"
+            initial={{ opacity: 0, y: 26 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, ease: TJ_EASE, delay: 0.1 }}
+          >
+            Empresas com
+            <br />
+            ambientes no ar.
+          </motion.h1>
+
+          <motion.p
+            className="tj-org-lead"
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: TJ_EASE, delay: 0.18 }}
+          >
             Conheça as empresas que já possuem ambientes cadastrados na plataforma.
-          </p>
+            Clique em uma linha para abrir o perfil público.
+          </motion.p>
+
+          <motion.div
+            className="tj-org-hero-actions"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: TJ_EASE, delay: 0.26 }}
+          >
+            <span className="tj-org-count">
+              {empresas.length === 1 ? "1 organização" : `${empresas.length} organizações`}
+            </span>
+          </motion.div>
         </header>
 
+        {/* ============ LISTA TIPOGRÁFICA ============ */}
         {empresas.length === 0 ? (
-          <div className="empresas-empty">
-            <p>Nenhuma empresa com ambiente cadastrado no momento.</p>
-          </div>
+          <section className="tj-org-empty">
+            <span className="tj-org-eyebrow">Sem organizações</span>
+            <h2>Nenhuma empresa cadastrada ainda.</h2>
+            <p>Quando uma empresa publicar um ambiente, ela aparecerá nesta lista.</p>
+          </section>
         ) : (
-          <div className="empresas-grid">
-            {empresas.map((empresa) => (
-              <Link
+          <section className="tj-org-list">
+            {empresas.map((empresa, index) => (
+              <motion.div
                 key={empresa.id}
-                to={`/empresa/${empresa.slug}`}
-                className="empresas-card"
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.55, ease: TJ_EASE, delay: (index % 8) * 0.05 }}
               >
-                <div className="empresas-card-media">
-                  {empresa.logo ? (
-                    <img
-                      src={resolveMediaUrl(empresa.logo) ?? undefined}
-                      alt={empresa.nome}
-                      className="empresas-card-logo"
-                    />
-                  ) : (
-                    <div className="empresas-card-placeholder">
-                      <span>{empresa.nome.charAt(0).toUpperCase()}</span>
-                    </div>
-                  )}
-                </div>
+                <Link to={`/empresa/${empresa.slug}`} className="tj-org-row">
+                  <span className="tj-org-row-index">{String(index + 1).padStart(2, "0")}</span>
 
-                <div className="empresas-card-body">
-                  <h3 className="empresas-card-title">{empresa.nome}</h3>
+                  <span className="tj-org-row-media">
+                    {empresa.logo ? (
+                      <img
+                        src={resolveMediaUrl(empresa.logo) ?? undefined}
+                        alt=""
+                        className="tj-org-row-logo"
+                      />
+                    ) : (
+                      <span className="tj-org-row-placeholder">
+                        {empresa.nome.charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                  </span>
 
-                  {empresa.descricao && (
-                    <p className="empresas-card-desc">
-                      {empresa.descricao.length > 120
-                        ? `${empresa.descricao.slice(0, 120)}...`
-                        : empresa.descricao}
-                    </p>
-                  )}
+                  <span className="tj-org-row-main">
+                    <strong>{empresa.nome}</strong>
+                    {empresa.descricao ? (
+                      <span className="tj-org-row-desc">
+                        {empresa.descricao.length > 140
+                          ? `${empresa.descricao.slice(0, 140)}…`
+                          : empresa.descricao}
+                      </span>
+                    ) : (
+                      <span className="tj-org-row-desc">
+                        Empresa parceira com ambientes disponíveis.
+                      </span>
+                    )}
+                  </span>
 
-                  <div className="empresas-card-meta">
-                    <span className="empresas-meta-item">
+                  <span className="tj-org-row-meta">
+                    <span className="tj-org-chip">
                       {empresa.totalAmbientes}{" "}
                       {empresa.totalAmbientes === 1 ? "ambiente" : "ambientes"}
                     </span>
-
                     {empresa.whatsapp && (
-                      <span className="empresas-meta-item empresas-meta-item--contact">
-                        WhatsApp
+                      <span className="tj-org-chip tj-org-chip--contact" title="WhatsApp disponível">
+                        <FiPhone /> WhatsApp
                       </span>
                     )}
-
                     {empresa.email && (
-                      <span className="empresas-meta-item empresas-meta-item--contact">
-                        Email
+                      <span className="tj-org-chip tj-org-chip--contact" title="Email disponível">
+                        <FiMail /> Email
                       </span>
                     )}
-                  </div>
-                </div>
+                  </span>
 
-                <div className="empresas-card-cta">
-                  <span>Ver perfil da empresa →</span>
-                </div>
-              </Link>
+                  <span className="tj-org-row-arrow">
+                    <FiArrowUpRight />
+                  </span>
+                </Link>
+              </motion.div>
             ))}
-          </div>
+          </section>
         )}
-      </div>
+      </main>
     </div>
   );
 }

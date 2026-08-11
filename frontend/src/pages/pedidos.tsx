@@ -3,16 +3,15 @@ import { createPortal } from "react-dom";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  FiClipboard,
-  FiMapPin,
-  FiCreditCard,
-  FiClock,
-  FiLayers,
+  FiAlertCircle,
   FiArrowRight,
   FiCheckCircle,
-  FiAlertCircle,
-  FiSearch,
+  FiChevronRight,
+  FiClock,
+  FiCreditCard,
+  FiMapPin,
   FiRefreshCw,
+  FiSearch,
   FiX,
 } from "react-icons/fi";
 import {
@@ -28,11 +27,13 @@ import {
 } from "../services/api";
 import "../styles/pedidos.css";
 
+const TJ_EASE = [0.22, 1, 0.36, 1] as const;
+
 const STATUS_OPTIONS = [
   { value: "all", label: "Todos" },
   { value: "pending", label: "Pendente" },
-  { value: "in_progress", label: "Em progresso" },
-  { value: "completed", label: "Completo" },
+  { value: "in_progress", label: "Em processamento" },
+  { value: "completed", label: "Concluído" },
 ] as const;
 
 const PAGAMENTO_OPTIONS: Array<{ value: PagamentoStatus; label: string }> = [
@@ -45,13 +46,6 @@ const PAGAMENTO_FILTER_OPTIONS = [
   { value: "all", label: "Todos pagamentos" },
   ...PAGAMENTO_OPTIONS,
 ] as const;
-
-const heroMessages = [
-  "Pedidos com leitura clara",
-  "Fluxo operacional com presença",
-  "Menos ruído, mais decisão",
-  "Acompanhamento com ritmo visual",
-];
 
 type FeedbackTone = "success" | "error";
 type FeedbackState = { tone: FeedbackTone; message: string } | null;
@@ -145,16 +139,6 @@ function getPagamentoDisplayLabel(
   return getPagamentoLabel(pagamentoStatus, pago);
 }
 
-function getPagamentoBadgeClass(
-  pagamentoStatus?: PagamentoStatus,
-  pago?: boolean
-) {
-  const normalized = normalizePagamentoStatus(pagamentoStatus, pago);
-  if (normalized === "pago_a_mais") return "payment-badge payment-badge--overpaid";
-  if (normalized === "pago") return "payment-badge payment-badge--paid";
-  return "payment-badge payment-badge--unpaid";
-}
-
 function getPedidoCreatedAt(pedido: Pedido & { criado_em?: string }) {
   return pedido.createdAt || pedido.criado_em || "";
 }
@@ -162,6 +146,13 @@ function getPedidoCreatedAt(pedido: Pedido & { criado_em?: string }) {
 function formatarData(data?: string) {
   if (!data) return "Agora";
   return new Date(data).toLocaleString("pt-BR");
+}
+
+function formatarDataCurta(data?: string) {
+  if (!data) return "Agora";
+  const date = new Date(data);
+  if (Number.isNaN(date.getTime())) return "Agora";
+  return date.toLocaleDateString("pt-BR", { day: "2-digit", month: "short" });
 }
 
 function getLocationLabel(pedido: Pedido) {
@@ -288,6 +279,20 @@ function buildInitialTourDescricao(pedido: Pedido) {
   return partes.join(" • ");
 }
 
+function getStatusDotTone(status?: string) {
+  const normalized = normalizeStatus(status);
+  if (normalized === "completed") return "success";
+  if (normalized === "in_progress") return "warning";
+  return "pending";
+}
+
+function getStatusLabelForDrawer(status?: string) {
+  const normalized = normalizeStatus(status);
+  if (normalized === "completed") return "Concluído";
+  if (normalized === "in_progress") return "Em processamento";
+  return "Pendente";
+}
+
 export default function Pedidos() {
   const navigate = useNavigate();
   const location = useLocation();
@@ -331,6 +336,11 @@ export default function Pedidos() {
   const [pagamentoFiltro, setPagamentoFiltro] =
     useState<PagamentoFilter>("all");
 
+  // Painel deslizante: pedido aberto
+  const [pedidoAbertoId, setPedidoAbertoId] = useState<number | null>(null);
+
+  const isEditing = editingId !== null && editingId === pedidoAbertoId;
+
   const searchTerm = useMemo(() => normalizeSearchTerm(busca), [busca]);
 
   useEffect(() => {
@@ -340,6 +350,24 @@ export default function Pedidos() {
     }, 3500);
     return () => window.clearTimeout(timeout);
   }, [feedback]);
+
+  // Fecha o drawer ao trocar de rota
+  useEffect(() => {
+    setPedidoAbertoId(null);
+  }, [location.pathname]);
+
+  // Fecha o drawer com Escape
+  useEffect(() => {
+    if (pedidoAbertoId === null) return;
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setPedidoAbertoId(null);
+        limparEdicao();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [pedidoAbertoId]);
 
   useEffect(() => {
     (async () => {
@@ -733,6 +761,10 @@ export default function Pedidos() {
       });
       await deletePedido(confirmExcluir.id);
       await atualizarLista(usuario, false, "refresh");
+      if (pedidoAbertoId === confirmExcluir.id) {
+        setPedidoAbertoId(null);
+        limparEdicao();
+      }
       setError("");
       definirFeedback("success", "Pedido excluído com sucesso.");
     } catch (err: any) {
@@ -764,6 +796,11 @@ export default function Pedidos() {
     });
   }, [pedidos]);
 
+  const pedidoAberto = useMemo(() => {
+    if (pedidoAbertoId === null) return null;
+    return pedidosOrdenados.find((p) => p.id === pedidoAbertoId) || null;
+  }, [pedidoAbertoId, pedidosOrdenados]);
+
   const pedidosFiltrados = useMemo(() => {
     return filtrarLocalmente(pedidosOrdenados);
   }, [pedidosOrdenados, filtrarLocalmente]);
@@ -774,9 +811,6 @@ export default function Pedidos() {
   ).length;
   const concluidos = pedidosFiltrados.filter(
     (p) => normalizeStatus(p.status) === "completed"
-  ).length;
-  const destaquePago = pedidosFiltrados.filter(
-    (p) => normalizePagamentoStatus(p.pagamentoStatus, p.pago) === "pago_a_mais"
   ).length;
   const emProgresso = pedidosFiltrados.filter(
     (p) => normalizeStatus(p.status) === "in_progress"
@@ -791,233 +825,126 @@ export default function Pedidos() {
   const displayError = error ? getDisplayErrorMessage(error, pedidosOrdenados.length) : "";
   const hasSearchTerm = searchTerm.length > 0;
 
-  const heroStats = [
-    {
-      value: String(totalPedidos).padStart(2, "0"),
-      label: filtrosAtivos ? "pedidos após filtros" : "pedidos visíveis agora",
-    },
-    {
-      value: String(pendentes).padStart(2, "0"),
-      label: "aguardando próximo passo",
-    },
-    {
-      value: String(concluidos).padStart(2, "0"),
-      label: "fluxos concluídos",
-    },
-  ];
-
-  const spotlightCards = [
-    {
-      icon: <FiClipboard />,
-      title: "Leitura objetiva",
-      body: "As informações principais aparecem primeiro para acelerar entendimento e tomada de decisão.",
-    },
-    {
-      icon: <FiMapPin />,
-      title: "Contexto do local",
-      body: "Mesmo com poucos dados, endereço, CEP e mensagem ganham hierarquia clara dentro do card.",
-    },
-    {
-      icon: <FiCreditCard />,
-      title: "Pagamento em foco",
-      body: "O estado financeiro continua evidente sem competir com o restante da operação.",
-    },
-  ];
-
   if (loading) {
     return (
-      <div className="ped-loading-screen">
+      <div className="tj-ped-page tj-ped-loading">
         <motion.div
-          className="ped-loading-card"
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          role="status"
-          aria-live="polite"
+          className="tj-ped-loading-mark"
+          animate={{ opacity: [0.35, 1, 0.35] }}
+          transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
         >
-          <FiRefreshCw className="ped-spin" />
-          <span>Carregando a experiência dos pedidos...</span>
+          PEDIDOS
         </motion.div>
       </div>
     );
   }
 
   return (
-    <div className="ped-page">
-      <div className="ped-noise" />
-      <div className="ped-ambient ped-ambient--one" />
-      <div className="ped-ambient ped-ambient--two" />
-      <div className="ped-ambient ped-ambient--three" />
+    <div className="tj-ped-page">
+      <div className="tj-ped-bg" aria-hidden="true">
+        <span className="tj-ped-orb tj-ped-orb--one" />
+        <span className="tj-ped-orb tj-ped-orb--two" />
+        <span className="tj-ped-orb tj-ped-orb--three" />
+      </div>
 
-      <main className="ped-shell">
-        <section className="ped-hero">
+      <main className="tj-ped-content">
+        {/* ============ HERO MINIMALISTA ============ */}
+        <header className="tj-ped-hero">
           <motion.div
-            className="ped-hero-copy"
+            className="tj-ped-kicker"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: TJ_EASE, delay: 0.05 }}
+          >
+            <span>Pedidos</span>
+            <span className="tj-ped-dot" />
+            <span>{usuario?.nome ? usuario.nome.split(" ")[0] : "fluxo ativo"}</span>
+          </motion.div>
+
+          <motion.h1
+            className="tj-ped-title"
             initial={{ opacity: 0, y: 26 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
+            transition={{ duration: 0.85, ease: TJ_EASE, delay: 0.1 }}
           >
-            <span className="ped-eyebrow">
-              Pedidos · {usuario?.nome ? usuario.nome.split(" ")[0] : "fluxo ativo"}
-            </span>
+            Opere cada pedido
+            <br />
+            sem sair da linha do tempo.
+          </motion.h1>
 
-            <h1 className="ped-title">
-              Um painel de pedidos com a mesma presença visual da aba de ambientes.
-            </h1>
-
-            <p className="ped-lead">
-              A experiência foi simplificada para funcionar bem mesmo com poucas
-              informações, mantendo profundidade visual, leitura rápida e sensação premium.
-            </p>
-
-            <div className="ped-hero-actions">
-              <button
-                type="button"
-                className="ped-hero-btn ped-hero-btn--primary"
-                onClick={() => {
-                  setTelefone(formatTelefone(usuario?.empresa?.telefone || usuario?.empresa?.whatsapp || ""));
-                  setAbrirModal(true);
-                }}
-                disabled={enviando || pendingAction === "delete"}
-              >
-                {enviando ? <FiRefreshCw className="ped-spin" /> : null}
-                Novo pedido
-              </button>
-
-              <button
-                type="button"
-                className="ped-hero-btn ped-hero-btn--secondary"
-                onClick={() => navigate("/inicio", { state: { from: location.pathname } })}
-                disabled={Boolean(loadingState)}
-              >
-                Voltar ao início
-              </button>
-            </div>
-
-            <div className="ped-scroll-indicator">Role e acompanhe os pedidos</div>
-          </motion.div>
+          <motion.p
+            className="tj-ped-lead"
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: TJ_EASE, delay: 0.18 }}
+          >
+            Os pedidos aparecem em uma lista tipográfica contínua. Clique em qualquer
+            linha para abrir os detalhes no painel lateral — sem redirecionar.
+          </motion.p>
 
           <motion.div
-            className="ped-hero-panel"
-            initial={{ opacity: 0, y: 32, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            transition={{ duration: 0.8, delay: 0.12 }}
+            className="tj-ped-hero-actions"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: TJ_EASE, delay: 0.26 }}
           >
-            <div className="ped-panel-top">
-              <div className="ped-window-controls">
-                <span />
-                <span />
-                <span />
-              </div>
-              <div className="ped-panel-label">Orders / operational browser</div>
-            </div>
+            <button
+              type="button"
+              className="tj-ped-action tj-ped-action--solid"
+              onClick={() => {
+                setTelefone(formatTelefone(usuario?.empresa?.telefone || usuario?.empresa?.whatsapp || ""));
+                setAbrirModal(true);
+              }}
+              disabled={enviando || pendingAction === "delete"}
+            >
+              Novo pedido
+              <FiArrowRight />
+            </button>
 
-            <div className="ped-hero-marquee">
-              <motion.div
-                className="ped-hero-marquee-track"
-                animate={{ x: ["0%", "-50%"] }}
-                transition={{ duration: 16, ease: "linear", repeat: Infinity }}
-              >
-                {heroMessages.concat(heroMessages).map((item, index) => (
-                  <span key={`${item}-${index}`}>{item}</span>
-                ))}
-              </motion.div>
-            </div>
-
-            <div className="ped-stats">
-              {heroStats.map((item, index) => (
-                <motion.div
-                  key={item.label}
-                  className="ped-stat"
-                  initial={{ opacity: 0, y: 18 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.6, delay: 0.2 + index * 0.08 }}
-                  whileHover={{ y: -4 }}
-                >
-                  <strong>{item.value}</strong>
-                  <span>{item.label}</span>
-                </motion.div>
-              ))}
-            </div>
-
-            <div className="ped-hero-focus">
-              <div>
-                <span className="ped-mini-label">Pedido em destaque</span>
-                <h3>{pedidoDestaque?.empresa?.nome || "Nenhum pedido encontrado"}</h3>
-                <p>
-                  {pedidoDestaque
-                    ? `${getStatusLabel(pedidoDestaque.status)} · ${getLocationLabel(
-                        pedidoDestaque
-                      )}`
-                    : "Crie um novo pedido para começar a organizar a operação por aqui."}
-                </p>
-              </div>
-
-              <div className="ped-focus-side">
-                {isAdmin ? (
-                  <>
-                    <span className="ped-focus-chip">
-                      {destaquePago} com pagamento destacado
-                    </span>
-                    <span className="ped-focus-meta">
-                      {emProgresso} em progresso / {pendentes} pendentes
-                    </span>
-                  </>
-                ) : (
-                  <span className="ped-focus-meta">
-                    {emProgresso} em progresso / {pendentes} pendentes
-                  </span>
-                )}
-              </div>
-            </div>
+            <button
+              type="button"
+              className="tj-ped-action"
+              onClick={() => navigate("/inicio", { state: { from: location.pathname } })}
+              disabled={Boolean(loadingState)}
+            >
+              Voltar ao início
+            </button>
           </motion.div>
-        </section>
+        </header>
 
-        <section className="ped-story">
-          <div className="ped-story-header">
-            <span className="ped-section-kicker">Fluxo operacional</span>
-            <h2>Menos informação por bloco, mas com o mesmo impacto visual da aba de ambientes.</h2>
-            <p>
-              Os pedidos continuam objetivos, porém agora em uma estrutura mais elegante,
-              com áreas de respiro, hierarquia clara e cards mais valorizados.
-            </p>
+        {/* ============ NÚMEROS GIGANTES ============ */}
+        <section className="tj-ped-stats" aria-label="Resumo dos pedidos">
+          <div className="tj-ped-stat">
+            <strong>{String(totalPedidos).padStart(2, "0")}</strong>
+            <span>{filtrosAtivos ? "após filtros" : "visíveis agora"}</span>
           </div>
-
-          <div className="ped-story-grid">
-            {spotlightCards.map((card, index) => (
-              <motion.article
-                key={card.title}
-                className="ped-story-card"
-                initial={{ opacity: 0, y: 22 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
-                transition={{ duration: 0.55, delay: index * 0.08 }}
-                whileHover={{ y: -6 }}
-              >
-                <div className="ped-story-icon">{card.icon}</div>
-                <span className="ped-story-index">{String(index + 1).padStart(2, "0")}</span>
-                <h3>{card.title}</h3>
-                <p>{card.body}</p>
-              </motion.article>
-            ))}
+          <div className="tj-ped-stat">
+            <strong>{String(pendentes).padStart(2, "0")}</strong>
+            <span>aguardando passo</span>
+          </div>
+          <div className="tj-ped-stat">
+            <strong>{String(emProgresso).padStart(2, "0")}</strong>
+            <span>em processamento</span>
+          </div>
+          <div className="tj-ped-stat">
+            <strong>{String(concluidos).padStart(2, "0")}</strong>
+            <span>fluxos concluídos</span>
           </div>
         </section>
 
         {feedback && (
           <motion.div
-            className={`ped-feedback ped-feedback--${feedback.tone}`}
+            className={`tj-ped-feedback tj-ped-feedback--${feedback.tone}`}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
             role={feedback.tone === "error" ? "alert" : "status"}
             aria-live={feedback.tone === "error" ? "assertive" : "polite"}
           >
-            <div className="ped-feedback-content">
-              {feedback.tone === "success" ? <FiCheckCircle /> : <FiAlertCircle />}
-              <span>{feedback.message}</span>
-            </div>
+            {feedback.tone === "success" ? <FiCheckCircle /> : <FiAlertCircle />}
+            <span>{feedback.message}</span>
             <button
               type="button"
-              className="ped-feedback-close"
+              className="tj-ped-feedback-close"
               onClick={() => setFeedback(null)}
               aria-label="Fechar aviso"
             >
@@ -1027,14 +954,14 @@ export default function Pedidos() {
         )}
 
         {loadingState && (
-          <div className="ped-global-busy" role="status" aria-live="polite">
-            <FiRefreshCw className="ped-spin" />
+          <div className="tj-ped-busy" role="status" aria-live="polite">
+            <FiRefreshCw className="tj-ped-spin" />
             <span>{loadingState.message}</span>
           </div>
         )}
 
         {displayError && (
-          <div className="ped-error" role="alert" aria-live="assertive">
+          <div className="tj-ped-error" role="alert" aria-live="assertive">
             <FiAlertCircle />
             <div>
               <strong>Algo precisa de atenção.</strong>
@@ -1043,55 +970,55 @@ export default function Pedidos() {
           </div>
         )}
 
-        <section className="ped-browser" id="ped-grid">
-          <div className="ped-browser-top">
-            <div className="ped-browser-copy">
-              <span className="ped-section-kicker">Pedidos ativos</span>
-              <h2>Visual consistente para operar, editar e acompanhar com clareza.</h2>
+        {/* ============ TIMELINE ============ */}
+        <section className="tj-ped-browser">
+          <div className="tj-ped-browser-head">
+            <div className="tj-ped-browser-copy">
+              <span className="tj-ped-eyebrow">Linha do tempo</span>
+              <h2>Pedidos em ordem de fluxo.</h2>
               <p>
-                Mesmo quando o pedido tem só o essencial, o layout preserva contexto,
-                leitura e ações bem posicionadas.
+                Cada linha é um pedido. O ponto luminoso indica o estado — verde para
+                concluído, âmbar para em processamento, cinza para pendente.
               </p>
             </div>
 
             <button
               type="button"
-              className="ped-hero-btn ped-hero-btn--secondary ped-refresh-btn"
+              className="tj-ped-action tj-ped-action--ghost"
               onClick={() => atualizarLista(usuario, false, "refresh")}
               disabled={isRefreshing || pendingAction === "delete"}
             >
-              <FiRefreshCw className={isRefreshing ? "ped-spin" : ""} />
-              {isRefreshing ? "Atualizando..." : "Atualizar lista"}
+              <FiRefreshCw className={isRefreshing ? "tj-ped-spin" : ""} />
+              {isRefreshing ? "Atualizando..." : "Atualizar"}
             </button>
           </div>
 
-          <div className="ped-filter-bar">
-            <div className="ped-filter-search">
-              <FiSearch />
+          <div className="tj-ped-toolbar">
+            <label className="tj-ped-search">
+              <FiSearch className="tj-ped-search-icon" />
               <input
                 type="text"
                 value={busca}
                 onChange={(e) => setBusca(e.target.value)}
-                placeholder="Buscar por empresa, cliente, email, telefone, mensagem, local ou CEP"
+                placeholder="Buscar por empresa, cliente, email, local..."
                 aria-label="Buscar pedidos"
               />
               {hasSearchTerm && (
                 <button
                   type="button"
-                  className="ped-search-clear"
+                  className="tj-ped-search-clear"
                   onClick={() => setBusca("")}
                   aria-label="Limpar busca"
                 >
                   <FiX />
                 </button>
               )}
-            </div>
+            </label>
 
-            <div className="ped-filter-group">
-              <label className="ped-filter-field">
+            <div className="tj-ped-filters">
+              <label className="tj-ped-filter-field">
                 <span>Status</span>
                 <select
-                  className="ped-select"
                   value={statusFiltro}
                   onChange={(e) => setStatusFiltro(e.target.value as StatusFilter)}
                   aria-label="Filtrar por status"
@@ -1105,10 +1032,9 @@ export default function Pedidos() {
                 </select>
               </label>
 
-              <label className="ped-filter-field">
+              <label className="tj-ped-filter-field">
                 <span>Pagamento</span>
                 <select
-                  className="ped-select"
                   value={pagamentoFiltro}
                   onChange={(e) =>
                     setPagamentoFiltro(e.target.value as PagamentoFilter)
@@ -1127,7 +1053,7 @@ export default function Pedidos() {
               {filtrosAtivos && (
                 <button
                   type="button"
-                  className="ped-action-btn ped-action-btn--ghost ped-clear-filters"
+                  className="tj-ped-link"
                   onClick={limparFiltros}
                 >
                   Limpar filtros
@@ -1136,261 +1062,209 @@ export default function Pedidos() {
             </div>
           </div>
 
-          <div
-            className="ped-filter-summary"
-            role="status"
-            aria-live="polite"
-            aria-atomic="true"
-          >
-            <span>
-              Exibindo <strong>{pedidosFiltrados.length}</strong> pedido
-              {pedidosFiltrados.length === 1 ? "" : "s"}
-              {filtrosAtivos ? " após filtros" : ""}
-            </span>
-            {loadingState && (
-              <span className="ped-sync-chip">{loadingState.message}</span>
-            )}
-          </div>
+          <p className="tj-ped-count" role="status" aria-live="polite">
+            {pedidosFiltrados.length} pedido{pedidosFiltrados.length === 1 ? "" : "s"}
+            {filtrosAtivos ? " após filtros" : " na linha do tempo"}
+          </p>
 
-          <div className="ped-grid">
-            {hasVisibleResults ? (
-              pedidosFiltrados.map((p, index) => {
+          {hasVisibleResults ? (
+            <div className="tj-ped-timeline">
+              {pedidosFiltrados.map((p, index) => {
+                const statusTone = getStatusDotTone(p.status);
                 const pagamentoAtual = normalizePagamentoStatus(
                   p.pagamentoStatus,
                   p.pago
                 );
-                const isEditing = editingId === p.id;
-                const actionDisabled = Boolean(pendingAction);
-                const isCardBusy = loadingState?.pedidoId === p.id;
-                const editErrorPrefix = `edit-${p.id}`;
+                const isDestaque = pagamentoAtual === "pago_a_mais";
+                const isOpen = pedidoAbertoId === p.id;
 
                 return (
-                  <motion.article
+                  <motion.button
                     key={p.id}
-                    className={`ped-card${
-                      pagamentoAtual === "pago_a_mais" ? " ped-card--overpaid" : ""
-                    }${pendingAction ? " ped-card--busy" : ""}${isCardBusy ? " ped-card--focus-busy" : ""}`}
-                    initial={{ opacity: 0, y: 24 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
-                    transition={{ duration: 0.5, delay: (index % 6) * 0.04 }}
-                    whileHover={{ y: -8 }}
+                    type="button"
+                    className={`tj-ped-row${isDestaque ? " tj-ped-row--destaque" : ""}${isOpen ? " is-open" : ""}`}
+                    initial={{ opacity: 0, y: 22 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.55, ease: TJ_EASE, delay: (index % 8) * 0.04 }}
+                    onClick={() => {
+                      if (isOpen) {
+                        setPedidoAbertoId(null);
+                        limparEdicao();
+                      } else {
+                        limparEdicao();
+                        setPedidoAbertoId(p.id);
+                      }
+                    }}
+                    aria-expanded={isOpen}
                   >
-                    {isCardBusy && (
-                      <div className="ped-card-busy" role="status" aria-live="polite">
-                        <FiRefreshCw className="ped-spin" />
-                        <span>{loadingState?.message}</span>
+                    <span className={`tj-ped-dot tj-ped-dot--${statusTone}`} />
+                    <span className="tj-ped-row-index">{String(index + 1).padStart(2, "0")}</span>
+                    <span className="tj-ped-row-main">
+                      <strong>{p.empresa?.nome || p.nomeCliente || "Pedido sem empresa"}</strong>
+                      <span>{getStatusLabelForDrawer(p.status)} · {getLocationLabel(p)}</span>
+                    </span>
+                    <span className="tj-ped-row-date">{formatarDataCurta(getPedidoCreatedAt(p))}</span>
+                    {isDestaque && <span className="tj-ped-row-star">★</span>}
+                    <FiChevronRight className="tj-ped-row-chevron" />
+                  </motion.button>
+                );
+              })}
+            </div>
+          ) : hasData ? (
+            <div className="tj-ped-empty">
+              <span className="tj-ped-eyebrow">Nenhum resultado</span>
+              <p>
+                {hasSearchTerm
+                  ? `A busca por "${searchTerm}" não encontrou combinações com os filtros atuais.`
+                  : "Os filtros atuais não encontraram pedidos compatíveis."}
+              </p>
+              <button
+                type="button"
+                className="tj-ped-action"
+                onClick={limparFiltros}
+              >
+                Limpar filtros
+              </button>
+            </div>
+          ) : (
+            <div className="tj-ped-empty">
+              <span className="tj-ped-eyebrow">Sem pedidos</span>
+              <p>
+                {displayError
+                  ? "No momento não foi possível carregar pedidos do servidor."
+                  : "Quando novos pedidos chegarem, eles aparecerão nesta linha do tempo."}
+              </p>
+              <div className="tj-ped-hero-actions">
+                <button
+                  type="button"
+                  className="tj-ped-action tj-ped-action--solid"
+                  onClick={() => {
+                    setTelefone(formatTelefone(usuario?.empresa?.telefone || usuario?.empresa?.whatsapp || ""));
+                    setAbrirModal(true);
+                  }}
+                >
+                  Criar primeiro pedido
+                </button>
+                <button
+                  type="button"
+                  className="tj-ped-action"
+                  onClick={() => atualizarLista(usuario, false, "refresh")}
+                  disabled={isRefreshing}
+                >
+                  <FiRefreshCw className={isRefreshing ? "tj-ped-spin" : ""} />
+                  Tentar novamente
+                </button>
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* Destaque do fluxo */}
+        {pedidoDestaque && hasVisibleResults && (
+          <section className="tj-ped-focus">
+            <div>
+              <span className="tj-ped-eyebrow">Em destaque</span>
+              <h2>{pedidoDestaque.empresa?.nome || "Nenhum pedido encontrado"}</h2>
+              <p>
+                {getStatusLabelForDrawer(pedidoDestaque.status)} · {getLocationLabel(pedidoDestaque)}
+              </p>
+            </div>
+            <button
+              type="button"
+              className="tj-ped-action tj-ped-action--ghost"
+              onClick={() => setPedidoAbertoId(pedidoDestaque.id)}
+            >
+              Abrir detalhes
+              <FiChevronRight />
+            </button>
+          </section>
+        )}
+      </main>
+
+      {/* ============ DRAWER DE DETALHES ============ */}
+      {pedidoAberto &&
+        createPortal(
+          <div className="tj-ped-overlay" onClick={() => { setPedidoAbertoId(null); limparEdicao(); }}>
+            <motion.aside
+              className="tj-ped-drawer"
+              role="dialog"
+              aria-modal="true"
+              aria-label={`Detalhes do pedido ${pedidoAberto.id}`}
+              initial={{ x: "100%", opacity: 0.6 }}
+              animate={{ x: 0, opacity: 1 }}
+              exit={{ x: "100%", opacity: 0.6 }}
+              transition={{ duration: 0.45, ease: TJ_EASE }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="tj-ped-drawer-head">
+                <div className="tj-ped-drawer-title">
+                  <span className="tj-ped-eyebrow">Pedido #{pedidoAberto.id}</span>
+                  <h2>{pedidoAberto.empresa?.nome || pedidoAberto.nomeCliente || "Pedido"}</h2>
+                  <div className="tj-ped-drawer-status">
+                    <span className={`tj-ped-dot tj-ped-dot--${getStatusDotTone(pedidoAberto.status)}`} />
+                    <span>{getStatusLabelForDrawer(pedidoAberto.status)}</span>
+                  </div>
+                </div>
+                <button
+                  type="button"
+                  className="tj-ped-drawer-close"
+                  onClick={() => { setPedidoAbertoId(null); limparEdicao(); }}
+                  aria-label="Fechar detalhes"
+                >
+                  <FiX />
+                </button>
+              </div>
+
+              <div className="tj-ped-drawer-body">
+                {!isEditing ? (
+                  <>
+                    <div className="tj-ped-drawer-meta">
+                      <div className="tj-ped-drawer-meta-item">
+                        <span>Email</span>
+                        <strong>{pedidoAberto.email}</strong>
                       </div>
-                    )}
-
-                    <div className="ped-card-shell">
-                      <div className="ped-card-top">
-                        <div>
-                          <span className="ped-card-index">
-                            {String(index + 1).padStart(2, "0")}
-                          </span>
-                          <h3>{p.empresa?.nome || p.nomeCliente || "Pedido sem empresa"}</h3>
-                        </div>
-
-                        <span className={getPagamentoBadgeClass(p.pagamentoStatus, p.pago)}>
-                          {getPagamentoDisplayLabel(p.pagamentoStatus, p.pago)}
-                        </span>
-                      </div>
-
-                      <div className="ped-card-summary">
-                        <div className="ped-summary-item">
-                          <span className="ped-summary-label">Status</span>
-                          <span className={`pedidos-status ${normalizeStatus(p.status)}`}>
-                            {getStatusLabel(p.status)}
-                          </span>
-                        </div>
-
-                        <div className="ped-summary-item">
-                          <span className="ped-summary-label">Criado em</span>
-                          <span className="ped-summary-value">
-                            {formatarData(getPedidoCreatedAt(p))}
-                          </span>
-                        </div>
-
-                        <div className="ped-summary-item ped-summary-item--wide">
-                          <span className="ped-summary-label">Local</span>
-                          <span className="ped-summary-value">{getLocationLabel(p)}</span>
-                        </div>
-                      </div>
-
-                      {isEditing ? (
-                        <div className="ped-edit-grid">
-                          <div className="ped-form-field">
-                            <label htmlFor={`edit-telefone-${p.id}`}>Telefone</label>
-                            <input
-                              id={`edit-telefone-${p.id}`}
-                              type="text"
-                              value={editTelefone}
-                              onChange={(e) => {
-                                setEditTelefone(formatTelefone(e.target.value));
-                                if (editFieldErrors.telefone) {
-                                  setEditFieldErrors((prev) => ({ ...prev, telefone: undefined }));
-                                }
-                              }}
-                              placeholder="Telefone"
-                              aria-invalid={Boolean(editFieldErrors.telefone)}
-                              aria-describedby={
-                                editFieldErrors.telefone
-                                  ? getFieldErrorId(editErrorPrefix, "telefone")
-                                  : undefined
-                              }
-                              disabled={actionDisabled}
-                            />
-                            {editFieldErrors.telefone && (
-                              <span
-                                id={getFieldErrorId(editErrorPrefix, "telefone")}
-                                className="ped-field-error"
-                                role="alert"
-                              >
-                                {editFieldErrors.telefone}
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="ped-form-field">
-                            <label htmlFor={`edit-local-${p.id}`}>Local</label>
-                            <textarea
-                              id={`edit-local-${p.id}`}
-                              value={editLocal}
-                              onChange={(e) => {
-                                setEditLocal(e.target.value);
-                                if (editFieldErrors.local) {
-                                  setEditFieldErrors((prev) => ({ ...prev, local: undefined }));
-                                }
-                              }}
-                              placeholder="Endereço completo"
-                              aria-invalid={Boolean(editFieldErrors.local)}
-                              aria-describedby={
-                                editFieldErrors.local
-                                  ? getFieldErrorId(editErrorPrefix, "local")
-                                  : undefined
-                              }
-                              disabled={actionDisabled}
-                            />
-                            {editFieldErrors.local && (
-                              <span
-                                id={getFieldErrorId(editErrorPrefix, "local")}
-                                className="ped-field-error"
-                                role="alert"
-                              >
-                                {editFieldErrors.local}
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="ped-form-field">
-                            <label htmlFor={`edit-cep-${p.id}`}>CEP</label>
-                            <input
-                              id={`edit-cep-${p.id}`}
-                              type="text"
-                              value={editCep}
-                              onChange={(e) => {
-                                setEditCep(formatCep(e.target.value));
-                                if (editFieldErrors.cep) {
-                                  setEditFieldErrors((prev) => ({ ...prev, cep: undefined }));
-                                }
-                              }}
-                              placeholder="CEP (opcional)"
-                              aria-invalid={Boolean(editFieldErrors.cep)}
-                              aria-describedby={
-                                editFieldErrors.cep
-                                  ? getFieldErrorId(editErrorPrefix, "cep")
-                                  : undefined
-                              }
-                              disabled={actionDisabled}
-                            />
-                            {editFieldErrors.cep && (
-                              <span
-                                id={getFieldErrorId(editErrorPrefix, "cep")}
-                                className="ped-field-error"
-                                role="alert"
-                              >
-                                {editFieldErrors.cep}
-                              </span>
-                            )}
-                          </div>
-
-                          <div className="ped-form-field ped-form-field--full">
-                            <label htmlFor={`edit-mensagem-${p.id}`}>Mensagem</label>
-                            <textarea
-                              id={`edit-mensagem-${p.id}`}
-                              value={editMensagem}
-                              onChange={(e) => {
-                                setEditMensagem(e.target.value);
-                                if (editFieldErrors.mensagem) {
-                                  setEditFieldErrors((prev) => ({ ...prev, mensagem: undefined }));
-                                }
-                              }}
-                              placeholder="Mensagem"
-                              aria-invalid={Boolean(editFieldErrors.mensagem)}
-                              aria-describedby={
-                                editFieldErrors.mensagem
-                                  ? getFieldErrorId(editErrorPrefix, "mensagem")
-                                  : undefined
-                              }
-                              disabled={actionDisabled}
-                            />
-                            {editFieldErrors.mensagem && (
-                              <span
-                                id={getFieldErrorId(editErrorPrefix, "mensagem")}
-                                className="ped-field-error"
-                                role="alert"
-                              >
-                                {editFieldErrors.mensagem}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="ped-card-content">
-                          <div className="ped-card-meta">
-                            <p>
-                              <strong>Email:</strong> {p.email}
-                            </p>
-                            {p.telefone && (
-                              <p>
-                                <strong>Telefone:</strong> {formatTelefone(p.telefone)}
-                              </p>
-                            )}
-                            {p.cep && (
-                              <p>
-                                <strong>CEP:</strong> {formatCep(p.cep)}
-                              </p>
-                            )}
-                          </div>
-
-                          <div className="ped-card-message">
-                            <span className="ped-summary-label">Mensagem</span>
-                            <p>{p.mensagem || "Sem mensagem adicional."}</p>
-                          </div>
+                      {pedidoAberto.telefone && (
+                        <div className="tj-ped-drawer-meta-item">
+                          <span>Telefone</span>
+                          <strong>{formatTelefone(pedidoAberto.telefone)}</strong>
                         </div>
                       )}
+                      <div className="tj-ped-drawer-meta-item">
+                        <span>Criado em</span>
+                        <strong>{formatarData(getPedidoCreatedAt(pedidoAberto))}</strong>
+                      </div>
+                      <div className="tj-ped-drawer-meta-item">
+                        <span>Local</span>
+                        <strong>
+                          <FiMapPin /> {getLocationLabel(pedidoAberto)}
+                        </strong>
+                      </div>
+                      {pedidoAberto.cep && (
+                        <div className="tj-ped-drawer-meta-item">
+                          <span>CEP</span>
+                          <strong>{formatCep(pedidoAberto.cep)}</strong>
+                        </div>
+                      )}
+                    </div>
 
-                      {isAdmin && (
-                        <>
-                          <div className="ped-payment-panel">
-                            <div className="ped-payment-header">
-                              <strong>Pagamento</strong>
-                              <FiCreditCard />
-                            </div>
+                    <div className="tj-ped-drawer-message">
+                      <span className="tj-ped-eyebrow">Mensagem</span>
+                      <p>{pedidoAberto.mensagem || "Sem mensagem adicional."}</p>
+                    </div>
 
+                    {isAdmin && (
+                      <>
+                        <div className="tj-ped-drawer-section">
+                          <div className="tj-ped-drawer-section-head">
+                            <span className="tj-ped-eyebrow">Pagamento</span>
+                            <FiCreditCard />
+                          </div>
+                          <label className="tj-ped-filter-field tj-ped-filter-field--full">
+                            <span>Status do pagamento</span>
                             <select
-                              className="ped-select"
-                              value={isEditing ? editPagamentoStatus : pagamentoAtual}
-                              onChange={(e) => {
-                                const value = e.target.value as PagamentoStatus;
-                                if (isEditing) {
-                                  setEditPagamentoStatus(value);
-                                  return;
-                                }
-                                alterarPagamento(p.id, value);
-                              }}
-                              disabled={actionDisabled}
+                              value={normalizePagamentoStatus(pedidoAberto.pagamentoStatus, pedidoAberto.pago)}
+                              onChange={(e) => alterarPagamento(pedidoAberto.id, e.target.value as PagamentoStatus)}
+                              disabled={Boolean(pendingAction)}
                             >
                               {PAGAMENTO_OPTIONS.map((option) => (
                                 <option key={option.value} value={option.value}>
@@ -1398,41 +1272,44 @@ export default function Pedidos() {
                                 </option>
                               ))}
                             </select>
-                          </div>
-
-                          {p.pagamentoHistorico && p.pagamentoHistorico.length > 0 && (
-                            <div className="ped-history">
-                              <strong>Última atualização</strong>
-                              {(p.pagamentoHistorico as PagamentoHistoricoEntry[])
-                                .slice(-1)
-                                .map((item, historyIndex) => (
-                                  <div key={`${p.id}-${historyIndex}`} className="ped-history-item">
-                                    <span className={getPagamentoBadgeClass(item.status)}>
-                                      {getPagamentoDisplayLabel(item.status)}
-                                    </span>
-                                    <span>
-                                      <FiClock /> Atualizado em {formatarData(item.updatedAt)}
-                                    </span>
-                                    {item.updatedByNome && (
-                                      <span>
-                                        por {item.updatedByNome}
-                                        {item.updatedByRole ? ` (${item.updatedByRole})` : ""}
-                                      </span>
-                                    )}
-                                  </div>
-                                ))}
-                            </div>
+                          </label>
+                          {normalizePagamentoStatus(pedidoAberto.pagamentoStatus, pedidoAberto.pago) === "pago_a_mais" && (
+                            <p className="tj-ped-drawer-note tj-ped-drawer-note--gold">
+                              Este pedido está marcado como destaque (pago a mais).
+                            </p>
                           )}
-                        </>
-                      )}
+                        </div>
 
-                      <div className="ped-card-footer">
-                        {usuario?.role === "admin" ? (
+                        {pedidoAberto.pagamentoHistorico && pedidoAberto.pagamentoHistorico.length > 0 && (
+                          <div className="tj-ped-drawer-section">
+                            <span className="tj-ped-eyebrow">Última atualização</span>
+                            {(pedidoAberto.pagamentoHistorico as PagamentoHistoricoEntry[])
+                              .slice(-1)
+                              .map((item, historyIndex) => (
+                                <div key={`${pedidoAberto.id}-${historyIndex}`} className="tj-ped-drawer-history">
+                                  <span className={`tj-ped-glow-chip tj-ped-glow-chip--${item.status}`}>
+                                    {getPagamentoDisplayLabel(item.status)}
+                                  </span>
+                                  <span>
+                                    <FiClock /> {formatarData(item.updatedAt)}
+                                    {item.updatedByNome ? ` · por ${item.updatedByNome}` : ""}
+                                  </span>
+                                </div>
+                              ))}
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    {usuario?.role === "admin" && (
+                      <div className="tj-ped-drawer-section">
+                        <span className="tj-ped-eyebrow">Status</span>
+                        <label className="tj-ped-filter-field tj-ped-filter-field--full">
+                          <span>Progresso do pedido</span>
                           <select
-                            className="ped-select"
-                            value={normalizeStatus(p.status)}
-                            onChange={(e) => alterarStatus(p.id, e.target.value)}
-                            disabled={actionDisabled}
+                            value={normalizeStatus(pedidoAberto.status)}
+                            onChange={(e) => alterarStatus(pedidoAberto.id, e.target.value)}
+                            disabled={Boolean(pendingAction)}
                           >
                             {STATUS_OPTIONS.filter((option) => option.value !== "all").map(
                               (option) => (
@@ -1442,207 +1319,260 @@ export default function Pedidos() {
                               )
                             )}
                           </select>
-                        ) : (
-                          <span className={`pedidos-status ${normalizeStatus(p.status)}`}>
-                            {getStatusLabel(p.status)}
-                          </span>
-                        )}
-
-                        <div className="ped-actions">
-                          {isEditing ? (
-                            <>
-                              <button
-                                className="ped-action-btn ped-action-btn--primary"
-                                onClick={() => salvarEdit(p.id)}
-                                disabled={actionDisabled}
-                              >
-                                {pendingAction === "update" ? (
-                                  <>
-                                    <FiRefreshCw className="ped-spin" />
-                                    Salvando...
-                                  </>
-                                ) : (
-                                  "Salvar"
-                                )}
-                              </button>
-                              <button
-                                className="ped-action-btn ped-action-btn--ghost"
-                                onClick={limparEdicao}
-                                disabled={actionDisabled}
-                              >
-                                Cancelar
-                              </button>
-                            </>
-                          ) : (
-                            <>
-                              <button
-                                className="ped-action-btn ped-action-btn--ghost"
-                                onClick={() => startEdit(p)}
-                                disabled={actionDisabled}
-                              >
-                                Editar
-                              </button>
-                              <button
-                                className="ped-action-btn ped-action-btn--danger"
-                                onClick={() => abrirConfirmExcluir(p.id)}
-                                disabled={actionDisabled}
-                              >
-                                Excluir
-                              </button>
-                            </>
-                          )}
-
-                          {usuario?.role === "admin" && !isEditing && (
-                            <button
-                              className="ped-action-btn ped-action-btn--accent"
-                              onClick={() => {
-                                const pedidoLocal = p.local?.trim() || "";
-                                const pedidoCep = p.cep?.trim() || "";
-                                const pedidoMensagem = p.mensagem?.trim() || "";
-                                const pedidoEmpresaNome = p.empresa?.nome?.trim() || "";
-                                const clienteNome = p.nomeCliente?.trim() || "";
-                                const clienteEmail = p.email?.trim() || "";
-                                const pedidoTelefone = p.telefone?.trim() || "";
-                                const initialTitle = buildInitialTourTitle(p);
-                                const initialDescricao = buildInitialTourDescricao(p);
-                                const initialEndereco = pedidoLocal || pedidoCep || "";
-                                const initialCep = pedidoCep;
-
-                                const navigationState: CriarTourNavigationState = {
-                                  clienteNome: clienteNome || pedidoEmpresaNome,
-                                  clienteEmail,
-                                  pedidoId: p.id,
-                                  pedidoLocal,
-                                  pedidoCep,
-                                  pedidoMensagem,
-                                  pedidoTelefone,
-                                  pedidoEmpresaNome,
-                                  initialTitle,
-                                  initialDescricao,
-                                  initialEndereco,
-                                  initialCep,
-                                };
-
-                                navigate("/criarTour", { state: navigationState });
-                              }}
-                              disabled={actionDisabled}
-                            >
-                              Gerar Tour <FiArrowRight />
-                            </button>
-                          )}
-                        </div>
+                        </label>
                       </div>
-                    </div>
-                  </motion.article>
-                );
-              })
-            ) : hasData ? (
-              <motion.article
-                className="ped-empty-card"
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                role="status"
-                aria-live="polite"
-              >
-                <div className="ped-empty-icon">
-                  <FiSearch />
-                </div>
-                <span className="ped-section-kicker">Nenhum resultado encontrado</span>
-                <h3>Os filtros atuais não encontraram pedidos compatíveis.</h3>
-                <p>
-                  {hasSearchTerm
-                    ? `A busca por "${searchTerm}" não encontrou combinações com os filtros atuais.`
-                    : "Tente ajustar a busca, trocar o status ou limpar os filtros para voltar a visualizar todos os pedidos disponíveis."}
-                </p>
-                <div className="ped-empty-actions">
-                  <button
-                    type="button"
-                    className="ped-hero-btn ped-hero-btn--secondary"
-                    onClick={limparFiltros}
-                  >
-                    Limpar filtros
-                  </button>
-                  <button
-                    type="button"
-                    className="ped-hero-btn ped-hero-btn--secondary"
-                    onClick={() => atualizarLista(usuario, false, "refresh")}
-                    disabled={isRefreshing}
-                  >
-                    <FiRefreshCw className={isRefreshing ? "ped-spin" : ""} />
-                    Atualizar lista
-                  </button>
-                </div>
-              </motion.article>
-            ) : (
-              <motion.article
-                className="ped-empty-card"
-                initial={{ opacity: 0, y: 24 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
-                role="status"
-                aria-live="polite"
-              >
-                <div className="ped-empty-icon">
-                  <FiLayers />
-                </div>
-                <span className="ped-section-kicker">Sem pedidos por enquanto</span>
-                <h3>O layout continua elegante mesmo com poucas informações.</h3>
-                <p>
-                  {displayError
-                    ? "No momento não foi possível carregar pedidos do servidor. Você ainda pode tentar novamente ou criar um novo pedido."
-                    : "Quando novos pedidos chegarem, eles aparecerão aqui em cards com o mesmo visual refinado da aba de ambientes."}
-                </p>
-                <div className="ped-form-actions">
-                  <button
-                    type="button"
-                    className="ped-hero-btn ped-hero-btn--primary"
-                    onClick={() => {
-                      setTelefone(formatTelefone(usuario?.empresa?.telefone || usuario?.empresa?.whatsapp || ""));
-                      setAbrirModal(true);
-                    }}
-                  >
-                    Criar primeiro pedido
-                  </button>
-                  <button
-                    type="button"
-                    className="ped-hero-btn ped-hero-btn--secondary"
-                    onClick={() => atualizarLista(usuario, false, "refresh")}
-                    disabled={isRefreshing}
-                  >
-                    <FiRefreshCw className={isRefreshing ? "ped-spin" : ""} />
-                    Tentar novamente
-                  </button>
-                </div>
-              </motion.article>
-            )}
-          </div>
-        </section>
-      </main>
+                    )}
+                  </>
+                ) : (
+                  <div className="tj-ped-drawer-edit">
+                    <span className="tj-ped-eyebrow">Editando pedido</span>
 
+                    <div className="tj-ped-field">
+                      <label htmlFor={`edit-telefone-${pedidoAberto.id}`}>Telefone</label>
+                      <input
+                        id={`edit-telefone-${pedidoAberto.id}`}
+                        type="text"
+                        value={editTelefone}
+                        onChange={(e) => {
+                          setEditTelefone(formatTelefone(e.target.value));
+                          if (editFieldErrors.telefone) {
+                            setEditFieldErrors((prev) => ({ ...prev, telefone: undefined }));
+                          }
+                        }}
+                        placeholder="Telefone"
+                        aria-invalid={Boolean(editFieldErrors.telefone)}
+                        aria-describedby={
+                          editFieldErrors.telefone
+                            ? getFieldErrorId(`edit-${pedidoAberto.id}`, "telefone")
+                            : undefined
+                        }
+                        disabled={Boolean(pendingAction)}
+                      />
+                      {editFieldErrors.telefone && (
+                        <span id={getFieldErrorId(`edit-${pedidoAberto.id}`, "telefone")} className="tj-ped-field-error" role="alert">
+                          {editFieldErrors.telefone}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="tj-ped-field">
+                      <label htmlFor={`edit-local-${pedidoAberto.id}`}>Local</label>
+                      <textarea
+                        id={`edit-local-${pedidoAberto.id}`}
+                        value={editLocal}
+                        onChange={(e) => {
+                          setEditLocal(e.target.value);
+                          if (editFieldErrors.local) {
+                            setEditFieldErrors((prev) => ({ ...prev, local: undefined }));
+                          }
+                        }}
+                        placeholder="Endereço completo"
+                        aria-invalid={Boolean(editFieldErrors.local)}
+                        aria-describedby={
+                          editFieldErrors.local
+                            ? getFieldErrorId(`edit-${pedidoAberto.id}`, "local")
+                            : undefined
+                        }
+                        disabled={Boolean(pendingAction)}
+                      />
+                      {editFieldErrors.local && (
+                        <span id={getFieldErrorId(`edit-${pedidoAberto.id}`, "local")} className="tj-ped-field-error" role="alert">
+                          {editFieldErrors.local}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="tj-ped-field">
+                      <label htmlFor={`edit-cep-${pedidoAberto.id}`}>CEP</label>
+                      <input
+                        id={`edit-cep-${pedidoAberto.id}`}
+                        type="text"
+                        value={editCep}
+                        onChange={(e) => {
+                          setEditCep(formatCep(e.target.value));
+                          if (editFieldErrors.cep) {
+                            setEditFieldErrors((prev) => ({ ...prev, cep: undefined }));
+                          }
+                        }}
+                        placeholder="CEP (opcional)"
+                        aria-invalid={Boolean(editFieldErrors.cep)}
+                        aria-describedby={
+                          editFieldErrors.cep
+                            ? getFieldErrorId(`edit-${pedidoAberto.id}`, "cep")
+                            : undefined
+                        }
+                        disabled={Boolean(pendingAction)}
+                      />
+                      {editFieldErrors.cep && (
+                        <span id={getFieldErrorId(`edit-${pedidoAberto.id}`, "cep")} className="tj-ped-field-error" role="alert">
+                          {editFieldErrors.cep}
+                        </span>
+                      )}
+                    </div>
+
+                    <div className="tj-ped-field">
+                      <label htmlFor={`edit-mensagem-${pedidoAberto.id}`}>Mensagem</label>
+                      <textarea
+                        id={`edit-mensagem-${pedidoAberto.id}`}
+                        value={editMensagem}
+                        onChange={(e) => {
+                          setEditMensagem(e.target.value);
+                          if (editFieldErrors.mensagem) {
+                            setEditFieldErrors((prev) => ({ ...prev, mensagem: undefined }));
+                          }
+                        }}
+                        placeholder="Mensagem"
+                        aria-invalid={Boolean(editFieldErrors.mensagem)}
+                        aria-describedby={
+                          editFieldErrors.mensagem
+                            ? getFieldErrorId(`edit-${pedidoAberto.id}`, "mensagem")
+                            : undefined
+                        }
+                        disabled={Boolean(pendingAction)}
+                      />
+                      {editFieldErrors.mensagem && (
+                        <span id={getFieldErrorId(`edit-${pedidoAberto.id}`, "mensagem")} className="tj-ped-field-error" role="alert">
+                          {editFieldErrors.mensagem}
+                        </span>
+                      )}
+                    </div>
+
+                    {isAdmin && (
+                      <div className="tj-ped-field">
+                        <label htmlFor={`edit-pagamento-${pedidoAberto.id}`}>Pagamento</label>
+                        <select
+                          id={`edit-pagamento-${pedidoAberto.id}`}
+                          value={editPagamentoStatus}
+                          onChange={(e) => setEditPagamentoStatus(e.target.value as PagamentoStatus)}
+                          disabled={Boolean(pendingAction)}
+                        >
+                          {PAGAMENTO_OPTIONS.map((option) => (
+                            <option key={option.value} value={option.value}>
+                              {option.label}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
+
+              <div className="tj-ped-drawer-foot">
+                {!isEditing ? (
+                  <>
+                    <button
+                      type="button"
+                      className="tj-ped-action tj-ped-action--ghost"
+                      onClick={() => startEdit(pedidoAberto)}
+                      disabled={Boolean(pendingAction)}
+                    >
+                      Editar
+                    </button>
+                    <button
+                      type="button"
+                      className="tj-ped-action tj-ped-action--danger"
+                      onClick={() => abrirConfirmExcluir(pedidoAberto.id)}
+                      disabled={Boolean(pendingAction)}
+                    >
+                      Excluir
+                    </button>
+                    {usuario?.role === "admin" && (
+                      <button
+                        type="button"
+                        className="tj-ped-action tj-ped-action--accent"
+                        onClick={() => {
+                          const pedidoLocal = pedidoAberto.local?.trim() || "";
+                          const pedidoCep = pedidoAberto.cep?.trim() || "";
+                          const pedidoMensagem = pedidoAberto.mensagem?.trim() || "";
+                          const pedidoEmpresaNome = pedidoAberto.empresa?.nome?.trim() || "";
+                          const clienteNome = pedidoAberto.nomeCliente?.trim() || "";
+                          const clienteEmail = pedidoAberto.email?.trim() || "";
+                          const pedidoTelefone = pedidoAberto.telefone?.trim() || "";
+                          const initialTitle = buildInitialTourTitle(pedidoAberto);
+                          const initialDescricao = buildInitialTourDescricao(pedidoAberto);
+                          const initialEndereco = pedidoLocal || pedidoCep || "";
+                          const initialCep = pedidoCep;
+
+                          const navigationState: CriarTourNavigationState = {
+                            clienteNome: clienteNome || pedidoEmpresaNome,
+                            clienteEmail,
+                            pedidoId: pedidoAberto.id,
+                            pedidoLocal,
+                            pedidoCep,
+                            pedidoMensagem,
+                            pedidoTelefone,
+                            pedidoEmpresaNome,
+                            initialTitle,
+                            initialDescricao,
+                            initialEndereco,
+                            initialCep,
+                          };
+
+                          navigate("/criarTour", { state: navigationState });
+                        }}
+                        disabled={Boolean(pendingAction)}
+                      >
+                        Gerar Tour <FiArrowRight />
+                      </button>
+                    )}
+                  </>
+                ) : (
+                  <>
+                    <button
+                      type="button"
+                      className="tj-ped-action tj-ped-action--solid"
+                      onClick={() => salvarEdit(pedidoAberto.id)}
+                      disabled={Boolean(pendingAction)}
+                    >
+                      {pendingAction === "update" ? (
+                        <>
+                          <FiRefreshCw className="tj-ped-spin" />
+                          Salvando...
+                        </>
+                      ) : (
+                        "Salvar"
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      className="tj-ped-action tj-ped-action--ghost"
+                      onClick={limparEdicao}
+                      disabled={Boolean(pendingAction)}
+                    >
+                      Cancelar
+                    </button>
+                  </>
+                )}
+              </div>
+            </motion.aside>
+          </div>,
+          document.body
+        )}
+
+      {/* ============ MODAL NOVO PEDIDO ============ */}
       {abrirModal &&
         createPortal(
-          <div className="ped-modal-overlay" onClick={() => setAbrirModal(false)}>
+          <div className="tj-ped-overlay" onClick={() => setAbrirModal(false)}>
             <motion.div
-              className="ped-modal-box"
-              initial={{ scale: 0.94, opacity: 0 }}
+              className="tj-ped-modal"
+              style={{ x: "-50%", y: "-50%" }}
+              initial={{ scale: 0.96, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.3, ease: TJ_EASE }}
               onClick={(e) => e.stopPropagation()}
               role="dialog"
               aria-modal="true"
-              aria-labelledby="ped-modal-title"
+              aria-labelledby="tj-ped-modal-title"
             >
-              <div className="ped-modal-header">
+              <div className="tj-ped-modal-head">
                 <div>
-                  <h2 id="ped-modal-title">Novo Pedido</h2>
-                  <p>
-                    Envie um pedido com mensagem clara e local por CEP ou endereço manual.
-                  </p>
+                  <span className="tj-ped-eyebrow">Novo registro</span>
+                  <h2 id="tj-ped-modal-title">Novo Pedido</h2>
                 </div>
-
                 <button
                   type="button"
-                  className="ped-feedback-close"
+                  className="tj-ped-drawer-close"
                   onClick={() => setAbrirModal(false)}
                   aria-label="Fechar modal"
                   disabled={enviando}
@@ -1651,8 +1581,8 @@ export default function Pedidos() {
                 </button>
               </div>
 
-              <form className="ped-form" onSubmit={handleCriar} noValidate>
-                <div className="ped-form-field">
+              <form className="tj-ped-form" onSubmit={handleCriar} noValidate>
+                <div className="tj-ped-field">
                   <label htmlFor="pedido-telefone">Telefone</label>
                   <input
                     id="pedido-telefone"
@@ -1674,17 +1604,13 @@ export default function Pedidos() {
                     disabled={enviando}
                   />
                   {createFieldErrors.telefone && (
-                    <span
-                      id={getFieldErrorId("create", "telefone")}
-                      className="ped-field-error"
-                      role="alert"
-                    >
+                    <span id={getFieldErrorId("create", "telefone")} className="tj-ped-field-error" role="alert">
                       {createFieldErrors.telefone}
                     </span>
                   )}
                 </div>
 
-                <div className="ped-form-field">
+                <div className="tj-ped-field">
                   <label htmlFor="pedido-mensagem">Mensagem</label>
                   <textarea
                     id="pedido-mensagem"
@@ -1706,62 +1632,44 @@ export default function Pedidos() {
                     disabled={enviando}
                   />
                   {createFieldErrors.mensagem && (
-                    <span
-                      id={getFieldErrorId("create", "mensagem")}
-                      className="ped-field-error"
-                      role="alert"
-                    >
+                    <span id={getFieldErrorId("create", "mensagem")} className="tj-ped-field-error" role="alert">
                       {createFieldErrors.mensagem}
                     </span>
                   )}
                 </div>
 
-                <div className="ped-location-mode">
-                  <span>Como deseja informar o local?</span>
-                  <div className="ped-location-options">
-                    <label className={locationMode === "cep" ? "ped-location-option--active" : ""}>
-                      <input
-                        type="radio"
-                        name="locationMode"
-                        value="cep"
-                        checked={locationMode === "cep"}
-                        onChange={() => {
-                          setLocationMode("cep");
-                          setLocal("");
-                          setCreateFieldErrors((prev) => ({
-                            ...prev,
-                            local: undefined,
-                          }));
-                        }}
-                        disabled={enviando}
-                      />
-                      CEP
-                    </label>
-                    <label
-                      className={locationMode === "manual" ? "ped-location-option--active" : ""}
+                <div className="tj-ped-location-mode">
+                  <span className="tj-ped-eyebrow">Como deseja informar o local?</span>
+                  <div className="tj-ped-location-options">
+                    <button
+                      type="button"
+                      className={`tj-ped-chip${locationMode === "cep" ? " is-active" : ""}`}
+                      onClick={() => {
+                        setLocationMode("cep");
+                        setLocal("");
+                        setCreateFieldErrors((prev) => ({ ...prev, local: undefined }));
+                      }}
+                      disabled={enviando}
                     >
-                      <input
-                        type="radio"
-                        name="locationMode"
-                        value="manual"
-                        checked={locationMode === "manual"}
-                        onChange={() => {
-                          setLocationMode("manual");
-                          setCep("");
-                          setCreateFieldErrors((prev) => ({
-                            ...prev,
-                            cep: undefined,
-                          }));
-                        }}
-                        disabled={enviando}
-                      />
+                      CEP
+                    </button>
+                    <button
+                      type="button"
+                      className={`tj-ped-chip${locationMode === "manual" ? " is-active" : ""}`}
+                      onClick={() => {
+                        setLocationMode("manual");
+                        setCep("");
+                        setCreateFieldErrors((prev) => ({ ...prev, cep: undefined }));
+                      }}
+                      disabled={enviando}
+                    >
                       Endereço manual
-                    </label>
+                    </button>
                   </div>
                 </div>
 
                 {locationMode === "cep" && (
-                  <div className="ped-form-field">
+                  <div className="tj-ped-field">
                     <label htmlFor="pedido-cep">CEP</label>
                     <input
                       id="pedido-cep"
@@ -1782,11 +1690,7 @@ export default function Pedidos() {
                       disabled={enviando}
                     />
                     {createFieldErrors.cep && (
-                      <span
-                        id={getFieldErrorId("create", "cep")}
-                        className="ped-field-error"
-                        role="alert"
-                      >
+                      <span id={getFieldErrorId("create", "cep")} className="tj-ped-field-error" role="alert">
                         {createFieldErrors.cep}
                       </span>
                     )}
@@ -1794,7 +1698,7 @@ export default function Pedidos() {
                 )}
 
                 {locationMode === "manual" && (
-                  <div className="ped-form-field">
+                  <div className="tj-ped-field">
                     <label htmlFor="pedido-local">Endereço manual</label>
                     <textarea
                       id="pedido-local"
@@ -1816,34 +1720,26 @@ export default function Pedidos() {
                       disabled={enviando}
                     />
                     {createFieldErrors.local && (
-                      <span
-                        id={getFieldErrorId("create", "local")}
-                        className="ped-field-error"
-                        role="alert"
-                      >
+                      <span id={getFieldErrorId("create", "local")} className="tj-ped-field-error" role="alert">
                         {createFieldErrors.local}
                       </span>
                     )}
                   </div>
                 )}
 
-                <div className="ped-modal-tip" role="note">
-                  <FiAlertCircle />
-                  <span>
-                    A busca e os filtros desta página consideram empresa, cliente, contato,
-                    mensagem, local e CEP.
-                  </span>
-                </div>
+                <p className="tj-ped-drawer-note">
+                  A busca e os filtros consideram empresa, cliente, contato, mensagem, local e CEP.
+                </p>
 
-                <div className="ped-form-actions">
+                <div className="tj-ped-form-actions">
                   <button
                     type="submit"
-                    className="ped-hero-btn ped-hero-btn--primary"
+                    className="tj-ped-action tj-ped-action--solid"
                     disabled={enviando}
                   >
                     {enviando ? (
                       <>
-                        <FiRefreshCw className="ped-spin" />
+                        <FiRefreshCw className="tj-ped-spin" />
                         Enviando...
                       </>
                     ) : (
@@ -1852,7 +1748,7 @@ export default function Pedidos() {
                   </button>
                   <button
                     type="button"
-                    className="ped-hero-btn ped-hero-btn--secondary"
+                    className="tj-ped-action tj-ped-action--ghost"
                     onClick={() => {
                       setAbrirModal(false);
                       setError("");
@@ -1869,28 +1765,34 @@ export default function Pedidos() {
           document.body
         )}
 
+      {/* ============ CONFIRMAR EXCLUSÃO ============ */}
       {confirmExcluir.open &&
         createPortal(
-          <div className="ped-modal-overlay">
-            <div
-              className="ped-confirm-box"
+          <div className="tj-ped-overlay">
+            <motion.div
+              className="tj-ped-modal tj-ped-modal--sm"
+              style={{ x: "-50%", y: "-50%" }}
+              initial={{ scale: 0.96, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ duration: 0.3, ease: TJ_EASE }}
               role="dialog"
               aria-modal="true"
-              aria-labelledby="ped-confirm-title"
+              aria-labelledby="tj-ped-confirm-title"
             >
-              <p id="ped-confirm-title">Deseja realmente excluir este pedido?</p>
-              <span className="ped-confirm-copy">
+              <h2 id="tj-ped-confirm-title">Excluir pedido?</h2>
+              <p className="tj-ped-drawer-note">
                 Essa ação remove o pedido da lista atual e não pode ser desfeita.
-              </span>
-              <div className="ped-form-actions">
+              </p>
+              <div className="tj-ped-form-actions">
                 <button
-                  className="ped-action-btn ped-action-btn--danger"
+                  type="button"
+                  className="tj-ped-action tj-ped-action--danger"
                   onClick={handleExcluirConfirmado}
                   disabled={pendingAction === "delete"}
                 >
                   {pendingAction === "delete" ? (
                     <>
-                      <FiRefreshCw className="ped-spin" />
+                      <FiRefreshCw className="tj-ped-spin" />
                       Excluindo...
                     </>
                   ) : (
@@ -1898,14 +1800,15 @@ export default function Pedidos() {
                   )}
                 </button>
                 <button
-                  className="ped-action-btn ped-action-btn--ghost"
+                  type="button"
+                  className="tj-ped-action tj-ped-action--ghost"
                   onClick={() => setConfirmExcluir({ id: 0, open: false })}
                   disabled={pendingAction === "delete"}
                 >
                   Cancelar
                 </button>
               </div>
-            </div>
+            </motion.div>
           </div>,
           document.body
         )}

@@ -26,6 +26,16 @@ function parseAllowedOrigins(value?: string): string[] {
   return origins.length > 0 ? origins : DEFAULT_ALLOWED_ORIGINS;
 }
 
+function isLocalDevOrigin(origin: string): boolean {
+  const normalized = origin.toLowerCase();
+  return (
+    normalized === 'null' ||
+    normalized.startsWith('http://localhost:') ||
+    normalized.startsWith('http://127.0.0.1:') ||
+    normalized.startsWith('http://[::1]:')
+  );
+}
+
 function parseNodeEnv(value?: string): 'development' | 'test' | 'production' {
   if (value === 'production' || value === 'test') {
     return value;
@@ -58,6 +68,14 @@ export const allowedOrigins = parseAllowedOrigins(process.env.ALLOWED_ORIGINS);
 
 export function isOriginAllowed(origin?: string): boolean {
   if (!origin) {
+    return true;
+  }
+
+  // Em desenvolvimento (sem ALLOWED_ORIGINS explícito), aceita qualquer
+  // origin localhost/127.0.0.1 em qualquer porta. Isso cobre o Vite rodando
+  // em portas variáveis (5173, 5174, 4173, etc.) e evita o erro
+  // "Origem não permitida pelo CORS" no preflight OPTIONS.
+  if (NODE_ENV === 'development' && !process.env.ALLOWED_ORIGINS && isLocalDevOrigin(origin)) {
     return true;
   }
 

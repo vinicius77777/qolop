@@ -1,9 +1,22 @@
 // src/pages/perfil.tsx
 import React, { useEffect, useMemo, useState } from "react";
-import { getMe, logout, updateUsuario, type Usuario } from "../services/api";
 import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  FiAlertCircle,
+  FiCheckCircle,
+  FiEye,
+  FiEyeOff,
+  FiLogOut,
+  FiRefreshCw,
+} from "react-icons/fi";
+import { getMe, logout, updateUsuario, type Usuario } from "../services/api";
 import { markNewUserOnboarding, resetOnboardingState } from "../utils/onboarding";
 import "../styles/perfil.css";
+
+const TJ_EASE = [0.22, 1, 0.36, 1] as const;
+
+type FeedbackTone = "success" | "error" | "info";
 
 const Perfil: React.FC = () => {
   const [usuario, setUsuario] = useState<Usuario | null>(null);
@@ -15,9 +28,9 @@ const Perfil: React.FC = () => {
   const [mostrarSenhaAtual, setMostrarSenhaAtual] = useState(false);
   const [mostrarNovaSenha, setMostrarNovaSenha] = useState(false);
   const [mostrarConfirmacao, setMostrarConfirmacao] = useState(false);
-  const [msg, setMsg] = useState("");
-  const [tipoMsg, setTipoMsg] = useState<"success" | "error" | "info">("info");
+  const [feedback, setFeedback] = useState<{ tone: FeedbackTone; message: string } | null>(null);
   const [salvando, setSalvando] = useState(false);
+  const [savedVisible, setSavedVisible] = useState(false);
 
   const navigate = useNavigate();
 
@@ -29,11 +42,16 @@ const Perfil: React.FC = () => {
         setNome(data.nome);
         setEmail(data.email);
       } catch {
-        setTipoMsg("error");
-        setMsg("Erro ao carregar perfil.");
+        setFeedback({ tone: "error", message: "Erro ao carregar perfil." });
       }
     })();
   }, []);
+
+  useEffect(() => {
+    if (!savedVisible) return;
+    const timeout = window.setTimeout(() => setSavedVisible(false), 3200);
+    return () => window.clearTimeout(timeout);
+  }, [savedVisible]);
 
   const iniciais = useMemo(() => {
     if (!usuario?.nome) return "US";
@@ -82,25 +100,22 @@ const Perfil: React.FC = () => {
 
   const handleSalvar = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMsg("");
+    setFeedback(null);
 
     if (!usuario) return;
 
     if (!nome.trim() || !email.trim()) {
-      setTipoMsg("error");
-      setMsg("Preencha nome e e-mail corretamente.");
+      setFeedback({ tone: "error", message: "Preencha nome e e-mail corretamente." });
       return;
     }
 
     if (novaSenha && novaSenha.trim().length < 8) {
-      setTipoMsg("error");
-      setMsg("A nova senha deve ter pelo menos 8 caracteres.");
+      setFeedback({ tone: "error", message: "A nova senha deve ter pelo menos 8 caracteres." });
       return;
     }
 
     if (novaSenha && novaSenha !== confirmarSenha) {
-      setTipoMsg("error");
-      setMsg("A confirmação da nova senha não confere.");
+      setFeedback({ tone: "error", message: "A confirmação da nova senha não confere." });
       return;
     }
 
@@ -121,11 +136,10 @@ const Perfil: React.FC = () => {
       setSenhaAtual("");
       setNovaSenha("");
       setConfirmarSenha("");
-      setTipoMsg("success");
-      setMsg("Perfil atualizado com sucesso ✅");
+      setFeedback({ tone: "success", message: "Perfil atualizado com sucesso." });
+      setSavedVisible(true);
     } catch (err: any) {
-      setTipoMsg("error");
-      setMsg(err?.message || "Erro ao atualizar perfil.");
+      setFeedback({ tone: "error", message: err?.message || "Erro ao atualizar perfil." });
     } finally {
       setSalvando(false);
     }
@@ -139,8 +153,7 @@ const Perfil: React.FC = () => {
     setSenhaAtual("");
     setNovaSenha("");
     setConfirmarSenha("");
-    setTipoMsg("info");
-    setMsg("Alterações descartadas.");
+    setFeedback({ tone: "info", message: "Alterações descartadas." });
   };
 
   const podeTrocarTipoConta = usuario?.role !== "admin";
@@ -150,8 +163,7 @@ const Perfil: React.FC = () => {
 
     resetOnboardingState(usuario.id);
     markNewUserOnboarding(usuario.id);
-    setTipoMsg("info");
-    setMsg("Escolha seu tipo de conta novamente.");
+    setFeedback({ tone: "info", message: "Escolha seu tipo de conta novamente." });
     navigate("/inicio");
   };
 
@@ -161,215 +173,318 @@ const Perfil: React.FC = () => {
   };
 
   if (!usuario) {
-    return <p className="perfil-loading">Carregando perfil...</p>;
+    return (
+      <div className="tj-per-page tj-per-loading">
+        <motion.div
+          className="tj-per-loading-mark"
+          animate={{ opacity: [0.35, 1, 0.35] }}
+          transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
+        >
+          PERFIL
+        </motion.div>
+      </div>
+    );
   }
 
   return (
-    <div className="perfil-page">
-      <div className="perfil-wrapper">
-        <section className="perfil-hero">
-          <div className="perfil-avatar">{iniciais}</div>
+    <div className="tj-per-page">
+      <div className="tj-per-bg" aria-hidden="true">
+        <span className="tj-per-orb tj-per-orb--one" />
+        <span className="tj-per-orb tj-per-orb--two" />
+        <span className="tj-per-orb tj-per-orb--three" />
+      </div>
 
-          <div className="perfil-hero-content">
-            <span className="perfil-badge">Conta ativa</span>
-            <h1 className="perfil-title">Meu Perfil</h1>
-            <p className="perfil-subtitle">
-              Gerencie seus dados, atualize suas credenciais e mantenha sua conta segura.
-            </p>
-          </div>
+      <main className="tj-per-content">
+        {/* ============ HERO MINIMALISTA ============ */}
+        <header className="tj-per-hero">
+          <motion.div
+            className="tj-per-kicker"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: TJ_EASE, delay: 0.05 }}
+          >
+            <span>Perfil</span>
+            <span className="tj-per-dot" />
+            <span>conta ativa</span>
+          </motion.div>
 
-          <div className="perfil-hero-actions">
-            <button type="button" className="perfil-ghost-btn" onClick={handleLogout}>
-              Sair
+          <motion.h1
+            className="tj-per-title"
+            initial={{ opacity: 0, y: 26 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, ease: TJ_EASE, delay: 0.1 }}
+          >
+            Gerencie seus dados
+            <br />
+            sem fricção.
+          </motion.h1>
+
+          <motion.p
+            className="tj-per-lead"
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: TJ_EASE, delay: 0.18 }}
+          >
+            Atualize suas credenciais e mantenha sua conta segura. Campos limpos,
+            apenas linhas finas e confirmação fluida ao salvar.
+          </motion.p>
+
+          <motion.div
+            className="tj-per-hero-actions"
+            initial={{ opacity: 0, y: 18 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7, ease: TJ_EASE, delay: 0.26 }}
+          >
+            <button
+              type="button"
+              className="tj-per-action tj-per-action--danger"
+              onClick={handleLogout}
+            >
+              <FiLogOut />
+              Sair da conta
             </button>
-          </div>
-        </section>
+          </motion.div>
+        </header>
 
-        {msg && <p className={`perfil-message perfil-message--${tipoMsg}`}>{msg}</p>}
+        {/* ============ FEEDBACK ============ */}
+        {feedback && (
+          <motion.div
+            className={`tj-per-feedback tj-per-feedback--${feedback.tone}`}
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            role={feedback.tone === "error" ? "alert" : "status"}
+            aria-live={feedback.tone === "error" ? "assertive" : "polite"}
+          >
+            {feedback.tone === "success" ? <FiCheckCircle /> : <FiAlertCircle />}
+            <span>{feedback.message}</span>
+          </motion.div>
+        )}
 
-        <section className="perfil-grid">
-          <aside className="perfil-card perfil-summary">
-            <h2>Resumo da conta</h2>
+        {/* ============ GRID TIPOGRÁFICO ============ */}
+        <section className="tj-per-grid">
+          {/* ---------- Resumo ---------- */}
+          <aside className="tj-per-block">
+            <div>
+              <span className="tj-per-eyebrow">Resumo da conta</span>
+              <h2 style={{ marginTop: "0.8rem" }}>Suas informações.</h2>
+            </div>
 
-            <div className="perfil-summary-list">
-              <div className="perfil-summary-item">
+            <div className="tj-per-avatar-wrap">
+              <span className="tj-per-avatar">{iniciais}</span>
+              <div className="tj-per-hero-meta">
+                <strong>{usuario.nome}</strong>
+                <span>{usuario.email}</span>
+              </div>
+            </div>
+
+            <div className="tj-per-summary-list">
+              <div className="tj-per-summary-item">
                 <span>Nome</span>
                 <strong>{usuario.nome}</strong>
               </div>
-
-              <div className="perfil-summary-item">
+              <div className="tj-per-summary-item">
                 <span>E-mail</span>
                 <strong>{usuario.email}</strong>
               </div>
-
-              <div className="perfil-summary-item">
+              <div className="tj-per-summary-item">
                 <span>Perfil</span>
                 <strong>{usuario.role || "user"}</strong>
               </div>
-
-              <div className="perfil-summary-item">
+              <div className="tj-per-summary-item">
                 <span>Empresa</span>
                 <strong>{usuario.empresa?.nome || "Não vinculada"}</strong>
               </div>
             </div>
 
-            <div className="perfil-tip-box">
+            <div className="tj-per-tip">
               <h3>Dica de segurança</h3>
               <p>
-                Use uma senha com letras maiúsculas, números e símbolos para deixar sua conta mais
-                protegida.
+                Use uma senha com letras maiúsculas, números e símbolos para deixar
+                sua conta mais protegida.
               </p>
             </div>
 
             {podeTrocarTipoConta && (
-              <div className="perfil-tip-box perfil-account-switch-box">
+              <div className="tj-per-tip">
                 <h3>Trocar tipo de conta</h3>
                 <p>
-                  Refaça a escolha do tipo de conta para abrir novamente a tela de onboarding.
-                  Essa opção não aparece para administradores.
+                  Refaça a escolha do tipo de conta para abrir novamente a tela de
+                  onboarding. Essa opção não aparece para administradores.
                 </p>
-                <button type="button" className="perfil-secondary-btn perfil-account-switch-btn" onClick={handleTrocarTipoConta}>
+                <button
+                  type="button"
+                  className="tj-per-action"
+                  onClick={handleTrocarTipoConta}
+                >
                   Trocar tipo de conta
                 </button>
               </div>
             )}
           </aside>
 
-          <section className="perfil-card">
-            <div className="perfil-section-header">
+          {/* ---------- Editar informações ---------- */}
+          <section className="tj-per-block">
+            <div className="tj-per-block-head">
               <div>
-                <h2>Editar informações</h2>
+                <span className="tj-per-eyebrow">Editar informações</span>
+                <h2>Atualize seus dados.</h2>
                 <p>As alterações são salvas imediatamente após a confirmação.</p>
               </div>
-              {perfilMudou && <span className="perfil-chip">Alterações pendentes</span>}
+              {perfilMudou && <span className="tj-per-chip">Alterações pendentes</span>}
+              {savedVisible && (
+                <motion.span
+                  className="tj-per-saved-pill"
+                  initial={{ opacity: 0, y: 8, scale: 0.92 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  transition={{ duration: 0.45, ease: TJ_EASE }}
+                >
+                  <FiCheckCircle />
+                  Salvo
+                </motion.span>
+              )}
             </div>
 
-            <form className="perfil-form" onSubmit={handleSalvar}>
-              <div className="perfil-field">
+            <form className="tj-per-form" onSubmit={handleSalvar} noValidate>
+              <div className="tj-per-field">
                 <label htmlFor="nome">Nome</label>
                 <input
                   id="nome"
                   type="text"
                   placeholder="Seu nome"
                   value={nome}
-                  onChange={(e) => setNome(e.target.value)}
+                  onChange={(e) => {
+                    setNome(e.target.value);
+                    if (feedback?.tone === "error") setFeedback(null);
+                  }}
                   required
                 />
               </div>
 
-              <div className="perfil-field">
+              <div className="tj-per-field">
                 <label htmlFor="email">E-mail</label>
                 <input
                   id="email"
                   type="email"
                   placeholder="Seu e-mail"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) => {
+                    setEmail(e.target.value);
+                    if (feedback?.tone === "error") setFeedback(null);
+                  }}
                   required
                 />
               </div>
 
-              <div className="perfil-security-box">
-                <div className="perfil-section-header">
-                  <div>
-                    <h3>Segurança</h3>
-                    <p>Atualize sua senha quando necessário.</p>
-                  </div>
+              <div className="tj-per-block-head">
+                <div>
+                  <span className="tj-per-eyebrow">Segurança</span>
+                  <h2>Senha.</h2>
+                  <p>Atualize sua senha quando necessário.</p>
                 </div>
+              </div>
 
-                <div className="perfil-field">
-                  <label htmlFor="senhaAtual">Senha atual</label>
-                  <div className="perfil-password-group">
-                    <input
-                      id="senhaAtual"
-                      type={mostrarSenhaAtual ? "text" : "password"}
-                      placeholder="Digite sua senha atual"
-                      value={senhaAtual}
-                      onChange={(e) => setSenhaAtual(e.target.value)}
-                    />
-                    <button
-                      type="button"
-                      className="perfil-toggle-password"
-                      onClick={() => setMostrarSenhaAtual((prev) => !prev)}
-                    >
-                      {mostrarSenhaAtual ? "Ocultar" : "Mostrar"}
-                    </button>
-                  </div>
+              <div className="tj-per-field">
+                <label htmlFor="senhaAtual">Senha atual</label>
+                <div className="tj-per-password-group">
+                  <input
+                    id="senhaAtual"
+                    type={mostrarSenhaAtual ? "text" : "password"}
+                    placeholder="Digite sua senha atual"
+                    value={senhaAtual}
+                    onChange={(e) => setSenhaAtual(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="tj-per-toggle-password"
+                    onClick={() => setMostrarSenhaAtual((prev) => !prev)}
+                  >
+                    {mostrarSenhaAtual ? <FiEyeOff /> : <FiEye />}
+                  </button>
                 </div>
+              </div>
 
-                <div className="perfil-field">
-                  <label htmlFor="novaSenha">Nova senha</label>
-                  <div className="perfil-password-group">
-                    <input
-                      id="novaSenha"
-                      type={mostrarNovaSenha ? "text" : "password"}
-                      placeholder="Mínimo de 8 caracteres"
-                      value={novaSenha}
-                      onChange={(e) => setNovaSenha(e.target.value)}
-                    />
-                    <button
-                      type="button"
-                      className="perfil-toggle-password"
-                      onClick={() => setMostrarNovaSenha((prev) => !prev)}
-                    >
-                      {mostrarNovaSenha ? "Ocultar" : "Mostrar"}
-                    </button>
-                  </div>
-                  <div className="perfil-password-meta">
-                    <div className={`perfil-strength perfil-strength--${forcaSenha.nivel}`}>
-                      <span>Força da senha:</span>
-                      <strong>{forcaSenha.label}</strong>
-                    </div>
-                    {novaSenha && !senhaValida && (
-                      <small className="perfil-field-error">
-                        A senha precisa ter pelo menos 8 caracteres.
-                      </small>
-                    )}
-                  </div>
+              <div className="tj-per-field">
+                <label htmlFor="novaSenha">Nova senha</label>
+                <div className="tj-per-password-group">
+                  <input
+                    id="novaSenha"
+                    type={mostrarNovaSenha ? "text" : "password"}
+                    placeholder="Mínimo de 8 caracteres"
+                    value={novaSenha}
+                    onChange={(e) => setNovaSenha(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="tj-per-toggle-password"
+                    onClick={() => setMostrarNovaSenha((prev) => !prev)}
+                  >
+                    {mostrarNovaSenha ? <FiEyeOff /> : <FiEye />}
+                  </button>
                 </div>
-
-                <div className="perfil-field">
-                  <label htmlFor="confirmarSenha">Confirmar nova senha</label>
-                  <div className="perfil-password-group">
-                    <input
-                      id="confirmarSenha"
-                      type={mostrarConfirmacao ? "text" : "password"}
-                      placeholder="Repita a nova senha"
-                      value={confirmarSenha}
-                      onChange={(e) => setConfirmarSenha(e.target.value)}
-                    />
-                    <button
-                      type="button"
-                      className="perfil-toggle-password"
-                      onClick={() => setMostrarConfirmacao((prev) => !prev)}
-                    >
-                      {mostrarConfirmacao ? "Ocultar" : "Mostrar"}
-                    </button>
-                  </div>
-                  {novaSenha && !confirmacaoValida && (
-                    <small className="perfil-field-error">As senhas não coincidem.</small>
+                <div className="tj-per-password-meta">
+                  <span className={`tj-per-strength tj-per-strength--${forcaSenha.nivel}`}>
+                    Força da senha: {forcaSenha.label}
+                  </span>
+                  {novaSenha && !senhaValida && (
+                    <small className="tj-per-field-error">
+                      A senha precisa ter pelo menos 8 caracteres.
+                    </small>
                   )}
                 </div>
               </div>
 
-              <div className="perfil-actions">
+              <div className="tj-per-field">
+                <label htmlFor="confirmarSenha">Confirmar nova senha</label>
+                <div className="tj-per-password-group">
+                  <input
+                    id="confirmarSenha"
+                    type={mostrarConfirmacao ? "text" : "password"}
+                    placeholder="Repita a nova senha"
+                    value={confirmarSenha}
+                    onChange={(e) => setConfirmarSenha(e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    className="tj-per-toggle-password"
+                    onClick={() => setMostrarConfirmacao((prev) => !prev)}
+                  >
+                    {mostrarConfirmacao ? <FiEyeOff /> : <FiEye />}
+                  </button>
+                </div>
+                {novaSenha && !confirmacaoValida && (
+                  <small className="tj-per-field-error">As senhas não coincidem.</small>
+                )}
+              </div>
+
+              <div className="tj-per-form-actions">
                 <button
                   type="button"
-                  className="perfil-secondary-btn"
+                  className="tj-per-action"
                   onClick={handleDescartar}
                   disabled={!perfilMudou || salvando}
                 >
                   Descartar
                 </button>
 
-                <button type="submit" className="perfil-primary-btn" disabled={!podeSalvar}>
-                  {salvando ? "Salvando..." : "Salvar alterações"}
+                <button
+                  type="submit"
+                  className="tj-per-action tj-per-action--solid"
+                  disabled={!podeSalvar}
+                >
+                  {salvando ? (
+                    <>
+                      <FiRefreshCw className="tj-per-spin" style={{ animation: "tjPerSpin 0.9s linear infinite" }} />
+                      Salvando...
+                    </>
+                  ) : (
+                    "Salvar alterações"
+                  )}
                 </button>
               </div>
             </form>
           </section>
         </section>
-      </div>
+      </main>
     </div>
   );
 };

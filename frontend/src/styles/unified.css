@@ -1,0 +1,829 @@
+/* ============================================================
+   PADRONIZAÇÃO GLOBAL — estética Tao Tajima (mesma da /inicio)
+   Aplicada a todas as abas internas. Importado por último
+   no main.tsx para ter prioridade sobre theme.css/dark-mode.css.
+   ============================================================ */
+
+:root {
+  --tj-bg: #050a12;
+  --tj-bg-soft: #081020;
+  --tj-text: #eef3f9;
+  --tj-text-soft: rgba(214, 227, 240, 0.72);
+  --tj-text-muted: rgba(158, 177, 199, 0.5);
+  --tj-line: rgba(158, 177, 199, 0.14);
+  --tj-line-strong: rgba(158, 177, 199, 0.26);
+  --tj-accent: #dbe7f3;
+  --tj-surface: rgba(10, 17, 28, 0.62);
+  --tj-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --tj-max: 1240px;
+  --tj-radius-lg: 26px;
+  --tj-radius-md: 20px;
+}
+
+/* ============================================================
+   FUNDO DAS PÁGINAS
+   ============================================================ */
+.amb-page,
+.ped-page,
+.an-page,
+.perfil-page,
+.usuarios-page,
+.historico-page,
+.empresas-page,
+.empresa-page,
+.criar-tour-page,
+.divulgar-page,
+.explorer-page {
+  background:
+    radial-gradient(1100px 620px at 82% -8%, rgba(47, 92, 148, 0.24), transparent 60%),
+    radial-gradient(900px 560px at -12% 26%, rgba(26, 58, 92, 0.2), transparent 58%),
+    linear-gradient(180deg, #050a12 0%, #060d18 38%, #04080f 100%) !important;
+  color: var(--tj-text) !important;
+}
+
+.amb-page::before,
+.amb-page::after,
+.ped-page::before,
+.ped-page::after,
+.an-page::before,
+.an-page::after,
+.perfil-page::before,
+.perfil-page::after,
+.usuarios-page::before,
+.usuarios-page::after,
+.historico-page::before,
+.historico-page::after,
+.empresas-page::before,
+.empresas-page::after,
+.empresa-page::before,
+.empresa-page::after,
+.criar-tour-page::before,
+.criar-tour-page::after,
+.divulgar-page::before,
+.divulgar-page::after {
+  background: none !important;
+  background-image: none !important;
+}
+
+/* ============================================================
+   SUPERFÍCIES — cards / painéis / modais
+   ============================================================ */
+.amb-hero-panel,
+.amb-story-card,
+.amb-browser,
+.amb-card,
+.amb-modal-box,
+.amb-quick-panel,
+.amb-stat,
+.amb-hero-focus,
+.amb-loading-card,
+.amb-quick-last,
+.modal-box,
+.ped-hero,
+.ped-story,
+.ped-browser,
+.ped-card,
+.ped-empty-card,
+.ped-inline-state,
+.ped-history,
+.ped-payment-panel,
+.ped-modal-box,
+.ped-confirm-box,
+.ped-stat,
+.ped-hero-focus,
+.ped-story-card,
+.an-hero,
+.an-hero-panel,
+.an-summary-card,
+.an-insight-panel,
+.an-section-card,
+.an-empty-state-box,
+.an-top-item,
+.an-location-item,
+.an-access-item,
+.an-loading-card,
+.perfil-hero,
+.perfil-card,
+.perfil-tip-box,
+.perfil-security-box,
+.perfil-summary-item,
+.usuarios-wrapper,
+.usuario-card,
+.historico-hero,
+.historico-toolbar,
+.historico-panel,
+.historico-card,
+.historico-feedback,
+.historico-loading-card,
+.historico-summary-card,
+.historico-meta-item,
+.historico-timeline-item,
+.historico-empty,
+.empresas-wrapper,
+.empresas-card,
+.empresa-wrapper,
+.empresa-card,
+.empresas-loading,
+.empresa-loading,
+.criar-tour-shell,
+.criar-tour-location-panel,
+.criar-tour-location-status,
+.criar-tour-manual-panel,
+.criar-tour-suggestion-item,
+.criar-tour-switch-row,
+.criar-tour-prefill-note,
+.criar-tour-manual-hint,
+.divulgar-card,
+.divulgar-note,
+.divulgar-error,
+.surface-card,
+.glass-panel {
+  border: 1px solid var(--tj-line) !important;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.35) !important;
+  color: var(--tj-text) !important;
+  background:
+    linear-gradient(180deg, rgba(14, 23, 36, 0.92), rgba(8, 14, 23, 0.9)),
+    rgba(10, 17, 28, 0.88) !important;
+  background-image: none !important;
+  backdrop-filter: blur(20px) saturate(1.05) !important;
+  -webkit-backdrop-filter: blur(20px) saturate(1.05) !important;
+}
+
+/* ============================================================
+   TÍTULOS E TEXTOS DENTRO DAS SUPERFÍCIES
+   ============================================================ */
+.amb-page :is(h1, h2, h3, h4, h5, h6),
+.ped-page :is(h1, h2, h3, h4, h5, h6),
+.an-page :is(h1, h2, h3, h4, h5, h6),
+.perfil-page :is(h1, h2, h3, h4, h5, h6),
+.usuarios-page :is(h1, h2, h3, h4, h5, h6),
+.historico-page :is(h1, h2, h3, h4, h5, h6),
+.empresas-page :is(h1, h2, h3, h4, h5, h6),
+.empresa-page :is(h1, h2, h3, h4, h5, h6),
+.criar-tour-page :is(h1, h2, h3, h4, h5, h6),
+.divulgar-page :is(h1, h2, h3, h4, h5, h6) {
+  color: var(--tj-text) !important;
+  letter-spacing: -0.04em !important;
+  text-shadow: none !important;
+  background: none !important;
+  -webkit-background-clip: initial !important;
+  background-clip: initial !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+.amb-page :is(p, span, small, label, strong, li, td, th),
+.ped-page :is(p, span, small, label, strong, li, td, th),
+.an-page :is(p, span, small, label, strong, li, td, th),
+.perfil-page :is(p, span, small, label, strong, li, td, th),
+.usuarios-page :is(p, span, small, label, strong, li, td, th),
+.historico-page :is(p, span, small, label, strong, li, td, th),
+.empresas-page :is(p, span, small, label, strong, li, td, th),
+.empresa-page :is(p, span, small, label, strong, li, td, th),
+.criar-tour-page :is(p, span, small, label, strong, li, td, th),
+.divulgar-page :is(p, span, small, label, strong, li, td, th) {
+  color: var(--tj-text) !important;
+}
+
+.amb-page p,
+.ped-page p,
+.an-page p,
+.perfil-page p,
+.usuarios-page p,
+.historico-page p,
+.empresas-page p,
+.empresa-page p,
+.criar-tour-page p,
+.divulgar-page p {
+  color: var(--tj-text-soft) !important;
+}
+
+/* ============================================================
+   KICKERS / EYEBROWS / BADGES — pill de vidro
+   ============================================================ */
+.amb-eyebrow,
+.amb-section-kicker,
+.amb-mini-label,
+.amb-focus-chip,
+.amb-card-badge,
+.amb-overpaid-badge,
+.amb-quick-header,
+.amb-story-index,
+.amb-card-index,
+.amb-panel-label,
+.ped-eyebrow,
+.ped-section-kicker,
+.ped-mini-label,
+.ped-summary-label,
+.ped-focus-chip,
+.ped-focus-meta,
+.ped-sync-chip,
+.ped-panel-label,
+.an-eyebrow,
+.an-section-kicker,
+.an-mini-label,
+.an-panel-kicker,
+.an-section-note,
+.an-panel-period,
+.perfil-badge,
+.perfil-chip,
+.usuario-role,
+.historico-kicker,
+.historico-card-tag,
+.historico-summary-label,
+.historico-meta-label,
+.historico-timeline-date,
+.empresas-meta-item,
+.empresa-meta-item,
+.criar-tour-eyebrow,
+.criar-tour-location-badge,
+.divulgar-eyebrow,
+.explorer-hud-label {
+  border: 1px solid var(--tj-line) !important;
+  background: rgba(10, 17, 28, 0.5) !important;
+  color: var(--tj-text-soft) !important;
+  box-shadow: none !important;
+  letter-spacing: 0.18em !important;
+  text-transform: uppercase !important;
+  text-shadow: none !important;
+}
+
+/* status badges mantêm semântica, mas ganham o mesmo vidro */
+.pedidos-status,
+.payment-badge,
+.an-badge,
+.an-chip,
+.historico-summary-card.is-alert,
+.historico-summary-card.is-highlight,
+.amb-card--overpaid,
+.ped-card--overpaid {
+  backdrop-filter: blur(14px) !important;
+  -webkit-backdrop-filter: blur(14px) !important;
+}
+
+/* ============================================================
+   BOTÕES — pill de vidro (padrão do início)
+   ============================================================ */
+.amb-hero-btn,
+.amb-card-actions button,
+.amb-submit-btn,
+.amb-cancel-btn,
+.modal-actions button,
+.amb-close-vr,
+.ped-hero-btn,
+.ped-action-btn,
+.perfil-toggle-password,
+.perfil-secondary-btn,
+.perfil-primary-btn,
+.perfil-ghost-btn,
+.historico-action-button,
+.historico-tab,
+.empresa-card-link,
+.explorer-location-btn,
+.explorer-popup__cta,
+.criar-tour-submit,
+.divulgar-submit,
+.divulgar-back-button,
+.divulgar-file-button,
+.amb-contact-trigger,
+.amb-contact-option,
+.amb-search-clear {
+  border-radius: 999px !important;
+  border: 1px solid var(--tj-line) !important;
+  background: rgba(12, 20, 32, 0.55) !important;
+  background-image: none !important;
+  color: var(--tj-text-soft) !important;
+  box-shadow: none !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+}
+
+.amb-hero-btn:hover,
+.amb-card-actions button:hover,
+.amb-submit-btn:hover,
+.amb-cancel-btn:hover,
+.modal-actions button:hover,
+.amb-close-vr:hover,
+.ped-hero-btn:hover,
+.ped-action-btn:hover,
+.perfil-toggle-password:hover,
+.perfil-secondary-btn:hover,
+.perfil-primary-btn:hover,
+.perfil-ghost-btn:hover,
+.historico-action-button:hover,
+.historico-tab:hover,
+.empresa-card-link:hover,
+.explorer-location-btn:hover,
+.explorer-popup__cta:hover,
+.criar-tour-submit:hover:not(:disabled),
+.divulgar-submit:hover,
+.divulgar-back-button:hover,
+.divulgar-file-button:hover,
+.amb-contact-trigger:hover,
+.amb-contact-option:hover {
+  background: rgba(20, 31, 47, 0.75) !important;
+  border-color: var(--tj-line-strong) !important;
+  color: var(--tj-text) !important;
+  box-shadow: 0 0 0 4px rgba(158, 177, 199, 0.06) !important;
+}
+
+/* botões primários */
+.amb-hero-btn--primary,
+.amb-submit-btn,
+.ped-hero-btn--primary,
+.ped-action-btn--primary,
+.perfil-primary-btn,
+.historico-action-button.primary,
+.explorer-location-btn,
+.criar-tour-submit,
+.divulgar-submit {
+  color: #071019 !important;
+  background: var(--tj-accent) !important;
+  background-image: none !important;
+  border-color: transparent !important;
+  font-weight: 700;
+}
+
+.amb-hero-btn--primary:hover,
+.amb-submit-btn:hover,
+.ped-hero-btn--primary:hover,
+.ped-action-btn--primary:hover,
+.perfil-primary-btn:hover,
+.historico-action-button.primary:hover,
+.explorer-location-btn:hover,
+.criar-tour-submit:hover:not(:disabled),
+.divulgar-submit:hover {
+  color: #06101d !important;
+  background: #f0f6fc !important;
+  border-color: transparent !important;
+}
+
+/* ações de perigo e destaque mantêm tom, mas com fundo de vidro escuro */
+.ped-action-btn--danger,
+.amb-delete-btn {
+  background: rgba(239, 107, 134, 0.12) !important;
+  color: #ffb1ac !important;
+  border-color: rgba(239, 107, 134, 0.28) !important;
+}
+
+.ped-action-btn--accent,
+.amb-view-btn,
+.amb-edit-btn,
+.amb-contact-trigger {
+  color: var(--tj-text) !important;
+  background: rgba(47, 92, 148, 0.22) !important;
+  border-color: rgba(47, 92, 148, 0.36) !important;
+}
+
+/* ============================================================
+   INPUTS / SELECTS / TEXTAREAS — vidro escuro
+   ============================================================ */
+.amb-search,
+.amb-category-select,
+.amb-form input,
+.amb-form textarea,
+.ped-select,
+.ped-form input,
+.ped-form textarea,
+.ped-edit-grid input,
+.ped-edit-grid textarea,
+.ped-filter-search,
+.ped-filter-search input,
+.an-filter select,
+.perfil-form input,
+.historico-search input,
+.historico-filter select,
+.criar-tour-field input,
+.criar-tour-field textarea,
+.divulgar-field input,
+.divulgar-field textarea,
+.explorer-search,
+.explorer-category-select,
+.explorer-place-search__input,
+.tour-whatsapp-btn {
+  border: 1px solid var(--tj-line) !important;
+  background: rgba(12, 20, 32, 0.55) !important;
+  background-image: none !important;
+  color: var(--tj-text) !important;
+  box-shadow: none !important;
+}
+
+.amb-search::placeholder,
+.amb-form input::placeholder,
+.amb-form textarea::placeholder,
+.ped-form input::placeholder,
+.ped-form textarea::placeholder,
+.ped-edit-grid input::placeholder,
+.ped-edit-grid textarea::placeholder,
+.ped-filter-search input::placeholder,
+.perfil-form input::placeholder,
+.historico-search input::placeholder,
+.criar-tour-field input::placeholder,
+.criar-tour-field textarea::placeholder,
+.divulgar-field input::placeholder,
+.divulgar-field textarea::placeholder,
+.explorer-search::placeholder,
+.explorer-place-search__input::placeholder,
+.an-filter select::placeholder,
+.historico-filter select::placeholder {
+  color: rgba(158, 177, 199, 0.48) !important;
+}
+
+.amb-search:focus,
+.amb-category-select:focus,
+.amb-form input:focus,
+.amb-form textarea:focus,
+.ped-select:focus,
+.ped-form input:focus,
+.ped-form textarea:focus,
+.ped-edit-grid input:focus,
+.ped-edit-grid textarea:focus,
+.an-filter select:focus,
+.perfil-form input:focus,
+.historico-search input:focus,
+.historico-filter select:focus,
+.criar-tour-field input:focus,
+.criar-tour-field textarea:focus,
+.divulgar-field input:focus,
+.divulgar-field textarea:focus,
+.explorer-search:focus,
+.explorer-category-select:focus,
+.explorer-place-search__input:focus {
+  outline: none !important;
+  border-color: var(--tj-line-strong) !important;
+  background: rgba(20, 31, 47, 0.7) !important;
+  box-shadow: 0 0 0 4px rgba(158, 177, 199, 0.08) !important;
+}
+
+.amb-category-select option,
+.ped-select option,
+.an-filter select option,
+.historico-filter select option,
+.explorer-category-select option {
+  background: #0a111c !important;
+  color: var(--tj-text) !important;
+}
+
+/* ============================================================
+   OVERLAYS / MODAIS
+   ============================================================ */
+.amb-modal-overlay,
+.ped-modal-overlay,
+.historico-modal-overlay,
+.inicio-onboarding-backdrop {
+  background: rgba(3, 7, 13, 0.78) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+}
+
+/* ============================================================
+   EXPLORER — painéis HUD e popups de mapa
+   ============================================================ */
+.explorer-page .leaflet-container {
+  background: #08101a !important;
+}
+
+.explorer-page .leaflet-popup-content-wrapper,
+.explorer-page .leaflet-popup-tip,
+.explorer-marker-tooltip,
+.explorer-popup,
+.explorer-panel,
+.explorer-hud,
+.explorer-hud-empty,
+.explorer-hud-empty--loading {
+  background: rgba(10, 17, 28, 0.88) !important;
+  background-image: none !important;
+  color: var(--tj-text) !important;
+  border-color: var(--tj-line) !important;
+  border-radius: 18px !important;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4) !important;
+  backdrop-filter: blur(18px) !important;
+  -webkit-backdrop-filter: blur(18px) !important;
+}
+
+.explorer-page .leaflet-tooltip {
+  background: transparent !important;
+  border: none !important;
+  box-shadow: none !important;
+}
+
+.explorer-marker-tooltip {
+  background: rgba(10, 17, 28, 0.92) !important;
+}
+
+.explorer-page .explorer-hud-label,
+.explorer-page .explorer-popup h3,
+.explorer-page .explorer-hud-title,
+.explorer-marker-tooltip strong {
+  color: var(--tj-text) !important;
+}
+
+.explorer-page .explorer-hud-subtitle,
+.explorer-page .explorer-hud-description,
+.explorer-page .explorer-popup p,
+.explorer-page .explorer-location-status,
+.explorer-marker-tooltip span {
+  color: var(--tj-text-soft) !important;
+}
+
+.explorer-search,
+.explorer-category-select,
+.explorer-place-search__input {
+  background: rgba(12, 20, 32, 0.6) !important;
+  color: var(--tj-text) !important;
+}
+
+.explorer-location-btn--ghost {
+  background: rgba(12, 20, 32, 0.6) !important;
+  color: var(--tj-text) !important;
+}
+
+.explorer-tour-badge {
+  background: rgba(47, 92, 148, 0.22) !important;
+  border-color: rgba(47, 92, 148, 0.4) !important;
+  color: #bcd7f2 !important;
+}
+
+/* ============================================================
+   TÍTULOS DAS PÁGINAS — tipografia gigante (padrão início)
+   ============================================================ */
+.amb-title,
+.ped-title,
+.an-title,
+.perfil-title,
+.usuarios-title,
+.empresas-title,
+.empresa-title,
+.historico-title,
+.criar-tour-hero h1,
+.divulgar-card h1,
+.explorer-hud-title {
+  font-weight: 700 !important;
+  letter-spacing: -0.05em !important;
+  color: var(--tj-text) !important;
+}
+
+.amb-lead,
+.ped-lead,
+.an-lead,
+.perfil-subtitle,
+.empresas-description,
+.empresa-description,
+.historico-lead,
+.divulgar-lead,
+.criar-tour-hero p {
+  color: var(--tj-text-soft) !important;
+}
+
+/* ============================================================
+   ESTADOS / FEEDBACK / ERROS
+   ============================================================ */
+.ped-error,
+.perfil-message,
+.historico-inline-alert,
+.an-alert-card,
+.divulgar-error,
+.usuarios-error {
+  border: 1px solid rgba(239, 107, 134, 0.22) !important;
+  background: rgba(239, 107, 134, 0.08) !important;
+  color: #ffb8bd !important;
+  box-shadow: none !important;
+}
+
+.ped-feedback--success,
+.perfil-message--success {
+  border-color: rgba(54, 179, 126, 0.24) !important;
+  background: rgba(54, 179, 126, 0.08) !important;
+  color: #a5f0cf !important;
+}
+
+.ped-feedback--error {
+  border-color: rgba(239, 107, 134, 0.24) !important;
+  background: rgba(239, 107, 134, 0.08) !important;
+  color: #ffb8bd !important;
+}
+
+/* ============================================================
+   MODO CLARO — acompanha o tema (mesmo esquema do início)
+   ============================================================ */
+html[data-theme="light"] .amb-page,
+html[data-theme="light"] .ped-page,
+html[data-theme="light"] .an-page,
+html[data-theme="light"] .perfil-page,
+html[data-theme="light"] .usuarios-page,
+html[data-theme="light"] .historico-page,
+html[data-theme="light"] .empresas-page,
+html[data-theme="light"] .empresa-page,
+html[data-theme="light"] .criar-tour-page,
+html[data-theme="light"] .divulgar-page,
+html[data-theme="light"] .explorer-page {
+  --tj-bg: #f4f8fd;
+  --tj-bg-soft: #eaf2fa;
+  --tj-text: #17324a;
+  --tj-text-soft: rgba(47, 75, 100, 0.84);
+  --tj-text-muted: rgba(93, 117, 139, 0.76);
+  --tj-line: rgba(133, 164, 189, 0.2);
+  --tj-line-strong: rgba(74, 144, 226, 0.26);
+  --tj-accent: #4a90e2;
+  --tj-surface: rgba(255, 255, 255, 0.9);
+  background:
+    radial-gradient(1100px 620px at 82% -8%, rgba(141, 200, 255, 0.2), transparent 60%),
+    radial-gradient(900px 560px at -12% 26%, rgba(141, 200, 255, 0.14), transparent 58%),
+    linear-gradient(180deg, #f7fbff 0%, #eef5fb 38%, #e8f1f9 100%) !important;
+  color: var(--tj-text) !important;
+}
+
+html[data-theme="light"] .amb-hero-panel,
+html[data-theme="light"] .amb-story-card,
+html[data-theme="light"] .amb-browser,
+html[data-theme="light"] .amb-card,
+html[data-theme="light"] .amb-modal-box,
+html[data-theme="light"] .amb-quick-panel,
+html[data-theme="light"] .amb-stat,
+html[data-theme="light"] .amb-hero-focus,
+html[data-theme="light"] .amb-loading-card,
+html[data-theme="light"] .modal-box,
+html[data-theme="light"] .ped-hero,
+html[data-theme="light"] .ped-story,
+html[data-theme="light"] .ped-browser,
+html[data-theme="light"] .ped-card,
+html[data-theme="light"] .ped-empty-card,
+html[data-theme="light"] .ped-inline-state,
+html[data-theme="light"] .ped-history,
+html[data-theme="light"] .ped-payment-panel,
+html[data-theme="light"] .ped-modal-box,
+html[data-theme="light"] .ped-confirm-box,
+html[data-theme="light"] .ped-stat,
+html[data-theme="light"] .ped-hero-focus,
+html[data-theme="light"] .ped-story-card,
+html[data-theme="light"] .an-hero,
+html[data-theme="light"] .an-hero-panel,
+html[data-theme="light"] .an-summary-card,
+html[data-theme="light"] .an-insight-panel,
+html[data-theme="light"] .an-section-card,
+html[data-theme="light"] .an-empty-state-box,
+html[data-theme="light"] .an-top-item,
+html[data-theme="light"] .an-location-item,
+html[data-theme="light"] .an-access-item,
+html[data-theme="light"] .an-loading-card,
+html[data-theme="light"] .perfil-hero,
+html[data-theme="light"] .perfil-card,
+html[data-theme="light"] .perfil-tip-box,
+html[data-theme="light"] .perfil-security-box,
+html[data-theme="light"] .perfil-summary-item,
+html[data-theme="light"] .usuarios-wrapper,
+html[data-theme="light"] .usuario-card,
+html[data-theme="light"] .historico-hero,
+html[data-theme="light"] .historico-toolbar,
+html[data-theme="light"] .historico-panel,
+html[data-theme="light"] .historico-card,
+html[data-theme="light"] .historico-feedback,
+html[data-theme="light"] .historico-loading-card,
+html[data-theme="light"] .historico-summary-card,
+html[data-theme="light"] .historico-meta-item,
+html[data-theme="light"] .historico-timeline-item,
+html[data-theme="light"] .historico-empty,
+html[data-theme="light"] .empresas-wrapper,
+html[data-theme="light"] .empresas-card,
+html[data-theme="light"] .empresa-wrapper,
+html[data-theme="light"] .empresa-card,
+html[data-theme="light"] .empresas-loading,
+html[data-theme="light"] .empresa-loading,
+html[data-theme="light"] .criar-tour-shell,
+html[data-theme="light"] .criar-tour-location-panel,
+html[data-theme="light"] .criar-tour-location-status,
+html[data-theme="light"] .criar-tour-manual-panel,
+html[data-theme="light"] .criar-tour-suggestion-item,
+html[data-theme="light"] .criar-tour-switch-row,
+html[data-theme="light"] .criar-tour-prefill-note,
+html[data-theme="light"] .criar-tour-manual-hint,
+html[data-theme="light"] .divulgar-card,
+html[data-theme="light"] .divulgar-note,
+html[data-theme="light"] .divulgar-error {
+  border-color: var(--tj-line) !important;
+  box-shadow: 0 18px 44px rgba(79, 118, 154, 0.12) !important;
+  color: var(--tj-text) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(244, 249, 253, 0.9)),
+    rgba(255, 255, 255, 0.9) !important;
+  background-image: none !important;
+}
+
+html[data-theme="light"] .amb-hero-btn,
+html[data-theme="light"] .amb-card-actions button,
+html[data-theme="light"] .amb-submit-btn,
+html[data-theme="light"] .amb-cancel-btn,
+html[data-theme="light"] .modal-actions button,
+html[data-theme="light"] .amb-close-vr,
+html[data-theme="light"] .ped-hero-btn,
+html[data-theme="light"] .ped-action-btn,
+html[data-theme="light"] .perfil-toggle-password,
+html[data-theme="light"] .perfil-secondary-btn,
+html[data-theme="light"] .perfil-primary-btn,
+html[data-theme="light"] .perfil-ghost-btn,
+html[data-theme="light"] .historico-action-button,
+html[data-theme="light"] .historico-tab,
+html[data-theme="light"] .empresa-card-link,
+html[data-theme="light"] .explorer-location-btn,
+html[data-theme="light"] .explorer-popup__cta,
+html[data-theme="light"] .criar-tour-submit,
+html[data-theme="light"] .divulgar-submit,
+html[data-theme="light"] .divulgar-back-button,
+html[data-theme="light"] .divulgar-file-button,
+html[data-theme="light"] .amb-contact-trigger,
+html[data-theme="light"] .amb-contact-option {
+  border-color: var(--tj-line) !important;
+  background: rgba(255, 255, 255, 0.88) !important;
+  background-image: none !important;
+  color: var(--tj-text-soft) !important;
+  box-shadow: none !important;
+}
+
+html[data-theme="light"] .amb-hero-btn--primary,
+html[data-theme="light"] .amb-submit-btn,
+html[data-theme="light"] .ped-hero-btn--primary,
+html[data-theme="light"] .ped-action-btn--primary,
+html[data-theme="light"] .perfil-primary-btn,
+html[data-theme="light"] .historico-action-button.primary,
+html[data-theme="light"] .explorer-location-btn,
+html[data-theme="light"] .criar-tour-submit,
+html[data-theme="light"] .divulgar-submit {
+  color: #0b1724 !important;
+  background: linear-gradient(135deg, #dbeaf7 0%, #b7d2e8 100%) !important;
+}
+
+html[data-theme="light"] .amb-search,
+html[data-theme="light"] .amb-category-select,
+html[data-theme="light"] .amb-form input,
+html[data-theme="light"] .amb-form textarea,
+html[data-theme="light"] .ped-select,
+html[data-theme="light"] .ped-form input,
+html[data-theme="light"] .ped-form textarea,
+html[data-theme="light"] .ped-edit-grid input,
+html[data-theme="light"] .ped-edit-grid textarea,
+html[data-theme="light"] .ped-filter-search,
+html[data-theme="light"] .ped-filter-search input,
+html[data-theme="light"] .an-filter select,
+html[data-theme="light"] .perfil-form input,
+html[data-theme="light"] .historico-search input,
+html[data-theme="light"] .historico-filter select,
+html[data-theme="light"] .criar-tour-field input,
+html[data-theme="light"] .criar-tour-field textarea,
+html[data-theme="light"] .divulgar-field input,
+html[data-theme="light"] .divulgar-field textarea,
+html[data-theme="light"] .explorer-search,
+html[data-theme="light"] .explorer-category-select,
+html[data-theme="light"] .explorer-place-search__input {
+  border-color: var(--tj-line) !important;
+  background: rgba(255, 255, 255, 0.94) !important;
+  background-image: none !important;
+  color: var(--tj-text) !important;
+}
+
+html[data-theme="light"] .amb-search::placeholder,
+html[data-theme="light"] .amb-form input::placeholder,
+html[data-theme="light"] .amb-form textarea::placeholder,
+html[data-theme="light"] .ped-form input::placeholder,
+html[data-theme="light"] .ped-form textarea::placeholder,
+html[data-theme="light"] .ped-edit-grid input::placeholder,
+html[data-theme="light"] .ped-edit-grid textarea::placeholder,
+html[data-theme="light"] .perfil-form input::placeholder,
+html[data-theme="light"] .historico-search input::placeholder,
+html[data-theme="light"] .criar-tour-field input::placeholder,
+html[data-theme="light"] .criar-tour-field textarea::placeholder,
+html[data-theme="light"] .divulgar-field input::placeholder,
+html[data-theme="light"] .divulgar-field textarea::placeholder {
+  color: rgba(93, 117, 139, 0.58) !important;
+}
+
+html[data-theme="light"] .explorer-page .leaflet-popup-content-wrapper,
+html[data-theme="light"] .explorer-page .leaflet-popup-tip,
+html[data-theme="light"] .explorer-marker-tooltip,
+html[data-theme="light"] .explorer-popup,
+html[data-theme="light"] .explorer-panel,
+html[data-theme="light"] .explorer-hud,
+html[data-theme="light"] .explorer-hud-empty,
+html[data-theme="light"] .explorer-hud-empty--loading {
+  background: rgba(255, 255, 255, 0.94) !important;
+  background-image: none !important;
+  color: var(--tj-text) !important;
+  border-color: var(--tj-line) !important;
+}
+
+html[data-theme="light"] .explorer-page .explorer-hud-label,
+html[data-theme="light"] .explorer-page .explorer-popup h3,
+html[data-theme="light"] .explorer-page .explorer-hud-title,
+html[data-theme="light"] .explorer-marker-tooltip strong {
+  color: var(--tj-text) !important;
+}
+
+/* ============================================================
+   REDUCED MOTION
+   ============================================================ */
+@media (prefers-reduced-motion: reduce) {
+  .amb-hero-marquee-track,
+  .amb-marquee-track,
+  .ped-hero-marquee-track,
+  .ped-marquee-track {
+    animation: none !important;
+  }
+}

@@ -562,3 +562,35 @@ export async function listPopularAmbientes(_req: AuthRequest, res: Response) {
 
   return res.json(ambientes.map(mapAmbienteWithEmpresaPedido));
 }
+
+export async function listDestaquesAmbientes(_req: AuthRequest, res: Response) {
+  const ambientes = await prisma.ambiente.findMany({
+    where: {
+      publico: true,
+      pedido: {
+        pagamentoStatus: "pago_a_mais",
+      },
+    },
+    include: {
+      empresa: true,
+      pedido: {
+        select: {
+          id: true,
+          pagamentoStatus: true,
+          pago: true,
+          telefone: true,
+          email: true,
+        },
+      },
+      usuario: {
+        include: {
+          empresa: true,
+        },
+      },
+    },
+    orderBy: { createdAt: "desc" },
+    take: 6,
+  });
+
+  return res.json(ambientes.map(mapAmbienteWithEmpresaPedido));
+}

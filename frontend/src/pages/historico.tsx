@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { createPortal } from "react-dom";
 import { Link, useParams } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   Ambiente,
   PagamentoStatus,
@@ -10,8 +10,9 @@ import {
   getHistoricoPedidos,
   getMe,
 } from "../services/api";
-import { resolveMediaUrl } from "../utils/mediaUrl";
 import "../styles/historico.css";
+
+const TJ_EASE = [0.22, 1, 0.36, 1] as const;
 
 type HistoricoTab = "pedidos" | "ambientes";
 type StatusFilter = "todos" | "pago" | "nao_pago" | "pago_a_mais";
@@ -48,34 +49,6 @@ function getPagamentoLabel(
   return "Não pago";
 }
 
-function getPagamentoBadgeClass(
-  pagamentoStatus?: PagamentoStatus,
-  pago?: boolean
-) {
-  const normalized = normalizePagamentoStatus(pagamentoStatus, pago);
-
-  if (normalized === "pago_a_mais") {
-    return "payment-badge payment-badge--overpaid";
-  }
-
-  if (normalized === "pago") {
-    return "payment-badge payment-badge--paid";
-  }
-
-  return "payment-badge payment-badge--unpaid";
-}
-
-function getStatusToneClass(
-  pagamentoStatus?: PagamentoStatus,
-  pago?: boolean
-) {
-  const normalized = normalizePagamentoStatus(pagamentoStatus, pago);
-
-  if (normalized === "pago_a_mais") return "is-overpaid";
-  if (normalized === "pago") return "is-paid";
-  return "is-unpaid";
-}
-
 function formatarData(data?: string) {
   if (!data) return "Agora";
 
@@ -110,6 +83,12 @@ function getPedidoDoAmbiente(
   }
 
   return null;
+}
+
+function getStatusDotTone(pagamentoStatus: PagamentoStatus) {
+  if (pagamentoStatus === "pago") return "success";
+  if (pagamentoStatus === "pago_a_mais") return "gold";
+  return "pending";
 }
 
 function getHistoricoTimeline(
@@ -322,22 +301,24 @@ const Historico: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="historico-page">
-        <div className="historico-shell">
-          <div className="historico-loading-card">
-            <div className="historico-spinner" />
-            <p>Carregando histórico do usuário...</p>
-          </div>
-        </div>
+      <div className="tj-his-page tj-his-loading">
+        <motion.div
+          className="tj-his-loading-mark"
+          animate={{ opacity: [0.35, 1, 0.35] }}
+          transition={{ repeat: Infinity, duration: 1.6, ease: "easeInOut" }}
+        >
+          HISTÓRICO
+        </motion.div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="historico-page">
-        <div className="historico-shell">
-          <div className="historico-feedback historico-feedback--error">
+      <div className="tj-his-page">
+        <div className="tj-his-content">
+          <div className="tj-his-empty">
+            <span className="tj-his-eyebrow">Indisponível</span>
             <h2>Histórico indisponível</h2>
             <p>{error}</p>
           </div>
@@ -347,59 +328,83 @@ const Historico: React.FC = () => {
   }
 
   return (
-    <div className="historico-page">
-      <div className="historico-shell">
-        <section className="historico-hero">
-          <div className="historico-hero-copy">
-            <span className="historico-kicker">Cliente · centro de controle</span>
-            <h1 className="historico-title">Histórico do usuário com visão rápida, contexto e ação.</h1>
-            <p className="historico-lead">
-              Agora o histórico fica abaixo do menu, com resumo no topo, busca,
-              filtros e cards priorizados para identificar pagamentos e ambientes
-              importantes com mais rapidez.
-            </p>
+    <div className="tj-his-page">
+      <div className="tj-his-bg" aria-hidden="true">
+        <span className="tj-his-orb tj-his-orb--one" />
+        <span className="tj-his-orb tj-his-orb--two" />
+        <span className="tj-his-orb tj-his-orb--three" />
+      </div>
+
+      <main className="tj-his-content">
+        {/* ============ HERO MINIMALISTA ============ */}
+        <header className="tj-his-hero">
+          <motion.div
+            className="tj-his-kicker"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, ease: TJ_EASE, delay: 0.05 }}
+          >
+            <span>Histórico</span>
+            <span className="tj-his-dot" />
+            <span>cliente · centro de controle</span>
+          </motion.div>
+
+          <motion.h1
+            className="tj-his-title"
+            initial={{ opacity: 0, y: 26 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.85, ease: TJ_EASE, delay: 0.1 }}
+          >
+            O histórico em uma
+            <br />
+            linha do tempo limpa.
+          </motion.h1>
+
+          <motion.p
+            className="tj-his-lead"
+            initial={{ opacity: 0, y: 22 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, ease: TJ_EASE, delay: 0.18 }}
+          >
+            Pedidos e ambientes organizados em lista tipográfica. O ponto luminoso
+            indica o estado — verde para pago, âmbar para destaque, cinza pendente.
+          </motion.p>
+        </header>
+
+        {/* ============ NÚMEROS GIGANTES ============ */}
+        <section className="tj-his-stats" aria-label="Resumo do histórico">
+          <div className="tj-his-stat">
+            <strong>{String(resumo.totalPedidos).padStart(2, "0")}</strong>
+            <span>Pedidos</span>
           </div>
-
-          <div className="historico-summary-grid">
-            <article className="historico-summary-card">
-              <span className="historico-summary-label">Pedidos</span>
-              <strong className="historico-summary-value">{resumo.totalPedidos}</strong>
-              <small>{resumo.pedidosPagos} pagos confirmados</small>
-            </article>
-
-            <article className="historico-summary-card is-alert">
-              <span className="historico-summary-label">Pendentes</span>
-              <strong className="historico-summary-value">{resumo.pedidosNaoPagos}</strong>
-              <small>pedidos aguardando pagamento</small>
-            </article>
-
-            <article className="historico-summary-card is-highlight">
-              <span className="historico-summary-label">Pago a mais</span>
-              <strong className="historico-summary-value">{resumo.pedidosPagoAMais}</strong>
-              <small>casos que exigem atenção</small>
-            </article>
-
-            <article className="historico-summary-card">
-              <span className="historico-summary-label">Ambientes</span>
-              <strong className="historico-summary-value">{resumo.totalAmbientes}</strong>
-              <small>{resumo.ambientesPublicos} públicos para compartilhar</small>
-            </article>
+          <div className="tj-his-stat">
+            <strong>{String(resumo.pedidosPagos).padStart(2, "0")}</strong>
+            <span>Pagos confirmados</span>
+          </div>
+          <div className="tj-his-stat">
+            <strong>{String(resumo.pedidosNaoPagos).padStart(2, "0")}</strong>
+            <span>Aguardando pagamento</span>
+          </div>
+          <div className="tj-his-stat">
+            <strong>{String(resumo.totalAmbientes).padStart(2, "0")}</strong>
+            <span>Ambientes</span>
           </div>
         </section>
 
-        <section className="historico-toolbar">
-          <div className="historico-search">
-            <span>Buscar</span>
+        {/* ============ FERRAMENTAS ============ */}
+        <section className="tj-his-toolbar">
+          <label className="tj-his-search">
             <input
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Buscar por email, ambiente, empresa ou pedido..."
+              aria-label="Buscar no histórico"
             />
-          </div>
+          </label>
 
-          <label className="historico-filter">
-            <span>Status</span>
+          <label className="tj-his-filter">
+            <span>Status de pagamento</span>
             <select
               value={statusFilter}
               onChange={(e) => setStatusFilter(e.target.value as StatusFilter)}
@@ -412,349 +417,214 @@ const Historico: React.FC = () => {
           </label>
         </section>
 
-        <section className="historico-overview-grid">
-          <article className="historico-panel">
-            <div className="historico-panel-head">
-              <div>
-                <span className="historico-kicker">Acompanhamento</span>
-                <h2>Resumo operacional</h2>
-              </div>
-              <span className="historico-panel-note">
-                Priorize pagamentos pendentes e itens com destaque.
-              </span>
-            </div>
+        {/* ============ TABS TIPOGRÁFICOS ============ */}
+        <nav className="tj-his-tabs" aria-label="Alternar entre pedidos e ambientes">
+          <button
+            type="button"
+            className={`tj-his-tab${activeTab === "pedidos" ? " is-active" : ""}`}
+            onClick={() => setActiveTab("pedidos")}
+          >
+            Pedidos
+          </button>
+          <button
+            type="button"
+            className={`tj-his-tab${activeTab === "ambientes" ? " is-active" : ""}`}
+            onClick={() => setActiveTab("ambientes")}
+          >
+            Ambientes
+          </button>
+        </nav>
 
-            <div className="historico-tabs">
-              <button
-                className={`historico-tab ${activeTab === "pedidos" ? "active" : ""}`}
-                onClick={() => setActiveTab("pedidos")}
-              >
-                Pedidos
-              </button>
-              <button
-                className={`historico-tab ${activeTab === "ambientes" ? "active" : ""}`}
-                onClick={() => setActiveTab("ambientes")}
-              >
-                Ambientes
-              </button>
+        {/* ============ LINHA DO TEMPO RECENTE ============ */}
+        <section className="tj-his-block">
+          <div className="tj-his-block-head">
+            <div>
+              <span className="tj-his-eyebrow">Movimentações recentes</span>
+              <h2>O que aconteceu por último.</h2>
             </div>
-          </article>
+          </div>
 
-          <article className="historico-panel">
-            <div className="historico-panel-head">
-              <div>
-                <span className="historico-kicker">Linha do tempo</span>
-                <h2>Movimentações recentes</h2>
-              </div>
-            </div>
-
-            <div className="historico-timeline">
-              {timelineItems.length === 0 ? (
-                <p className="historico-empty">Sem eventos recentes para exibir.</p>
-              ) : (
-                timelineItems.map((item) => (
-                  <div
-                    key={item.id}
-                    className={`historico-timeline-item historico-timeline-item--${item.tone}`}
-                  >
-                    <span className="historico-timeline-date">{item.dateLabel}</span>
+          <div className="tj-his-timeline">
+            {timelineItems.length === 0 ? (
+              <p className="tj-his-empty-text">Sem eventos recentes para exibir.</p>
+            ) : (
+              timelineItems.map((item) => (
+                <div
+                  key={item.id}
+                  className={`tj-his-timeline-row tj-his-timeline-row--${item.tone}`}
+                >
+                  <span className={`tj-his-timeline-dot tj-his-timeline-dot--${item.tone}`} />
+                  <div className="tj-his-timeline-main">
                     <strong>{item.title}</strong>
-                    <p>{item.description}</p>
+                    <span>{item.description}</span>
                   </div>
-                ))
-              )}
-            </div>
-          </article>
+                  <span className="tj-his-timeline-date">{item.dateLabel}</span>
+                </div>
+              ))
+            )}
+          </div>
         </section>
 
+        {/* ============ LISTA TIPOGRÁFICA ============ */}
         {activeTab === "pedidos" && (
-          <section className="historico-list-section">
-            <div className="amb-grid">
-              {filteredPedidos.length === 0 && (
-                <p className="historico-empty">
-                  Nenhum pedido encontrado com os filtros atuais.
-                </p>
-              )}
-
-              {filteredPedidos.map((p) => {
-                const pagamentoAtual = getPagamentoAtualFromPedido(p);
-
-                return (
-                  <div
-                    key={p.id}
-                    className={`amb-card historico-card historico-card--pedido ${getStatusToneClass(
-                      pagamentoAtual
-                    )}`}
-                  >
-                    <div className="historico-card-header">
-                      <div>
-                        <span className="historico-card-tag">Pedido #{p.id}</span>
-                        <h3>{p.empresa?.nome || "Pedido sem empresa"}</h3>
-                      </div>
-                      <span className={getPagamentoBadgeClass(pagamentoAtual)}>
-                        {getPagamentoLabel(pagamentoAtual)}
-                      </span>
-                    </div>
-
-                    <div className="historico-meta-grid historico-meta-grid--pedido">
-                      <div className="historico-meta-item historico-meta-item--wide">
-                        <span className="historico-meta-label">Email</span>
-                        <span className="historico-meta-value">{p.email}</span>
-                      </div>
-
-                      {p.telefone && (
-                        <div className="historico-meta-item">
-                          <span className="historico-meta-label">Telefone</span>
-                          <span className="historico-meta-value">{p.telefone}</span>
-                        </div>
-                      )}
-
-                      <div className="historico-meta-item">
-                        <span className="historico-meta-label">Criado em</span>
-                        <span className="historico-meta-value">{formatarData(p.createdAt)}</span>
-                      </div>
-
-                      <div className="historico-meta-item">
-                        <span className="historico-meta-label">Status</span>
-                        <span className="historico-meta-value">
-                          {p.status || "Sem status"}
-                        </span>
-                      </div>
-                    </div>
-
-                    {(p.local || p.cep) && (
-                      <div className="historico-meta-item historico-meta-item--wide">
-                        <span className="historico-meta-label">Local</span>
-                        <span className="historico-meta-value">
-                          {p.local || `CEP ${p.cep}`}
-                        </span>
-                      </div>
-                    )}
-
-                    {p.local && p.cep && (
-                      <div className="historico-meta-item">
-                        <span className="historico-meta-label">CEP</span>
-                        <span className="historico-meta-value">{p.cep}</span>
-                      </div>
-                    )}
-
-                    <div className="historico-meta-item historico-meta-item--wide">
-                      <span className="historico-meta-label">Mensagem</span>
-                      <span className="historico-meta-value">{p.mensagem}</span>
-                    </div>
-
-                    <div className="historico-inline-info">
-                      <span>
-                        <strong>Ambientes vinculados:</strong>{" "}
-                        {
-                          ambientes.filter((ambiente) => ambiente.pedidoId === p.id).length
-                        }
-                      </span>
-                      <span>
-                        <strong>Prioridade:</strong>{" "}
-                        {pagamentoAtual === "nao_pago"
-                          ? "Alta"
-                          : pagamentoAtual === "pago_a_mais"
-                          ? "Revisão"
-                          : "Normal"}
-                      </span>
-                    </div>
-
-                    {p.pagamentoHistorico && p.pagamentoHistorico.length > 0 && (
-                      <div className="payment-history">
-                        <strong>Última atualização de pagamento</strong>
-                        {p.pagamentoHistorico.slice(-1).map((item, index) => (
-                          <div key={`${p.id}-${index}`} className="payment-history-item">
-                            <span className={getPagamentoBadgeClass(item.status)}>
-                              {getPagamentoLabel(item.status)}
-                            </span>
-                            <span>Atualizado em {formatarData(item.updatedAt)}</span>
-                            {item.updatedByNome && (
-                              <span>
-                                por {item.updatedByNome}
-                                {item.updatedByRole ? ` (${item.updatedByRole})` : ""}
-                              </span>
-                            )}
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
+          <section className="tj-his-block">
+            <div className="tj-his-block-head">
+              <div>
+                <span className="tj-his-eyebrow">Pedidos</span>
+                <h2>Todos os pedidos do usuário.</h2>
+              </div>
             </div>
+
+            {filteredPedidos.length === 0 ? (
+              <p className="tj-his-empty-text">Nenhum pedido encontrado com os filtros atuais.</p>
+            ) : (
+              <div className="tj-his-list">
+                {filteredPedidos.map((p, index) => {
+                  const pagamentoAtual = getPagamentoAtualFromPedido(p);
+
+                  return (
+                    <Link
+                      key={p.id}
+                      to={`/pedidos`}
+                      className="tj-his-row"
+                    >
+                      <span className="tj-his-row-index">{String(index + 1).padStart(2, "0")}</span>
+                      <span className={`tj-his-dot tj-his-dot--${getStatusDotTone(pagamentoAtual)}`} />
+                      <span className="tj-his-row-main">
+                        <strong>{p.empresa?.nome || "Pedido sem empresa"}</strong>
+                        <span>
+                          Pedido #{p.id} · {p.email || "sem email"}
+                          {p.mensagem ? ` · ${p.mensagem.slice(0, 60)}${p.mensagem.length > 60 ? "…" : ""}` : ""}
+                        </span>
+                      </span>
+                      <span className="tj-his-row-side">
+                        <span className={`tj-his-chip tj-his-chip--${pagamentoAtual}`}>
+                          {getPagamentoLabel(pagamentoAtual)}
+                        </span>
+                        <span className="tj-his-row-date">{formatarData(p.createdAt)}</span>
+                      </span>
+                    </Link>
+                  );
+                })}
+              </div>
+            )}
           </section>
         )}
 
         {activeTab === "ambientes" && (
-          <section className="historico-list-section">
-            <div className="amb-grid">
-              {filteredAmbientes.length === 0 && (
-                <p className="historico-empty">
-                  Nenhum ambiente encontrado com os filtros atuais.
-                </p>
-              )}
+          <section className="tj-his-block">
+            <div className="tj-his-block-head">
+              <div>
+                <span className="tj-his-eyebrow">Ambientes</span>
+                <h2>Todos os ambientes do usuário.</h2>
+              </div>
+            </div>
 
-              {filteredAmbientes.map((a) => {
-                const pedidoRelacionado = getPedidoDoAmbiente(a, pedidos);
-                const pagamentoAtual = getPagamentoAtualFromPedido(pedidoRelacionado);
+            {filteredAmbientes.length === 0 ? (
+              <p className="tj-his-empty-text">Nenhum ambiente encontrado com os filtros atuais.</p>
+            ) : (
+              <div className="tj-his-list">
+                {filteredAmbientes.map((a, index) => {
+                  const pedidoRelacionado = getPedidoDoAmbiente(a, pedidos);
+                  const pagamentoAtual = getPagamentoAtualFromPedido(pedidoRelacionado);
 
-                return (
-                  <div
-                    key={a.id}
-                    className={`amb-card historico-card historico-card--ambiente ${getStatusToneClass(
-                      pagamentoAtual
-                    )}`}
-                  >
-                    {a.imagemPreview && (
-                      <img
-                        className="amb-card-img"
-                        src={resolveMediaUrl(a.imagemPreview) ?? undefined}
-                        alt={a.titulo}
-                      />
-                    )}
-
-                    <div className="historico-card-header">
-                      <div>
-                        <span className="historico-card-tag">Ambiente #{a.id}</span>
-                        <h3>{a.titulo}</h3>
-                      </div>
-                      <span
-                        className={getPagamentoBadgeClass(pagamentoAtual)}
-                      >
-                        {getPagamentoLabel(pagamentoAtual)}
+                  return (
+                    <div key={a.id} className={`tj-his-row ${pagamentoAtual === "nao_pago" ? "is-urgent" : ""}`}>
+                      <span className="tj-his-row-index">{String(index + 1).padStart(2, "0")}</span>
+                      <span className={`tj-his-dot tj-his-dot--${getStatusDotTone(pagamentoAtual)}`} />
+                      <span className="tj-his-row-main">
+                        <strong>{a.titulo}</strong>
+                        <span>
+                          Ambiente #{a.id} · {a.publico ? "Público" : "Privado"}
+                          {a.empresa?.nome || a.empresaPedido?.nome
+                            ? ` · ${a.empresa?.nome || a.empresaPedido?.nome}`
+                            : ""}
+                        </span>
+                      </span>
+                      <span className="tj-his-row-side">
+                        <span className={`tj-his-chip tj-his-chip--${pagamentoAtual}`}>
+                          {getPagamentoLabel(pagamentoAtual)}
+                        </span>
+                        <button
+                          type="button"
+                          className="tj-his-action"
+                          onClick={() => {
+                            setSelectedAmbiente(a);
+                            setVrLoading(true);
+                          }}
+                        >
+                          Abrir VR
+                        </button>
                       </span>
                     </div>
+                  );
+                })}
+              </div>
+            )}
 
-                    <p className="historico-description">{a.descricao}</p>
-
-                    <div className="historico-meta-grid">
-                      <p>
-                        <strong>Visibilidade:</strong> {a.publico ? "Público" : "Privado"}
-                      </p>
-                      <p>
-                        <strong>ID:</strong> #{a.id}
-                      </p>
-                      <p>
-                        <strong>Pedido:</strong> {a.pedidoId ? `#${a.pedidoId}` : "Sem vínculo"}
-                      </p>
-                      <p>
-                        <strong>Empresa:</strong>{" "}
-                        {a.empresa?.nome || a.empresaPedido?.nome || "Não informada"}
-                      </p>
-                    </div>
-
-                    {pagamentoAtual === "pago_a_mais" && (
-                      <p className="historico-highlight-text">
-                        Este ambiente foi marcado como pago a mais.
-                      </p>
-                    )}
-
-                    <div className="historico-actions">
-                      <button
-                        className="historico-action-button primary"
-                        onClick={() => {
-                          setSelectedAmbiente(a);
-                          setVrLoading(true);
-                        }}
-                      >
-                        Abrir VR
-                      </button>
-
-                      {a.linkVR && (
-                        <a
-                          className="historico-action-button"
-                          href={`${a.linkVR}${a.linkVR.includes("?") ? "&" : "?"}play=1`}
-                          target="_blank"
-                          rel="noreferrer"
-                        >
-                          Nova aba
-                        </a>
-                      )}
-
-                      {a.pedidoId && (
-                        <button
-                          className="historico-action-button"
-                          onClick={() => setActiveTab("pedidos")}
-                        >
-                          Ver pedido #{a.pedidoId}
-                        </button>
-                      )}
-
-                      <Link className="historico-action-button" to="/ambientes">
-                        Gerenciar
-                      </Link>
-                    </div>
-
-                    {pagamentoAtual === "nao_pago" && (
-                      <div className="historico-inline-alert">
-                        Pagamento pendente: acompanhe este ambiente com prioridade.
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
+            {filteredAmbientes.length > 0 && (
+              <div className="tj-his-inline-actions">
+                <Link className="tj-his-link" to="/ambientes">
+                  Gerenciar ambientes →
+                </Link>
+              </div>
+            )}
           </section>
         )}
-      </div>
 
-      {selectedAmbiente &&
-        createPortal(
-          <div className="amb-modal-overlay" onClick={() => setSelectedAmbiente(null)}>
-            <div className="amb-vr-container" onClick={(e) => e.stopPropagation()}>
-              <div className="historico-modal-head">
-                <div>
-                  <span className="historico-kicker">Visualização imersiva</span>
-                  <h3>{selectedAmbiente.titulo}</h3>
-                </div>
-
-                <div className="historico-modal-actions">
-                  {selectedAmbiente.linkVR && (
-                    <a
-                      className="historico-action-button"
-                      href={`${selectedAmbiente.linkVR}${
-                        selectedAmbiente.linkVR.includes("?") ? "&" : "?"
-                      }play=1`}
-                      target="_blank"
-                      rel="noreferrer"
-                    >
-                      Abrir em nova aba
-                    </a>
-                  )}
-
-                  <button
-                    className="amb-close-vr"
-                    onClick={() => setSelectedAmbiente(null)}
-                  >
-                    Fechar
-                  </button>
-                </div>
+        {/* ============ DETALHES DO AMBIENTE (INLINE) ============ */}
+        {selectedAmbiente && (
+          <section className="tj-his-detail">
+            <div className="tj-his-detail-head">
+              <div>
+                <span className="tj-his-eyebrow">Visualização imersiva</span>
+                <h2>{selectedAmbiente.titulo}</h2>
               </div>
-
-              {vrLoading && (
-                <div className="amb-vr-loading">
-                  <div className="historico-spinner" />
-                  <p>Preparando experiência VR...</p>
-                </div>
-              )}
-
-              {selectedAmbiente.linkVR && (
-                <iframe
-                  className="amb-vr-frame"
-                  src={`${selectedAmbiente.linkVR}${
-                    selectedAmbiente.linkVR.includes("?") ? "&" : "?"
-                  }play=1`}
-                  allow="autoplay; fullscreen; xr-spatial-tracking; camera *; microphone *"
-                  allowFullScreen
-                  title={selectedAmbiente.titulo}
-                  onLoad={() => setVrLoading(false)}
-                />
-              )}
+              <div className="tj-his-detail-actions">
+                {selectedAmbiente.linkVR && (
+                  <a
+                    className="tj-his-link"
+                    href={`${selectedAmbiente.linkVR}${
+                      selectedAmbiente.linkVR.includes("?") ? "&" : "?"
+                    }play=1`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Abrir em nova aba →
+                  </a>
+                )}
+                <button
+                  type="button"
+                  className="tj-his-action tj-his-action--danger"
+                  onClick={() => setSelectedAmbiente(null)}
+                >
+                  Fechar
+                </button>
+              </div>
             </div>
-          </div>,
-          document.body
+
+            {vrLoading && (
+              <div className="tj-his-vr-loading">
+                <div className="tj-his-spinner" />
+                <p>Preparando experiência VR...</p>
+              </div>
+            )}
+
+            {selectedAmbiente.linkVR && (
+              <iframe
+                className="tj-his-vr-frame"
+                src={`${selectedAmbiente.linkVR}${
+                  selectedAmbiente.linkVR.includes("?") ? "&" : "?"
+                }play=1`}
+                allow="autoplay; fullscreen; xr-spatial-tracking; camera *; microphone *"
+                allowFullScreen
+                title={selectedAmbiente.titulo}
+                onLoad={() => setVrLoading(false)}
+              />
+            )}
+          </section>
         )}
+      </main>
     </div>
   );
 };

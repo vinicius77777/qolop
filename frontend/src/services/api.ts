@@ -31,6 +31,7 @@ export {
   enviarLead,
   getAmbiente,
   getAmbientes,
+  getAmbientesDestaques,
   getAmbientesExplorer,
   getAmbientesPopulares,
   getAmbientesPublicos,

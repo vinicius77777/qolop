@@ -5,6 +5,7 @@ import {
   getAmbienteById,
   listAdminAmbientes,
   listEmpresaAmbientes,
+  listDestaquesAmbientes,
   listExplorerAmbientes,
   listPopularAmbientes,
   listPublicAmbientes,
@@ -116,6 +117,7 @@ router.post("/ambientes", auth, requireAuth, uploadAmbienteImagem.single("imagem
 router.put("/ambientes/:id", auth, requireAuth, uploadAmbienteImagem.single("imagem"), updateAmbiente);
 router.delete("/ambientes/:id", auth, requireAuth, deleteAmbiente);
 router.get("/ambientes/popular", listPopularAmbientes);
+router.get("/ambientes/destaques", listDestaquesAmbientes);
 router.get("/ambientes/:id", getAmbienteById);
 router.post("/ambientes/:id/view", registerAmbienteView);
 router.patch("/ambientes/view/:id/duration", updateTourviewDuration);
